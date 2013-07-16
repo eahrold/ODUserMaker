@@ -20,11 +20,13 @@
 @property (assign) IBOutlet NSButton *commStudent;
 
 // File Settings
-@property (copy) NSFileHandle *exportFile;
+@property (copy) NSString *importFile;
+@property (copy) NSString *exportFile;
 
 // Sever Settings
 @property (assign) IBOutlet NSTextField *serverName;
 @property (assign) IBOutlet NSTextField *diradminName;
+@property (assign) IBOutlet NSTextField *diradminPass;
 @property (assign) IBOutlet NSButton *dsServerStatus;
 
 // Progress Pannel

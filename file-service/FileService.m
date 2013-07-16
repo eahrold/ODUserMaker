@@ -50,7 +50,7 @@
     [fh writeData:[odHeader dataUsingEncoding:NSUTF8StringEncoding]];
 }
 
--(void)writeUser:(User*)user toFile:(NSFileHandle*)fh{
+-(BOOL)writeUser:(User*)user toFile:(NSFileHandle*)fh{
     
     // Set up the actual elements we'll need 
     NSString* userName = user.userName;
@@ -64,12 +64,12 @@
     NSString* primaryGroup = user.primaryGroup;
     NSString* nfsHome = @"";
     NSString* homeDir = @"";
-    NSString* keyWords = @"";
+    NSString* keyWords = user.keyWord;
     
     NSArray * uArray = [NSArray arrayWithObjects:userName,fullName,lastName,email,uuid,password,passwordPolicy,primaryGroup,nfsHome,homeDir,keyWords, nil];
     
     for (NSString __strong* i in uArray) {
-        if (!i || [i isEqual:@""]){
+        if (!i || [i isEqual:@" "]){
             NSLog(@"%@ is blank",i);
             i = @"";
         }
@@ -80,7 +80,8 @@
     
     NSString * userEntry = [NSString stringWithFormat:@"%@:%@:%@:%@:%@:%@:%@:%@:%@:%@:%@:%@\n",userName,fullName,firstName,lastName,email,uuid,password,passwordPolicy,primaryGroup,nfsHome,homeDir,keyWords];
     [fh writeData:[userEntry dataUsingEncoding:NSUTF8StringEncoding]];
-
+    
+    return YES;
    }
 
 
@@ -90,22 +91,25 @@
 
 
 -(void)makeExportFile:(NSFileHandle*)convertedFile
-            withReply:(void (^)(NSFileHandle *exportFile))reply{
+            withReply:(void (^)(NSString *exportFile))reply{
     
 }
 
 -(void)makeSingelUserFile:(User*)user
                 withReply:(void (^)(NSString *exportFile))reply{
+    BOOL success;
     
+    [[self.xpcConnection remoteObjectProxy] setProgress:50 withMessage:@"Adding User..."];
+    doSleep(1);
     NSString* exportFile = [NSString stringWithFormat:@"%@%@",NSTemporaryDirectory(),user.userName];
     [[NSFileManager defaultManager] createFileAtPath:exportFile contents:nil attributes:nil];
     NSFileHandle* fh = [NSFileHandle fileHandleForWritingAtPath:exportFile];
     
     [self writeHeaders:fh];
-    [self writeUser:user toFile:fh];
+    success = [self writeUser:user toFile:fh];
+    
     
     [fh closeFile];
-    
     reply(exportFile);
     
 }

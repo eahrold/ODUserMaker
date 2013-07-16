@@ -17,6 +17,8 @@
 @property (copy) NSString *primaryGroup;
 @property (copy) NSString *emailDomain;
 @property (copy) NSString *keyWord;
+@property (copy) NSString *userPreset;
+
 
 
 
@@ -28,6 +30,6 @@
 @property (copy) NSString *serverName;
 @property (copy) NSString *diradminName;
 @property (copy) NSString *diradminPass;
-@property (copy) NSFileHandle* exportFile;
+@property (copy) NSString* exportFile;
 
 @end

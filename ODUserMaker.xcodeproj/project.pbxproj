@@ -9,6 +9,10 @@
 /* Begin PBXBuildFile section */
 		BE085A62179326DE0079DFE9 /* com.aapps.ODUserMaker.file-service.xpc in CopyFiles */ = {isa = PBXBuildFile; fileRef = BEC425341792302A00CA45A5 /* com.aapps.ODUserMaker.file-service.xpc */; };
 		BE085A63179346020079DFE9 /* SecuredObjects.m in Sources */ = {isa = PBXBuildFile; fileRef = BEC425461792451E00CA45A5 /* SecuredObjects.m */; };
+		BE9625E51795A55800839C80 /* SSKeychain.m in Sources */ = {isa = PBXBuildFile; fileRef = BE9625E41795A55800839C80 /* SSKeychain.m */; };
+		BE9625E71795A74100839C80 /* SSKeychain.m in Sources */ = {isa = PBXBuildFile; fileRef = BE9625E41795A55800839C80 /* SSKeychain.m */; };
+		BE9625E91795A74A00839C80 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BE9625E81795A74A00839C80 /* Security.framework */; };
+		BE9625EA1795A75100839C80 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BE9625E81795A74A00839C80 /* Security.framework */; };
 		BEC424F61791A7FF00CA45A5 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BEC424F51791A7FF00CA45A5 /* Cocoa.framework */; };
 		BEC425001791A80000CA45A5 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = BEC424FE1791A80000CA45A5 /* InfoPlist.strings */; };
 		BEC425021791A80000CA45A5 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = BEC425011791A80000CA45A5 /* main.m */; };
@@ -45,6 +49,9 @@
 
 /* Begin PBXFileReference section */
 		BE085A671794F53F0079DFE9 /* ODUserMaker.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = ODUserMaker.entitlements; sourceTree = "<group>"; };
+		BE9625E31795A55800839C80 /* SSKeychain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SSKeychain.h; sourceTree = "<group>"; };
+		BE9625E41795A55800839C80 /* SSKeychain.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SSKeychain.m; sourceTree = "<group>"; };
+		BE9625E81795A74A00839C80 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		BEC424F21791A7FF00CA45A5 /* ODUserMaker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ODUserMaker.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BEC424F51791A7FF00CA45A5 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		BEC424F81791A7FF00CA45A5 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -85,6 +92,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BE9625EA1795A75100839C80 /* Security.framework in Frameworks */,
 				BEC424F61791A7FF00CA45A5 /* Cocoa.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -93,6 +101,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BE9625E91795A74A00839C80 /* Security.framework in Frameworks */,
 				BEC425181791A85900CA45A5 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -134,6 +143,7 @@
 		BEC424F41791A7FF00CA45A5 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				BE9625E81795A74A00839C80 /* Security.framework */,
 				BEC424F51791A7FF00CA45A5 /* Cocoa.framework */,
 				BEC425171791A85900CA45A5 /* Foundation.framework */,
 				BEC424F71791A7FF00CA45A5 /* Other Frameworks */,
@@ -154,6 +164,8 @@
 		BEC424FB1791A7FF00CA45A5 /* ODUserMaker */ = {
 			isa = PBXGroup;
 			children = (
+				BE9625E31795A55800839C80 /* SSKeychain.h */,
+				BE9625E41795A55800839C80 /* SSKeychain.m */,
 				BE085A671794F53F0079DFE9 /* ODUserMaker.entitlements */,
 				BEC4252C1791AE3500CA45A5 /* AppController.h */,
 				BEC4252D1791AE3500CA45A5 /* AppController.m */,
@@ -359,6 +371,7 @@
 				BEC425091791A80000CA45A5 /* AppDelegate.m in Sources */,
 				BEC4252E1791AE3500CA45A5 /* AppController.m in Sources */,
 				BEC425471792451E00CA45A5 /* SecuredObjects.m in Sources */,
+				BE9625E51795A55800839C80 /* SSKeychain.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -366,6 +379,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BE9625E71795A74100839C80 /* SSKeychain.m in Sources */,
 				BEC425211791A85900CA45A5 /* main.m in Sources */,
 				BEC425291791A9B500CA45A5 /* NetworkService.m in Sources */,
 				BEC425481792451E00CA45A5 /* SecuredObjects.m in Sources */,
@@ -488,6 +502,7 @@
 		BEC425101791A80000CA45A5 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_OBJC_ARC = YES;
 				CODE_SIGN_ENTITLEMENTS = ODUserMaker/ODUserMaker.entitlements;
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
@@ -502,6 +517,7 @@
 		BEC425111791A80000CA45A5 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_OBJC_ARC = YES;
 				CODE_SIGN_ENTITLEMENTS = ODUserMaker/ODUserMaker.entitlements;
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;

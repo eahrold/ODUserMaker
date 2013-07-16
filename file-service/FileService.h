@@ -14,7 +14,7 @@
 
 @protocol Exporter
 -(void)makeExportFile:(NSFileHandle*)sourceFile
-            withReply:(void (^)(NSFileHandle *convertedFile))reply;
+            withReply:(void (^)(NSString *convertedFile))reply;
 
 -(void)makeSingelUserFile:(User*)user
                 withReply:(void (^)(NSString *convertedFile))reply;

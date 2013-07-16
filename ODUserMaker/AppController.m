@@ -10,9 +10,9 @@
 #import "NetworkService.h"
 #import "FileService.h"
 #import "AppProgress.h"
+#import "SSKeychain.h"
 
 @implementation AppController
-
 
 //-------------------------------------------
 //  Progress Panel
@@ -64,25 +64,32 @@
     [NSApp endSheet:self.progressPanel returnCode:1];
 }
 
--(void)makeExportFile:(User*)user withServer:(Server*)server{
+//-----------------------------------------------------------
+//  NSXPC Connections
+//-----------------------------------------------------------
+
+
+-(void)addUser:(User*)user withServer:(Server*)server{
     NSLog(@"export file");
     NSXPCConnection *connection = [[NSXPCConnection alloc] initWithServiceName:kFileServiceName];
     connection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Exporter)];
     connection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
     connection.exportedObject = self;
     [connection resume];
-    [[connection remoteObjectProxy] makeSingelUserFile:user withReply:^(NSString *convertedFile){
+    [[connection remoteObjectProxy] makeSingelUserFile:user withReply:^(NSString *reply){
         
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-            [self stopProgressPanel];
-            //self.exportFile = convertedFile;
-            NSLog(@"this is the fh: %@",convertedFile);
+            server.exportFile = reply;
+            [self uploadFileLocally:user withServer:server];
+
         }];
         [connection invalidate];
     }];
 }
 
 -(void)uploadFileLocally:(User*)user withServer:(Server*)server{
+    //NSLog(@"This is sn inside: %@, with name %@",server.exportFile,server.serverName);
+
     NSXPCConnection *connection = [[NSXPCConnection alloc] initWithServiceName:kUploaderServiceName];
     connection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Uploader)];
     connection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
@@ -105,7 +112,7 @@
 //-------------------------------------------
 
 - (IBAction)makeSingleUserPressed:(id)sender{
-    [self startProgressPanelWithMessage:@"Getting List of Connected Devices..." indeterminate:NO];
+    [self startProgressPanelWithMessage:@"Adding User..." indeterminate:NO];
     
     // Set up the User Object
     User* user = nil;
@@ -116,6 +123,8 @@
     user.userCWID = _userCWID.stringValue;
     user.emailDomain = @"loyno.edu";
     user.primaryGroup = @"20";
+    user.userPreset = [ _userPreset titleOfSelectedItem];
+    
     
     if([_commStudent state]){
         user.keyWord = @"CommStudent";
@@ -129,9 +138,16 @@
     server = [Server new];
     server.serverName = _serverName.stringValue;
     server.diradminName = _diradminName.stringValue;
+    server.diradminPass = _diradminPass.stringValue;
+
+
+    [self addUser:user withServer:server];
     
-    [self makeExportFile:user withServer:server];
-    [self uploadFileLocally:user withServer:server];
+//    if(self.exportFile){
+//        NSLog(@"This is the export file: %@", self.exportFile);
+//
+//    }
+    //[self uploadFileLocally:user withServer:server];
 
     
       

@@ -7,25 +7,29 @@
 //
 
 #import "AppDelegate.h"
+#import "SSKeychain.h"
 
 static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check whether to quit
 
 @implementation AppDelegate
 
-- (void)dealloc
-{
-    [super dealloc];
-}
-
--(void)dsRun{
-    [NSTimer scheduledTimerWithTimeInterval:5.0
+-(void)bgRunner:(void*)method{
+    [NSTimer scheduledTimerWithTimeInterval:2.0
                                      target:self
-                                   selector:@selector(dsAction)
+                                   selector:@selector(method)
                                    userInfo:nil
                                     repeats:YES];
 }
 
--(void)dsAction{
+//-------------------------------
+//  Directory Severt 
+//-------------------------------
+
+- (IBAction)editServerName:(id)sender{
+    [self getDirectoryServerStatus];
+}
+
+-(void)getDirectoryServerStatus{
     
     //To Do : This should really be done with DirectoryService API
     
@@ -69,28 +73,14 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
             self.dsStatus = [NSString stringWithFormat:@"Not Connected to  Directory Server %@",sn];
             [_dsServerStatus setState:0];
         }
-        [self getServerPresets];
+        [self getUserPresets];
 
     }
 }
 
--(void)setUserDefaults{
-    NSUserDefaults * setDefaults = [NSUserDefaults standardUserDefaults];
-    @try {
-        [setDefaults setObject:self.serverName.stringValue forKey:@"serverName"];
-        [setDefaults setObject:self.diradminName.stringValue forKey:@"diradminName"];
-    }
-    @catch (NSException *exception) {
-    }
-    
-    //[setDefaults setObject:self.fileName.stringValue forKey:@"fileName"];
-    
-    [setDefaults synchronize];
-}
 
--(void)getServerPresets{
+-(void)getUserPresets{
     if(_dsServerStatus){
-        
         NSLog(@"Getting Presets");
         NSString * svrldap = [NSString stringWithFormat:@"/LDAPv3/%@",_serverName.stringValue];
         NSTask *dscl = [[NSTask alloc]init];
@@ -119,22 +109,44 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
     }
 }
 
+//-----------------------
+//  User Default 
+//-----------------------
+-(void)setUserDefaults{
+    NSUserDefaults * setDefaults = [NSUserDefaults standardUserDefaults];
+    @try {
+        [setDefaults setObject:self.serverName.stringValue forKey:@"serverName"];
+        [setDefaults setObject:self.diradminName.stringValue forKey:@"diradminName"];
+        [SSKeychain setPassword:self.diradminPass.stringValue forService:[[NSBundle mainBundle] bundleIdentifier] account:self.diradminName.stringValue];
+    }
+    @catch (NSException *exception) {
+    }
+    
+    
+    
+    
+    //[setDefaults setObject:self.fileName.stringValue forKey:@"fileName"];
+    
+    [setDefaults synchronize];
+}
+
 -(void)getUserDefualts{
     NSUserDefaults *getDefaults = [NSUserDefaults standardUserDefaults];
     @try{
     self.serverName.stringValue = [getDefaults stringForKey:@"serverName"];
     self.diradminName.stringValue = [getDefaults stringForKey:@"diradminName"];
+    
     //self.fileName.stringValue = [getDefaults stringForKey:@"fileName"];
     }
     @catch (NSException *exception) {
-        NSLog(exception);
+        [self setUserDefaults];
     }
-    
+    @finally {
+        if(_diradminName.stringValue)
+            self.diradminPass.stringValue = [SSKeychain passwordForService:[[NSBundle mainBundle] bundleIdentifier] account:self.diradminName.stringValue];
+    }
 }
 
-- (IBAction)editServerName:(id)sender{
-    [self dsAction];
-}
 
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
@@ -143,8 +155,7 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
     [self getUserDefualts];
     self.dsStatus = @"Checking for Directory Server...";
     //[self dsRun];  // this just triggers the ds action task to run on another thread
-    [self dsAction];
-
+    [self getDirectoryServerStatus];
 }
 
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)theApplication{

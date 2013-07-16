@@ -8,28 +8,33 @@
 
 #import "NetworkService.h"
 #import "AppProgress.h"
-
+#import "SSKeychain.h"
 
 @interface Uploader ()
--(NSString*)doDsImportLocally:(User*)user withServer:(Server*)server;
+-(NSString*)dsImport:(User*)user withServer:(Server*)server;
 -(void)eyeCandy;
 @end
 
 
 @implementation Uploader
 
--(NSString*)doDsImportLocally:(User*)user withServer:(Server*)server{
+-(NSString*)dsImport:(User*)user withServer:(Server*)server{
     NSLog(@"Doing Task");
     
     // Set up the actual stirngs
-    NSString* ldpaAddress = [NSString stringWithFormat:@"/LDAPv3/%@",server.serverName];
 
     NSTask* task = [[NSTask alloc] init];
-    NSArray* args = [NSArray arrayWithObjects:ldpaAddress,@"--username",server.diradminName, nil];
     
-    //[task setLaunchPath: @"/usr/bin/dsimport"];
-    [task setLaunchPath: @"/bin/echo"];
-
+   // NSMutableArray* args = [NSMutableArray arrayWithArray:[NSArray arrayWithObjects:server.exportFile,ldpaAddress,@"--username",server.diradminName,@"--password",server.diradminPass, nil]];
+    
+    NSMutableArray* args = [NSMutableArray arrayWithArray:[NSArray arrayWithObjects:server.exportFile,@"/LDAPv3/127.0.0.1",@"I",@"--remoteusername",server.diradminName,@"--remotehost",server.serverName, nil]];
+    
+    if(user.userPreset){
+        [args addObject:@"--userpreset"];
+        [args addObject:user.userPreset];
+    }
+    
+    [task setLaunchPath: @"/usr/bin/dsimport"];
     [task setArguments:args];
     
     //setup system pipes and filehandles to process output data
@@ -46,6 +51,9 @@
     NSString * inString = [ NSString stringWithFormat: @"%@\n",server.diradminPass];
     
     NSData *data = [inString dataUsingEncoding:NSUTF8StringEncoding];
+    
+    // dsimport asks fot the password twice so we'll just repeat it here
+    [sendCmd writeData:data];
     [sendCmd writeData:data];
 
     
@@ -70,11 +78,11 @@
                  user:(User *)user
                 withReply:(void (^)(NSString *))reply{
    
-    [[self.xpcConnection remoteObjectProxy] setProgressMsg:@"Updateing progress..."];
+    [[self.xpcConnection remoteObjectProxy] setProgressMsg:@"Sending to server..."];
     
     
 
-    NSString* msg = [self doDsImportLocally:user withServer:server];
+    NSString* msg = [self dsImport:user withServer:server];
     [self eyeCandy];
     //NSString* msg = @"right back at you";
     reply(msg);
