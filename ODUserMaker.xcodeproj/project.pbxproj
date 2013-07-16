@@ -1,0 +1,622 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		BE085A62179326DE0079DFE9 /* com.aapps.ODUserMaker.file-service.xpc in CopyFiles */ = {isa = PBXBuildFile; fileRef = BEC425341792302A00CA45A5 /* com.aapps.ODUserMaker.file-service.xpc */; };
+		BE085A63179346020079DFE9 /* SecuredObjects.m in Sources */ = {isa = PBXBuildFile; fileRef = BEC425461792451E00CA45A5 /* SecuredObjects.m */; };
+		BEC424F61791A7FF00CA45A5 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BEC424F51791A7FF00CA45A5 /* Cocoa.framework */; };
+		BEC425001791A80000CA45A5 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = BEC424FE1791A80000CA45A5 /* InfoPlist.strings */; };
+		BEC425021791A80000CA45A5 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = BEC425011791A80000CA45A5 /* main.m */; };
+		BEC425061791A80000CA45A5 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = BEC425041791A80000CA45A5 /* Credits.rtf */; };
+		BEC425091791A80000CA45A5 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = BEC425081791A80000CA45A5 /* AppDelegate.m */; };
+		BEC4250C1791A80000CA45A5 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = BEC4250A1791A80000CA45A5 /* MainMenu.xib */; };
+		BEC425181791A85900CA45A5 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BEC425171791A85900CA45A5 /* Foundation.framework */; };
+		BEC4251E1791A85900CA45A5 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = BEC4251C1791A85900CA45A5 /* InfoPlist.strings */; };
+		BEC425211791A85900CA45A5 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = BEC425201791A85900CA45A5 /* main.m */; };
+		BEC425261791A8AE00CA45A5 /* com.aapps.ODUserMaker.network-service.xpc in CopyFiles */ = {isa = PBXBuildFile; fileRef = BEC425161791A85900CA45A5 /* com.aapps.ODUserMaker.network-service.xpc */; };
+		BEC425291791A9B500CA45A5 /* NetworkService.m in Sources */ = {isa = PBXBuildFile; fileRef = BEC425281791A9B500CA45A5 /* NetworkService.m */; };
+		BEC4252E1791AE3500CA45A5 /* AppController.m in Sources */ = {isa = PBXBuildFile; fileRef = BEC4252D1791AE3500CA45A5 /* AppController.m */; };
+		BEC425351792302A00CA45A5 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BEC425171791A85900CA45A5 /* Foundation.framework */; };
+		BEC4253B1792302A00CA45A5 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = BEC425391792302A00CA45A5 /* InfoPlist.strings */; };
+		BEC4253E1792302A00CA45A5 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = BEC4253D1792302A00CA45A5 /* main.m */; };
+		BEC425441792309D00CA45A5 /* FileService.m in Sources */ = {isa = PBXBuildFile; fileRef = BEC425431792309D00CA45A5 /* FileService.m */; };
+		BEC425471792451E00CA45A5 /* SecuredObjects.m in Sources */ = {isa = PBXBuildFile; fileRef = BEC425461792451E00CA45A5 /* SecuredObjects.m */; };
+		BEC425481792451E00CA45A5 /* SecuredObjects.m in Sources */ = {isa = PBXBuildFile; fileRef = BEC425461792451E00CA45A5 /* SecuredObjects.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		BEC425251791A87700CA45A5 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Contents/XPCServices;
+			dstSubfolderSpec = 1;
+			files = (
+				BE085A62179326DE0079DFE9 /* com.aapps.ODUserMaker.file-service.xpc in CopyFiles */,
+				BEC425261791A8AE00CA45A5 /* com.aapps.ODUserMaker.network-service.xpc in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		BE085A671794F53F0079DFE9 /* ODUserMaker.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = ODUserMaker.entitlements; sourceTree = "<group>"; };
+		BEC424F21791A7FF00CA45A5 /* ODUserMaker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ODUserMaker.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		BEC424F51791A7FF00CA45A5 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		BEC424F81791A7FF00CA45A5 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
+		BEC424F91791A7FF00CA45A5 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		BEC424FA1791A7FF00CA45A5 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		BEC424FD1791A80000CA45A5 /* ODUserMaker-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "ODUserMaker-Info.plist"; sourceTree = "<group>"; };
+		BEC424FF1791A80000CA45A5 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		BEC425011791A80000CA45A5 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		BEC425031791A80000CA45A5 /* ODUserMaker-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ODUserMaker-Prefix.pch"; sourceTree = "<group>"; };
+		BEC425051791A80000CA45A5 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = en; path = en.lproj/Credits.rtf; sourceTree = "<group>"; };
+		BEC425071791A80000CA45A5 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		BEC425081791A80000CA45A5 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = AppDelegate.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+		BEC4250B1791A80000CA45A5 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
+		BEC425161791A85900CA45A5 /* com.aapps.ODUserMaker.network-service.xpc */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "com.aapps.ODUserMaker.network-service.xpc"; sourceTree = BUILT_PRODUCTS_DIR; };
+		BEC425171791A85900CA45A5 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		BEC4251B1791A85900CA45A5 /* uploader-service-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "uploader-service-Info.plist"; sourceTree = "<group>"; };
+		BEC4251D1791A85900CA45A5 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		BEC4251F1791A85900CA45A5 /* uploader-service-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "uploader-service-Prefix.pch"; sourceTree = "<group>"; };
+		BEC425201791A85900CA45A5 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		BEC425271791A9B500CA45A5 /* NetworkService.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NetworkService.h; sourceTree = "<group>"; };
+		BEC425281791A9B500CA45A5 /* NetworkService.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NetworkService.m; sourceTree = "<group>"; };
+		BEC4252C1791AE3500CA45A5 /* AppController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppController.h; sourceTree = "<group>"; };
+		BEC4252D1791AE3500CA45A5 /* AppController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppController.m; sourceTree = "<group>"; };
+		BEC4252F1792005000CA45A5 /* AppProgress.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AppProgress.h; path = ODUserMaker/AppProgress.h; sourceTree = SOURCE_ROOT; };
+		BEC425341792302A00CA45A5 /* com.aapps.ODUserMaker.file-service.xpc */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "com.aapps.ODUserMaker.file-service.xpc"; sourceTree = BUILT_PRODUCTS_DIR; };
+		BEC425381792302A00CA45A5 /* file-service-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "file-service-Info.plist"; sourceTree = "<group>"; };
+		BEC4253A1792302A00CA45A5 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		BEC4253C1792302A00CA45A5 /* file-service-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "file-service-Prefix.pch"; sourceTree = "<group>"; };
+		BEC4253D1792302A00CA45A5 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		BEC425421792309D00CA45A5 /* FileService.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FileService.h; path = "../file-service/FileService.h"; sourceTree = "<group>"; };
+		BEC425431792309D00CA45A5 /* FileService.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FileService.m; sourceTree = "<group>"; };
+		BEC425451792451E00CA45A5 /* SecuredObjects.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SecuredObjects.h; path = ODUserMaker/SecuredObjects.h; sourceTree = "<group>"; };
+		BEC425461792451E00CA45A5 /* SecuredObjects.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SecuredObjects.m; path = ODUserMaker/SecuredObjects.m; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		BEC424EF1791A7FF00CA45A5 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BEC424F61791A7FF00CA45A5 /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BEC425131791A85900CA45A5 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BEC425181791A85900CA45A5 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BEC425311792302A00CA45A5 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BEC425351792302A00CA45A5 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		BEC424E91791A7FF00CA45A5 = {
+			isa = PBXGroup;
+			children = (
+				BEC4252B1791AA1C00CA45A5 /* Interfaces */,
+				BEC425491792452A00CA45A5 /* Secure Objects */,
+				BEC425191791A85900CA45A5 /* network-service */,
+				BEC425361792302A00CA45A5 /* file-service */,
+				BEC424FB1791A7FF00CA45A5 /* ODUserMaker */,
+				BEC424F41791A7FF00CA45A5 /* Frameworks */,
+				BEC424F31791A7FF00CA45A5 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		BEC424F31791A7FF00CA45A5 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				BEC424F21791A7FF00CA45A5 /* ODUserMaker.app */,
+				BEC425161791A85900CA45A5 /* com.aapps.ODUserMaker.network-service.xpc */,
+				BEC425341792302A00CA45A5 /* com.aapps.ODUserMaker.file-service.xpc */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		BEC424F41791A7FF00CA45A5 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				BEC424F51791A7FF00CA45A5 /* Cocoa.framework */,
+				BEC425171791A85900CA45A5 /* Foundation.framework */,
+				BEC424F71791A7FF00CA45A5 /* Other Frameworks */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		BEC424F71791A7FF00CA45A5 /* Other Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				BEC424F81791A7FF00CA45A5 /* AppKit.framework */,
+				BEC424F91791A7FF00CA45A5 /* CoreData.framework */,
+				BEC424FA1791A7FF00CA45A5 /* Foundation.framework */,
+			);
+			name = "Other Frameworks";
+			sourceTree = "<group>";
+		};
+		BEC424FB1791A7FF00CA45A5 /* ODUserMaker */ = {
+			isa = PBXGroup;
+			children = (
+				BE085A671794F53F0079DFE9 /* ODUserMaker.entitlements */,
+				BEC4252C1791AE3500CA45A5 /* AppController.h */,
+				BEC4252D1791AE3500CA45A5 /* AppController.m */,
+				BEC4250A1791A80000CA45A5 /* MainMenu.xib */,
+				BEC424FC1791A80000CA45A5 /* Supporting Files */,
+			);
+			path = ODUserMaker;
+			sourceTree = "<group>";
+		};
+		BEC424FC1791A80000CA45A5 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				BEC425071791A80000CA45A5 /* AppDelegate.h */,
+				BEC425081791A80000CA45A5 /* AppDelegate.m */,
+				BEC424FD1791A80000CA45A5 /* ODUserMaker-Info.plist */,
+				BEC424FE1791A80000CA45A5 /* InfoPlist.strings */,
+				BEC425011791A80000CA45A5 /* main.m */,
+				BEC425031791A80000CA45A5 /* ODUserMaker-Prefix.pch */,
+				BEC425041791A80000CA45A5 /* Credits.rtf */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		BEC425191791A85900CA45A5 /* network-service */ = {
+			isa = PBXGroup;
+			children = (
+				BEC425281791A9B500CA45A5 /* NetworkService.m */,
+				BEC4251A1791A85900CA45A5 /* Supporting Files */,
+			);
+			name = "network-service";
+			path = "uploader-service";
+			sourceTree = "<group>";
+		};
+		BEC4251A1791A85900CA45A5 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				BEC425201791A85900CA45A5 /* main.m */,
+				BEC4251B1791A85900CA45A5 /* uploader-service-Info.plist */,
+				BEC4251C1791A85900CA45A5 /* InfoPlist.strings */,
+				BEC4251F1791A85900CA45A5 /* uploader-service-Prefix.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		BEC4252B1791AA1C00CA45A5 /* Interfaces */ = {
+			isa = PBXGroup;
+			children = (
+				BEC425271791A9B500CA45A5 /* NetworkService.h */,
+				BEC425421792309D00CA45A5 /* FileService.h */,
+				BEC4252F1792005000CA45A5 /* AppProgress.h */,
+			);
+			name = Interfaces;
+			path = "uploader-service";
+			sourceTree = "<group>";
+		};
+		BEC425361792302A00CA45A5 /* file-service */ = {
+			isa = PBXGroup;
+			children = (
+				BEC425431792309D00CA45A5 /* FileService.m */,
+				BEC425371792302A00CA45A5 /* Supporting Files */,
+			);
+			path = "file-service";
+			sourceTree = "<group>";
+		};
+		BEC425371792302A00CA45A5 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				BEC4253D1792302A00CA45A5 /* main.m */,
+				BEC425381792302A00CA45A5 /* file-service-Info.plist */,
+				BEC425391792302A00CA45A5 /* InfoPlist.strings */,
+				BEC4253C1792302A00CA45A5 /* file-service-Prefix.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		BEC425491792452A00CA45A5 /* Secure Objects */ = {
+			isa = PBXGroup;
+			children = (
+				BEC425451792451E00CA45A5 /* SecuredObjects.h */,
+				BEC425461792451E00CA45A5 /* SecuredObjects.m */,
+			);
+			name = "Secure Objects";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		BEC424F11791A7FF00CA45A5 /* ODUserMaker */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BEC4250F1791A80000CA45A5 /* Build configuration list for PBXNativeTarget "ODUserMaker" */;
+			buildPhases = (
+				BEC424EE1791A7FF00CA45A5 /* Sources */,
+				BEC424EF1791A7FF00CA45A5 /* Frameworks */,
+				BEC424F01791A7FF00CA45A5 /* Resources */,
+				BEC425251791A87700CA45A5 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ODUserMaker;
+			productName = ODUserMaker;
+			productReference = BEC424F21791A7FF00CA45A5 /* ODUserMaker.app */;
+			productType = "com.apple.product-type.application";
+		};
+		BEC425151791A85900CA45A5 /* network-service */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BEC425221791A85900CA45A5 /* Build configuration list for PBXNativeTarget "network-service" */;
+			buildPhases = (
+				BEC425121791A85900CA45A5 /* Sources */,
+				BEC425131791A85900CA45A5 /* Frameworks */,
+				BEC425141791A85900CA45A5 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "network-service";
+			productName = "uploader-service";
+			productReference = BEC425161791A85900CA45A5 /* com.aapps.ODUserMaker.network-service.xpc */;
+			productType = "com.apple.product-type.bundle";
+		};
+		BEC425331792302A00CA45A5 /* file-service */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BEC4253F1792302A00CA45A5 /* Build configuration list for PBXNativeTarget "file-service" */;
+			buildPhases = (
+				BEC425301792302A00CA45A5 /* Sources */,
+				BEC425311792302A00CA45A5 /* Frameworks */,
+				BEC425321792302A00CA45A5 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "file-service";
+			productName = "file-service";
+			productReference = BEC425341792302A00CA45A5 /* com.aapps.ODUserMaker.file-service.xpc */;
+			productType = "com.apple.product-type.bundle";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		BEC424EA1791A7FF00CA45A5 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0460;
+				ORGANIZATIONNAME = "Eldon Ahrold";
+			};
+			buildConfigurationList = BEC424ED1791A7FF00CA45A5 /* Build configuration list for PBXProject "ODUserMaker" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = BEC424E91791A7FF00CA45A5;
+			productRefGroup = BEC424F31791A7FF00CA45A5 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				BEC424F11791A7FF00CA45A5 /* ODUserMaker */,
+				BEC425151791A85900CA45A5 /* network-service */,
+				BEC425331792302A00CA45A5 /* file-service */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		BEC424F01791A7FF00CA45A5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BEC425001791A80000CA45A5 /* InfoPlist.strings in Resources */,
+				BEC425061791A80000CA45A5 /* Credits.rtf in Resources */,
+				BEC4250C1791A80000CA45A5 /* MainMenu.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BEC425141791A85900CA45A5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BEC4251E1791A85900CA45A5 /* InfoPlist.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BEC425321792302A00CA45A5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BEC4253B1792302A00CA45A5 /* InfoPlist.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		BEC424EE1791A7FF00CA45A5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BEC425021791A80000CA45A5 /* main.m in Sources */,
+				BEC425091791A80000CA45A5 /* AppDelegate.m in Sources */,
+				BEC4252E1791AE3500CA45A5 /* AppController.m in Sources */,
+				BEC425471792451E00CA45A5 /* SecuredObjects.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BEC425121791A85900CA45A5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BEC425211791A85900CA45A5 /* main.m in Sources */,
+				BEC425291791A9B500CA45A5 /* NetworkService.m in Sources */,
+				BEC425481792451E00CA45A5 /* SecuredObjects.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BEC425301792302A00CA45A5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BE085A63179346020079DFE9 /* SecuredObjects.m in Sources */,
+				BEC4253E1792302A00CA45A5 /* main.m in Sources */,
+				BEC425441792309D00CA45A5 /* FileService.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		BEC424FE1791A80000CA45A5 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				BEC424FF1791A80000CA45A5 /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		BEC425041791A80000CA45A5 /* Credits.rtf */ = {
+			isa = PBXVariantGroup;
+			children = (
+				BEC425051791A80000CA45A5 /* en */,
+			);
+			name = Credits.rtf;
+			sourceTree = "<group>";
+		};
+		BEC4250A1791A80000CA45A5 /* MainMenu.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				BEC4250B1791A80000CA45A5 /* en */,
+			);
+			name = MainMenu.xib;
+			sourceTree = "<group>";
+		};
+		BEC4251C1791A85900CA45A5 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				BEC4251D1791A85900CA45A5 /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		BEC425391792302A00CA45A5 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				BEC4253A1792302A00CA45A5 /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		BEC4250D1791A80000CA45A5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		BEC4250E1791A80000CA45A5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		BEC425101791A80000CA45A5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = ODUserMaker/ODUserMaker.entitlements;
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "ODUserMaker/ODUserMaker-Prefix.pch";
+				INFOPLIST_FILE = "ODUserMaker/ODUserMaker-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		BEC425111791A80000CA45A5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = ODUserMaker/ODUserMaker.entitlements;
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "ODUserMaker/ODUserMaker-Prefix.pch";
+				INFOPLIST_FILE = "ODUserMaker/ODUserMaker-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
+		BEC425231791A85900CA45A5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "uploader-service/uploader-service-Prefix.pch";
+				INFOPLIST_FILE = "uploader-service/uploader-service-Info.plist";
+				MACH_O_TYPE = mh_execute;
+				PRODUCT_NAME = "com.aapps.ODUserMaker.$(TARGET_NAME:rfc1034identifier)";
+				PROVISIONING_PROFILE = "";
+				WRAPPER_EXTENSION = xpc;
+			};
+			name = Debug;
+		};
+		BEC425241791A85900CA45A5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "uploader-service/uploader-service-Prefix.pch";
+				INFOPLIST_FILE = "uploader-service/uploader-service-Info.plist";
+				MACH_O_TYPE = mh_execute;
+				PRODUCT_NAME = "com.aapps.ODUserMaker.$(TARGET_NAME:rfc1034identifier)";
+				PROVISIONING_PROFILE = "";
+				WRAPPER_EXTENSION = xpc;
+			};
+			name = Release;
+		};
+		BEC425401792302A00CA45A5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "file-service/file-service-Prefix.pch";
+				INFOPLIST_FILE = "file-service/file-service-Info.plist";
+				MACH_O_TYPE = mh_execute;
+				PRODUCT_NAME = "com.aapps.ODUserMaker.$(TARGET_NAME:rfc1034identifier)";
+				PROVISIONING_PROFILE = "";
+				WRAPPER_EXTENSION = xpc;
+			};
+			name = Debug;
+		};
+		BEC425411792302A00CA45A5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "file-service/file-service-Prefix.pch";
+				INFOPLIST_FILE = "file-service/file-service-Info.plist";
+				MACH_O_TYPE = mh_execute;
+				PRODUCT_NAME = "com.aapps.ODUserMaker.$(TARGET_NAME:rfc1034identifier)";
+				PROVISIONING_PROFILE = "";
+				WRAPPER_EXTENSION = xpc;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		BEC424ED1791A7FF00CA45A5 /* Build configuration list for PBXProject "ODUserMaker" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BEC4250D1791A80000CA45A5 /* Debug */,
+				BEC4250E1791A80000CA45A5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		BEC4250F1791A80000CA45A5 /* Build configuration list for PBXNativeTarget "ODUserMaker" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BEC425101791A80000CA45A5 /* Debug */,
+				BEC425111791A80000CA45A5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		BEC425221791A85900CA45A5 /* Build configuration list for PBXNativeTarget "network-service" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BEC425231791A85900CA45A5 /* Debug */,
+				BEC425241791A85900CA45A5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		BEC4253F1792302A00CA45A5 /* Build configuration list for PBXNativeTarget "file-service" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BEC425401792302A00CA45A5 /* Debug */,
+				BEC425411792302A00CA45A5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = BEC424EA1791A7FF00CA45A5 /* Project object */;
+}
