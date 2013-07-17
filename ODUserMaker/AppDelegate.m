@@ -8,6 +8,7 @@
 
 #import "AppDelegate.h"
 #import "SSKeychain.h"
+#import "NetworkService.h"
 
 static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check whether to quit
 
@@ -117,6 +118,7 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
     @try {
         [setDefaults setObject:self.serverName.stringValue forKey:@"serverName"];
         [setDefaults setObject:self.diradminName.stringValue forKey:@"diradminName"];
+        [setDefaults setObject:self.importFilePath.stringValue forKey:@"lastFile"];
         [SSKeychain setPassword:self.diradminPass.stringValue forService:[[NSBundle mainBundle] bundleIdentifier] account:self.diradminName.stringValue];
     }
     @catch (NSException *exception) {
@@ -135,7 +137,7 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
     @try{
     self.serverName.stringValue = [getDefaults stringForKey:@"serverName"];
     self.diradminName.stringValue = [getDefaults stringForKey:@"diradminName"];
-    
+    self.importFilePath.stringValue = [getDefaults stringForKey:@"lastFile"];
     //self.fileName.stringValue = [getDefaults stringForKey:@"fileName"];
     }
     @catch (NSException *exception) {

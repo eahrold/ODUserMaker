@@ -22,11 +22,7 @@
         _emailDomain = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"emailDomain"];
         _keyWord = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"keyWord"];
         _userPreset = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"userPreset"];
-
-
-
-
-
+        _importFile = [aDecoder decodeObjectOfClass: [NSString class] forKey:@"importFile"];
 
     }
     return self;
@@ -44,8 +40,7 @@
     [aEncoder encodeObject:_emailDomain forKey:@"emailDomain"];
     [aEncoder encodeObject:_keyWord forKey:@"keyWord"];
     [aEncoder encodeObject:_userPreset forKey:@"userPreset"];
-
-
+    [aEncoder encodeObject:_importFile forKey:@"importFile"];
 }
 
 @end
@@ -60,7 +55,6 @@
         _diradminName = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"diradminName"];
         _diradminPass = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"diradminPass"];
         _exportFile = [aDecoder decodeObjectOfClass: [NSString class] forKey:@"exportFile"];
-        
     }
     return self;
 }
@@ -73,7 +67,6 @@
     [aEncoder encodeObject:_diradminName forKey:@"diradminName"];
     [aEncoder encodeObject:_diradminPass forKey:@"diradminPass"];
     [aEncoder encodeObject:_exportFile forKey:@"exportFile"];
-
 }
 
 

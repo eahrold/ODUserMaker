@@ -20,7 +20,11 @@
 @property (assign) IBOutlet NSButton *commStudent;
 
 // File Settings
-@property (copy) NSString *importFile;
+@property (assign) IBOutlet NSTextField *importFilePath;
+@property (assign) IBOutlet NSButton *chooseImportFile;
+
+
+@property (copy) NSURL *importFile;
 @property (copy) NSString *exportFile;
 
 // Sever Settings

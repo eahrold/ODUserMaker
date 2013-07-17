@@ -68,9 +68,27 @@
 //  NSXPC Connections
 //-----------------------------------------------------------
 
+-(void)addListOfUsers:(User*)user withServer:(Server*)server{
+    NSXPCConnection *connection = [[NSXPCConnection alloc] initWithServiceName:kFileServiceName];
+    connection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Exporter)];
+    connection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
+    connection.exportedObject = self;
+    [connection resume];
+    [[connection remoteObjectProxy] makeExportFile:user withReply:^(NSString *reply){
+        
+        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            server.exportFile = reply;
+            NSLog(reply);
+            [self stopProgressPanel];
+
+            //[self uploadFileLocally:user withServer:server];
+        }];
+        [connection invalidate];
+    }];
+}
+
 
 -(void)addUser:(User*)user withServer:(Server*)server{
-    NSLog(@"export file");
     NSXPCConnection *connection = [[NSXPCConnection alloc] initWithServiceName:kFileServiceName];
     connection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Exporter)];
     connection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
@@ -155,9 +173,37 @@
 }
 
 - (IBAction)makeImportFilePressed:(id)sender{
+    [self startProgressPanelWithMessage:@"Adding User..." indeterminate:NO];
+
+    User *user = [User new];
+    user.emailDomain = @"loyno.edu";
+    user.primaryGroup = @"20";
+    user.userPreset = [ _userPreset titleOfSelectedItem];
+    user.importFile = self.importFilePath.stringValue;
+
     
+    Server *server = [Server new];
+    server.serverName = _serverName.stringValue;
+    server.diradminName = _diradminName.stringValue;
+    server.diradminPass = _diradminPass.stringValue;
+    
+    [self addListOfUsers:user withServer:server];
 }
 
+- (IBAction)chooseImportFile:(id)sender{
+    
+    NSOpenPanel* openDlg = [NSOpenPanel openPanel];
+    [openDlg setCanChooseFiles:YES];
+    [openDlg setAllowsMultipleSelection:NO];
+    [openDlg setCanChooseDirectories:NO];
+    
+    if ( [openDlg runModal] == NSOKButton )
+    {
+        NSURL* url = [openDlg URL];
+        self.importFilePath.stringValue = url.path;
+    }
+}
+    
 
 
 @end

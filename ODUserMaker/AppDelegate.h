@@ -10,21 +10,39 @@
 
 @interface AppDelegate : NSObject <NSApplicationDelegate>
 
-@property (nonatomic, assign) BOOL quitThread;
-
-@property (copy) NSString *dsStatus;  // this is bound
-@property (assign) IBOutlet NSButton *dsServerStatus;
-
+//---------------------------------------------------
+//  User items
+//---------------------------------------------------
 @property (assign) IBOutlet NSPopUpButton *userPreset;
 
+
+//---------------------------------------------------
+//  Server items
+//---------------------------------------------------
+
+@property (assign) IBOutlet NSButton *dsServerStatus;
 @property (assign) IBOutlet NSTextField *serverName;
 @property (assign) IBOutlet NSTextField *diradminName;
 @property (assign) IBOutlet NSTextField *diradminPass;
 
-
-@property (assign) IBOutlet NSWindow *window;
+@property (copy) NSString *dsStatus;  // this is bound
 
 - (IBAction)editServerName:(id)sender;
+
+
+//---------------------------------------------------
+//  file items
+//---------------------------------------------------
+@property (assign) IBOutlet NSTextField *importFilePath;
+
+
+//---------------------------------------------------
+//  delegate items
+//---------------------------------------------------
+
+@property (nonatomic, assign) BOOL quitThread;
+@property (assign) IBOutlet NSWindow *window;
+
 
 
 @end

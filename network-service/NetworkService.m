@@ -8,7 +8,6 @@
 
 #import "NetworkService.h"
 #import "AppProgress.h"
-#import "SSKeychain.h"
 
 @interface Uploader ()
 -(NSString*)dsImport:(User*)user withServer:(Server*)server;

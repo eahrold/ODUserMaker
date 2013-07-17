@@ -13,7 +13,7 @@
 #define kFileServiceName @"com.aapps.ODUserMaker.file-service"
 
 @protocol Exporter
--(void)makeExportFile:(NSFileHandle*)sourceFile
+-(void)makeExportFile:(User*)user
             withReply:(void (^)(NSString *convertedFile))reply;
 
 -(void)makeSingelUserFile:(User*)user
@@ -28,4 +28,8 @@
 
 @property (weak) NSXPCConnection *xpcConnection;
 
+@end
+
+@interface NSString (trimLeadingWhitespace)
+-(NSString*)stringByTrimmingLeadingWhitespace;
 @end

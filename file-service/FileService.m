@@ -16,6 +16,7 @@
 //  Internal Methods
 //------------------------------------------------
 
+
 -(NSString*)makeUidFromUserName:(NSString*)uname{
     
     const char *cStr = [uname UTF8String];
@@ -70,11 +71,9 @@
     
     for (NSString __strong* i in uArray) {
         if (!i || [i isEqual:@" "]){
-            NSLog(@"%@ is blank",i);
             i = @"";
         }
         else{
-            NSLog(@"all's ok with %@",i);
         }
     }
     
@@ -84,14 +83,87 @@
     return YES;
    }
 
+-(BOOL)parseUserList:(User*)user toFile:(NSFileHandle*)fh{
+    NSError *err = NULL;
+    
+    NSString *userList = [NSString stringWithContentsOfFile:user.importFile encoding:NSUTF8StringEncoding error:&err];
+    
+     
+    NSArray *arr = [userList componentsSeparatedByString:@"\n"];
+    arr = [arr sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
+
+    NSMutableArray *userArray = [arr mutableCopy];
+    NSMutableArray *filteredArray = [NSMutableArray array];
+    
+    double totalSize = [userArray count];
+    double progress = 100 / totalSize;
+   
+    NSString* outSide = nil;
+    NSArray *tmpArray;
+    NSArray *tmpArray2;
+    
+    for (NSString* item in arr) {
+        if ([item rangeOfString:@" "].location != NSNotFound){
+            @try{
+            User *tmpUser = [User new];
+            
+            tmpArray = [item componentsSeparatedByString:@"\t"];
+            tmpUser.userName = [NSString stringWithFormat:@"%@",[tmpArray objectAtIndex:0]];
+            tmpUser.userCWID = [NSString stringWithFormat:@"%@",[tmpArray objectAtIndex:2]];
+            
+            // break it up one more time...
+            NSString * rawName = [NSString stringWithFormat:@"%@",[tmpArray objectAtIndex:1]];
+            tmpArray2 = [rawName componentsSeparatedByString:@","];
+            NSString * firstName = [NSString stringWithFormat:@"%@",[tmpArray2 objectAtIndex:1]];
+            NSString * lastName = [NSString stringWithFormat:@"%@",[tmpArray2 objectAtIndex:0]];
+            
+            //Sanatize...
+            firstName = [firstName stringByReplacingOccurrencesOfString:@"\"" withString:@""];
+            lastName = [lastName stringByReplacingOccurrencesOfString:@"\"" withString:@""];
+            tmpUser.firstName = [firstName stringByTrimmingLeadingWhitespace];
+            tmpUser.lastName = [lastName stringByTrimmingLeadingWhitespace];
+            
+            // get the items from the user sent over by the main app...
+            tmpUser.primaryGroup = user.primaryGroup;
+            tmpUser.emailDomain = user.emailDomain;
+            tmpUser.keyWord = user.keyWord;
+            
+            // then write it to the file...
+            [filteredArray addObject:tmpUser];
+            [[self.xpcConnection remoteObjectProxy] setProgress:progress];
+            [self writeUser:tmpUser toFile:fh];
+            }
+            @catch (NSException* err) {
+                
+            }
+        }
+    }
+    return YES;
+}
 
 //------------------------------------------------
 //  NSXPC Methods
 //------------------------------------------------
 
 
--(void)makeExportFile:(NSFileHandle*)convertedFile
+-(void)makeExportFile:(User*)user
             withReply:(void (^)(NSString *exportFile))reply{
+    BOOL success;
+    
+    [[self.xpcConnection remoteObjectProxy] setProgress:0 withMessage:@"Adding Users..."];
+    doSleep(1);
+    
+    NSString* exportFile = [NSString stringWithFormat:@"%@%@",NSTemporaryDirectory(),@"MakingBigList"];
+    [[NSFileManager defaultManager] createFileAtPath:exportFile contents:nil attributes:nil];
+    NSFileHandle* outfile = [NSFileHandle fileHandleForWritingAtPath:exportFile];
+
+    [self writeHeaders:outfile];
+    success = [self parseUserList:user toFile:outfile];
+    
+    
+    [outfile closeFile];
+    reply(exportFile);
+
     
 }
 
@@ -144,3 +216,14 @@
 
 @end
 
+@implementation NSString (trimLeadingWhitespace)
+-(NSString*)stringByTrimmingLeadingWhitespace {
+    NSInteger i = 0;
+    
+    while ((i < [self length])
+           && [[NSCharacterSet whitespaceCharacterSet] characterIsMember:[self characterAtIndex:i]]) {
+        i++;
+    }
+    return [self substringFromIndex:i];
+}
+@end
