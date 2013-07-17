@@ -110,12 +110,15 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
     }
 }
 
+
 //-----------------------
 //  User Default 
 //-----------------------
 -(void)setUserDefaults{
     NSUserDefaults * setDefaults = [NSUserDefaults standardUserDefaults];
     @try {
+        [setDefaults setObject:self.defaultGroup.stringValue forKey:@"defaultGroup"];
+        [setDefaults setObject:self.emailDomain.stringValue forKey:@"emailDomain"];
         [setDefaults setObject:self.serverName.stringValue forKey:@"serverName"];
         [setDefaults setObject:self.diradminName.stringValue forKey:@"diradminName"];
         [setDefaults setObject:self.importFilePath.stringValue forKey:@"lastFile"];
@@ -123,30 +126,30 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
     }
     @catch (NSException *exception) {
     }
-    
-    
-    
-    
-    //[setDefaults setObject:self.fileName.stringValue forKey:@"fileName"];
-    
     [setDefaults synchronize];
+}
+
+-(void)tryToSetInterface:(NSTextField*)filed withSetting:(NSString*)string{
+    @try {
+        filed.stringValue = string;}
+    @catch (NSException *exception){}
 }
 
 -(void)getUserDefualts{
     NSUserDefaults *getDefaults = [NSUserDefaults standardUserDefaults];
-    @try{
-    self.serverName.stringValue = [getDefaults stringForKey:@"serverName"];
-    self.diradminName.stringValue = [getDefaults stringForKey:@"diradminName"];
-    self.importFilePath.stringValue = [getDefaults stringForKey:@"lastFile"];
-    //self.fileName.stringValue = [getDefaults stringForKey:@"fileName"];
-    }
-    @catch (NSException *exception) {
-        [self setUserDefaults];
-    }
-    @finally {
-        if(_diradminName.stringValue)
-            self.diradminPass.stringValue = [SSKeychain passwordForService:[[NSBundle mainBundle] bundleIdentifier] account:self.diradminName.stringValue];
-    }
+    
+    [self tryToSetInterface:_serverName withSetting:[getDefaults stringForKey:@"serverName"]];
+    [self tryToSetInterface:_defaultGroup withSetting:[getDefaults stringForKey:@"defaultGroup"]];
+    [self tryToSetInterface:_diradminName withSetting:[getDefaults stringForKey:@"diradminName"]];
+    [self tryToSetInterface:_emailDomain withSetting:[getDefaults stringForKey:@"emailDomain"]];
+    [self tryToSetInterface:_importFilePath withSetting:[getDefaults stringForKey:@"lastFile"]];
+
+
+   
+    if([getDefaults stringForKey:@"diradminName"])
+        self.diradminPass.stringValue = [SSKeychain passwordForService:[[NSBundle mainBundle] bundleIdentifier] account:[getDefaults stringForKey:@"diradminName"]];
+    if([_defaultGroup.stringValue isEqualToString:@""])
+        self.defaultGroup.stringValue = @"20";        
 }
 
 

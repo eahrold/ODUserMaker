@@ -8,6 +8,7 @@
 
 #import "FileService.h"
 #import "AppProgress.h"
+#import "NSString+StringSanitizer.h"
 #import <CommonCrypto/CommonDigest.h>
 
 @implementation Exporter
@@ -101,7 +102,7 @@
     NSMutableSet * processed = [NSMutableSet set];
     
     for (NSString* item in arr) {
-        if ([item rangeOfString:@" "].location != NSNotFound){
+        if ([item rangeOfString:user.userFilter].location != NSNotFound){
             @try{
                 tmpArray = [item componentsSeparatedByString:@"\t"];
                 if ([processed containsObject:[tmpArray objectAtIndex:0]] == NO) {
@@ -217,16 +218,4 @@
 }
 
 
-@end
-
-@implementation NSString (trimLeadingWhitespace)
--(NSString*)stringByTrimmingLeadingWhitespace {
-    NSInteger i = 0;
-    
-    while ((i < [self length])
-           && [[NSCharacterSet whitespaceCharacterSet] characterIsMember:[self characterAtIndex:i]]) {
-        i++;
-    }
-    return [self substringFromIndex:i];
-}
 @end

@@ -23,6 +23,8 @@
         _keyWord = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"keyWord"];
         _userPreset = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"userPreset"];
         _importFile = [aDecoder decodeObjectOfClass: [NSString class] forKey:@"importFile"];
+        _userFilter = [aDecoder decodeObjectOfClass: [NSString class] forKey:@"userFilter"];
+
 
     }
     return self;
@@ -41,6 +43,8 @@
     [aEncoder encodeObject:_keyWord forKey:@"keyWord"];
     [aEncoder encodeObject:_userPreset forKey:@"userPreset"];
     [aEncoder encodeObject:_importFile forKey:@"importFile"];
+    [aEncoder encodeObject:_userFilter forKey:@"userFilter"];
+
 }
 
 @end

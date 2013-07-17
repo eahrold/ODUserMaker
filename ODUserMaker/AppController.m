@@ -106,8 +106,8 @@
 }
 
 -(void)uploadFileLocally:(User*)user withServer:(Server*)server{
-    //NSLog(@"This is sn inside: %@, with name %@",server.exportFile,server.serverName);
-
+    [self setProgress:(-100) withMessage:@"Adding Users to server..."];
+    
     NSXPCConnection *connection = [[NSXPCConnection alloc] initWithServiceName:kUploaderServiceName];
     connection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Uploader)];
     connection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
@@ -139,8 +139,8 @@
     user.lastName = _lastName.stringValue;
     user.userName = _userName.stringValue;
     user.userCWID = _userCWID.stringValue;
-    user.emailDomain = @"loyno.edu";
-    user.primaryGroup = @"20";
+    user.emailDomain = _emailDomain.stringValue;
+    user.primaryGroup = _defaultGroup.stringValue;
     user.userPreset = [ _userPreset titleOfSelectedItem];
     
     
@@ -161,26 +161,23 @@
 
     [self addUser:user withServer:server];
     
-//    if(self.exportFile){
-//        NSLog(@"This is the export file: %@", self.exportFile);
-//
-//    }
-    //[self uploadFileLocally:user withServer:server];
-
-    
-      
-
 }
 
 - (IBAction)makeImportFilePressed:(id)sender{
-    [self startProgressPanelWithMessage:@"Adding User..." indeterminate:NO];
+    [self startProgressPanelWithMessage:@"Making User List..." indeterminate:YES];
 
     User *user = [User new];
-    user.emailDomain = @"loyno.edu";
-    user.primaryGroup = @"20";
+    user.emailDomain = _emailDomain.stringValue;
+    user.primaryGroup = _defaultGroup.stringValue;
     user.userPreset = [ _userPreset titleOfSelectedItem];
-    user.importFile = self.importFilePath.stringValue;
-
+    user.keyWord = @"";
+    user.importFile = _importFilePath.stringValue;
+    
+    if(![_userFilter.stringValue isEqualToString:@""]){
+        user.userFilter = _userFilter.stringValue;
+    }else{
+        user.userFilter = @" ";
+    }
     
     Server *server = [Server new];
     server.serverName = _serverName.stringValue;
@@ -200,7 +197,7 @@
     if ( [openDlg runModal] == NSOKButton )
     {
         NSURL* url = [openDlg URL];
-        self.importFilePath.stringValue = url.path;
+        _importFilePath.stringValue = url.path;
     }
 }
     

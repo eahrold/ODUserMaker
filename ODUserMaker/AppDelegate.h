@@ -14,7 +14,8 @@
 //  User items
 //---------------------------------------------------
 @property (assign) IBOutlet NSPopUpButton *userPreset;
-
+@property (assign) IBOutlet NSTextField *emailDomain;
+@property (assign) IBOutlet NSTextField *defaultGroup;
 
 //---------------------------------------------------
 //  Server items
@@ -43,6 +44,6 @@
 @property (nonatomic, assign) BOOL quitThread;
 @property (assign) IBOutlet NSWindow *window;
 
-
+-(void)tryToSetInterface:(NSTextField*)filed withSetting:(NSString*)string;
 
 @end

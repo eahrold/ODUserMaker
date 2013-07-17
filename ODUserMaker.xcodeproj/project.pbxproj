@@ -10,6 +10,7 @@
 		BE085A62179326DE0079DFE9 /* com.aapps.ODUserMaker.file-service.xpc in CopyFiles */ = {isa = PBXBuildFile; fileRef = BEC425341792302A00CA45A5 /* com.aapps.ODUserMaker.file-service.xpc */; };
 		BE085A63179346020079DFE9 /* SecuredObjects.m in Sources */ = {isa = PBXBuildFile; fileRef = BEC425461792451E00CA45A5 /* SecuredObjects.m */; };
 		BE29322C17965D99001502D7 /* FileService.m in Sources */ = {isa = PBXBuildFile; fileRef = BEC425431792309D00CA45A5 /* FileService.m */; };
+		BE29322F1796F18B001502D7 /* NSString+StringSanitizer.m in Sources */ = {isa = PBXBuildFile; fileRef = BE29322E1796F18B001502D7 /* NSString+StringSanitizer.m */; };
 		BE9625E51795A55800839C80 /* SSKeychain.m in Sources */ = {isa = PBXBuildFile; fileRef = BE9625E41795A55800839C80 /* SSKeychain.m */; };
 		BE9625E71795A74100839C80 /* SSKeychain.m in Sources */ = {isa = PBXBuildFile; fileRef = BE9625E41795A55800839C80 /* SSKeychain.m */; };
 		BE9625E91795A74A00839C80 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BE9625E81795A74A00839C80 /* Security.framework */; };
@@ -49,6 +50,8 @@
 
 /* Begin PBXFileReference section */
 		BE085A671794F53F0079DFE9 /* ODUserMaker.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = ODUserMaker.entitlements; sourceTree = "<group>"; };
+		BE29322D1796F18B001502D7 /* NSString+StringSanitizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+StringSanitizer.h"; sourceTree = "<group>"; };
+		BE29322E1796F18B001502D7 /* NSString+StringSanitizer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+StringSanitizer.m"; sourceTree = "<group>"; };
 		BE9625E31795A55800839C80 /* SSKeychain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SSKeychain.h; sourceTree = "<group>"; };
 		BE9625E41795A55800839C80 /* SSKeychain.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SSKeychain.m; sourceTree = "<group>"; };
 		BE9625E81795A74A00839C80 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
@@ -232,6 +235,8 @@
 		BEC425371792302A00CA45A5 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				BE29322D1796F18B001502D7 /* NSString+StringSanitizer.h */,
+				BE29322E1796F18B001502D7 /* NSString+StringSanitizer.m */,
 				BEC4253D1792302A00CA45A5 /* main.m */,
 				BEC425381792302A00CA45A5 /* file-service-Info.plist */,
 				BEC425391792302A00CA45A5 /* InfoPlist.strings */,
@@ -392,6 +397,7 @@
 				BE085A63179346020079DFE9 /* SecuredObjects.m in Sources */,
 				BEC4253E1792302A00CA45A5 /* main.m in Sources */,
 				BE29322C17965D99001502D7 /* FileService.m in Sources */,
+				BE29322F1796F18B001502D7 /* NSString+StringSanitizer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

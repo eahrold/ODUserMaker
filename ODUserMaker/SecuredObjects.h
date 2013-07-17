@@ -19,6 +19,8 @@
 @property (copy) NSString *keyWord;
 @property (copy) NSString *userPreset;
 @property (copy) NSString* importFile;
+@property (copy) NSString* userFilter;
+
 
 
 

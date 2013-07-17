@@ -13,6 +13,9 @@
 
 // User Settings
 @property (assign) IBOutlet NSTextField *userName;
+@property (assign) IBOutlet NSTextField *emailDomain;
+@property (assign) IBOutlet NSTextField *defaultGroup;
+
 @property (assign) IBOutlet NSTextField *firstName;
 @property (assign) IBOutlet NSTextField *lastName;
 @property (assign) IBOutlet NSTextField *userCWID;
@@ -22,6 +25,8 @@
 // File Settings
 @property (assign) IBOutlet NSTextField *importFilePath;
 @property (assign) IBOutlet NSButton *chooseImportFile;
+@property (assign) IBOutlet NSTextField *userFilter;
+
 
 
 @property (copy) NSURL *importFile;

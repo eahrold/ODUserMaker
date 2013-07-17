@@ -29,7 +29,3 @@
 @property (weak) NSXPCConnection *xpcConnection;
 
 @end
-
-@interface NSString (trimLeadingWhitespace)
--(NSString*)stringByTrimmingLeadingWhitespace;
-@end
