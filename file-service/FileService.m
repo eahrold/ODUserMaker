@@ -88,57 +88,60 @@
     
     NSString *userList = [NSString stringWithContentsOfFile:user.importFile encoding:NSUTF8StringEncoding error:&err];
     
-     
+    // split up the string by new line char and though unnecissary alphabetize them.
     NSArray *arr = [userList componentsSeparatedByString:@"\n"];
     arr = [arr sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
 
-    NSMutableArray *userArray = [arr mutableCopy];
-    NSMutableArray *filteredArray = [NSMutableArray array];
-    
-    double totalSize = [userArray count];
-    double progress = 100 / totalSize;
+    // set up the chunk of progress size for indicator upadates...
+    //double totalSize = [userArray count];
+    //double progress = 100 / totalSize;
    
-    NSString* outSide = nil;
     NSArray *tmpArray;
     NSArray *tmpArray2;
+    NSMutableSet * processed = [NSMutableSet set];
     
     for (NSString* item in arr) {
         if ([item rangeOfString:@" "].location != NSNotFound){
             @try{
-            User *tmpUser = [User new];
-            
-            tmpArray = [item componentsSeparatedByString:@"\t"];
-            tmpUser.userName = [NSString stringWithFormat:@"%@",[tmpArray objectAtIndex:0]];
-            tmpUser.userCWID = [NSString stringWithFormat:@"%@",[tmpArray objectAtIndex:2]];
-            
-            // break it up one more time...
-            NSString * rawName = [NSString stringWithFormat:@"%@",[tmpArray objectAtIndex:1]];
-            tmpArray2 = [rawName componentsSeparatedByString:@","];
-            NSString * firstName = [NSString stringWithFormat:@"%@",[tmpArray2 objectAtIndex:1]];
-            NSString * lastName = [NSString stringWithFormat:@"%@",[tmpArray2 objectAtIndex:0]];
-            
-            //Sanatize...
-            firstName = [firstName stringByReplacingOccurrencesOfString:@"\"" withString:@""];
-            lastName = [lastName stringByReplacingOccurrencesOfString:@"\"" withString:@""];
-            tmpUser.firstName = [firstName stringByTrimmingLeadingWhitespace];
-            tmpUser.lastName = [lastName stringByTrimmingLeadingWhitespace];
-            
-            // get the items from the user sent over by the main app...
-            tmpUser.primaryGroup = user.primaryGroup;
-            tmpUser.emailDomain = user.emailDomain;
-            tmpUser.keyWord = user.keyWord;
-            
-            // then write it to the file...
-            [filteredArray addObject:tmpUser];
-            [[self.xpcConnection remoteObjectProxy] setProgress:progress];
-            [self writeUser:tmpUser toFile:fh];
+                tmpArray = [item componentsSeparatedByString:@"\t"];
+                if ([processed containsObject:[tmpArray objectAtIndex:0]] == NO) {
+                    
+                    // add the object to the processed array
+                    [processed addObject:[tmpArray objectAtIndex:0]];
+                    
+                    // set up a new user to add
+                    User *tmpUser = [User new];
+                    tmpUser.userName = [NSString stringWithFormat:@"%@",[tmpArray objectAtIndex:0]];
+                    tmpUser.userCWID = [NSString stringWithFormat:@"%@",[tmpArray objectAtIndex:2]];
+                    
+                    // break it up one more time...
+                    NSString * rawName = [NSString stringWithFormat:@"%@",[tmpArray objectAtIndex:1]];
+                    tmpArray2 = [rawName componentsSeparatedByString:@","];
+                    NSString * firstName = [NSString stringWithFormat:@"%@",[tmpArray2 objectAtIndex:1]];
+                    NSString * lastName = [NSString stringWithFormat:@"%@",[tmpArray2 objectAtIndex:0]];
+                    
+                    //Sanatize...
+                    firstName = [firstName stringByReplacingOccurrencesOfString:@"\"" withString:@""];
+                    lastName = [lastName stringByReplacingOccurrencesOfString:@"\"" withString:@""];
+                    tmpUser.firstName = [firstName stringByTrimmingLeadingWhitespace];
+                    tmpUser.lastName = [lastName stringByTrimmingLeadingWhitespace];
+                    
+                    // get the items from the User object sent over by the main app...
+                    tmpUser.primaryGroup = user.primaryGroup;
+                    tmpUser.emailDomain = user.emailDomain;
+                    tmpUser.keyWord = user.keyWord;
+                    
+                    // then write it to the file...
+                    [self writeUser:tmpUser toFile:fh];
+                    
+                    //[[self.xpcConnection remoteObjectProxy] setProgress:progress];
+                    }
             }
-            @catch (NSException* err) {
-                
+        @catch (NSException* err) {
             }
         }
     }
-    return YES;
+     return YES;
 }
 
 //------------------------------------------------
