@@ -18,7 +18,7 @@
 //  Progress Panel
 //-------------------------------------------
 
-- (void)startProgressPanelWithMessage:(NSString *)message indeterminate:(BOOL)indeterminate {
+- (void)startProgressPanelWithMessage:(NSString*)message indeterminate:(BOOL)indeterminate {
     // Display a progress panel as a sheet
     self.progressMessage = message;
     if (indeterminate) {
@@ -48,7 +48,7 @@
     }];
 }
 
-- (void)setProgress:(double)progress withMessage:(NSString *)message {
+- (void)setProgress:(double)progress withMessage:(NSString*)message {
     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
         [self.progressIndicator incrementBy:progress];
         self.progressMessage = message;
@@ -69,16 +69,14 @@
 //-----------------------------------------------------------
 
 -(void)addListOfUsers:(User*)user withServer:(Server*)server{
-    NSXPCConnection *connection = [[NSXPCConnection alloc] initWithServiceName:kFileServiceName];
+    NSXPCConnection* connection = [[NSXPCConnection alloc] initWithServiceName:kFileServiceName];
     connection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Exporter)];
     connection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
     connection.exportedObject = self;
     [connection resume];
-    [[connection remoteObjectProxy] makeExportFile:user withReply:^(NSString *reply){
+    [[connection remoteObjectProxy] makeExportFile:user withReply:^(NSString* msg){
         
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-            server.exportFile = reply;
-            NSLog(reply);
             [self stopProgressPanel];
 
             //[self uploadFileLocally:user withServer:server];
@@ -89,15 +87,14 @@
 
 
 -(void)addUser:(User*)user withServer:(Server*)server{
-    NSXPCConnection *connection = [[NSXPCConnection alloc] initWithServiceName:kFileServiceName];
+    NSXPCConnection* connection = [[NSXPCConnection alloc] initWithServiceName:kFileServiceName];
     connection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Exporter)];
     connection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
     connection.exportedObject = self;
     [connection resume];
-    [[connection remoteObjectProxy] makeSingelUserFile:user withReply:^(NSString *reply){
+    [[connection remoteObjectProxy] makeSingelUserFile:user withReply:^(NSString* reply){
         
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-            server.exportFile = reply;
             [self uploadFileLocally:user withServer:server];
 
         }];
@@ -108,12 +105,12 @@
 -(void)uploadFileLocally:(User*)user withServer:(Server*)server{
     [self setProgress:(-100) withMessage:@"Adding Users to server..."];
     
-    NSXPCConnection *connection = [[NSXPCConnection alloc] initWithServiceName:kUploaderServiceName];
+    NSXPCConnection* connection = [[NSXPCConnection alloc] initWithServiceName:kUploaderServiceName];
     connection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Uploader)];
     connection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
     connection.exportedObject = self;
     [connection resume];
-    [[connection remoteObjectProxy] uploadToServer:server user:user withReply:^(NSString *response){
+    [[connection remoteObjectProxy] uploadToServer:server user:user withReply:^(NSString* response){
         
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
             NSLog(@"%@",response);
@@ -132,6 +129,8 @@
 - (IBAction)makeSingleUserPressed:(id)sender{
     [self startProgressPanelWithMessage:@"Adding User..." indeterminate:NO];
     
+   
+    
     // Set up the User Object
     User* user = nil;
     user = [User new];
@@ -142,7 +141,6 @@
     user.emailDomain = _emailDomain.stringValue;
     user.primaryGroup = _defaultGroup.stringValue;
     user.userPreset = [ _userPreset titleOfSelectedItem];
-    
     
     if([_commStudent state]){
         user.keyWord = @"CommStudent";
@@ -157,16 +155,22 @@
     server.serverName = _serverName.stringValue;
     server.diradminName = _diradminName.stringValue;
     server.diradminPass = _diradminPass.stringValue;
-
-
-    [self addUser:user withServer:server];
     
+    // Now we'll set up some FileHandles one for reading and one for writing for each of the
+    // services respectivly
+    NSString* exportFile = [NSString stringWithFormat:@"%@%@",NSTemporaryDirectory(),user.userName];
+    [[NSFileManager defaultManager] createFileAtPath:exportFile contents:nil attributes:nil];
+    
+    user.exportFile = [NSFileHandle fileHandleForWritingAtPath:exportFile];
+    server.exportFile = [NSFileHandle fileHandleForReadingAtPath:exportFile];
+    
+    [self addUser:user withServer:server];
 }
 
 - (IBAction)makeImportFilePressed:(id)sender{
     [self startProgressPanelWithMessage:@"Making User List..." indeterminate:YES];
 
-    User *user = [User new];
+    User* user = [User new];
     user.emailDomain = _emailDomain.stringValue;
     user.primaryGroup = _defaultGroup.stringValue;
     user.userPreset = [ _userPreset titleOfSelectedItem];
@@ -179,7 +183,7 @@
         user.userFilter = @" ";
     }
     
-    Server *server = [Server new];
+    Server* server = [Server new];
     server.serverName = _serverName.stringValue;
     server.diradminName = _diradminName.stringValue;
     server.diradminPass = _diradminPass.stringValue;

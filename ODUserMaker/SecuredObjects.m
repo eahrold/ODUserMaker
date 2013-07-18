@@ -10,7 +10,7 @@
 
 @implementation User
 
-- (id)initWithCoder:(NSCoder *)aDecoder {
+- (id)initWithCoder:(NSCoder*)aDecoder {
     self = [super init];
     if (self) {
         // NSSecureCoding requires that we specify the class of the object while decoding it, using the decodeObjectOfClass:forKey: method.
@@ -24,8 +24,7 @@
         _userPreset = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"userPreset"];
         _importFile = [aDecoder decodeObjectOfClass: [NSString class] forKey:@"importFile"];
         _userFilter = [aDecoder decodeObjectOfClass: [NSString class] forKey:@"userFilter"];
-
-
+        _exportFile = [aDecoder decodeObjectOfClass: [NSFileHandle class] forKey:@"exportFile"];
     }
     return self;
 }
@@ -33,7 +32,7 @@
 // Because this class implements initWithCoder:, it must also return YES from this method.
 + (BOOL)supportsSecureCoding { return YES; }
 
-- (void)encodeWithCoder:(NSCoder *)aEncoder {
+- (void)encodeWithCoder:(NSCoder*)aEncoder {
     [aEncoder encodeObject:_userName forKey:@"userName"];
     [aEncoder encodeObject:_firstName forKey:@"firstName"];
     [aEncoder encodeObject:_lastName forKey:@"lastName"];
@@ -44,6 +43,7 @@
     [aEncoder encodeObject:_userPreset forKey:@"userPreset"];
     [aEncoder encodeObject:_importFile forKey:@"importFile"];
     [aEncoder encodeObject:_userFilter forKey:@"userFilter"];
+    [aEncoder encodeObject:_exportFile forKey:@"exportFile"];
 
 }
 
@@ -51,14 +51,14 @@
 
 @implementation Server
 
-- (id)initWithCoder:(NSCoder *)aDecoder {
+- (id)initWithCoder:(NSCoder*)aDecoder {
     self = [super init];
     if (self) {
         // NSSecureCoding requires that we specify the class of the object while decoding it, using the decodeObjectOfClass:forKey: method.
         _serverName = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"serverName"];
         _diradminName = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"diradminName"];
         _diradminPass = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"diradminPass"];
-        _exportFile = [aDecoder decodeObjectOfClass: [NSString class] forKey:@"exportFile"];
+        _exportFile = [aDecoder decodeObjectOfClass: [NSFileHandle class] forKey:@"exportFile"];
     }
     return self;
 }
@@ -66,7 +66,7 @@
 // Because this class implements initWithCoder:, it must also return YES from this method.
 + (BOOL)supportsSecureCoding { return YES; }
 
-- (void)encodeWithCoder:(NSCoder *)aEncoder {
+- (void)encodeWithCoder:(NSCoder*)aEncoder {
     [aEncoder encodeObject:_serverName forKey:@"serverName"];
     [aEncoder encodeObject:_diradminName forKey:@"diradminName"];
     [aEncoder encodeObject:_diradminPass forKey:@"diradminPass"];

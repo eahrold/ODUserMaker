@@ -14,10 +14,10 @@
 
 @protocol Exporter
 -(void)makeExportFile:(User*)user
-            withReply:(void (^)(NSString *convertedFile))reply;
+            withReply:(void (^)(NSString *msg))reply;
 
 -(void)makeSingelUserFile:(User*)user
-                withReply:(void (^)(NSString *convertedFile))reply;
+                withReply:(void (^)(NSString *msg))reply;
 
 @end
 

@@ -20,13 +20,22 @@
 -(NSString*)dsImport:(User*)user withServer:(Server*)server{
     NSLog(@"Doing Task");
     
-    // Set up the actual stirngs
+    
+    //  We need to do this get around the sandbox for the NSTask
+    NSString* dsimportFile = [NSString stringWithFormat:@"%@%@",NSTemporaryDirectory(),user.userName];
+    NSFileHandle* fh = [NSFileHandle fileHandleForWritingAtPath:dsimportFile];
 
+    // the File Handle got tucked away into the server object let's get the data out.
+    NSData* buffer = [server.exportFile readDataToEndOfFile];
+
+    // create a new file in this service's tempdir
+    [[NSFileManager defaultManager] createFileAtPath: dsimportFile contents: buffer attributes: nil];
+    [fh closeFile];
+    
+    
     NSTask* task = [[NSTask alloc] init];
     
-   // NSMutableArray* args = [NSMutableArray arrayWithArray:[NSArray arrayWithObjects:server.exportFile,ldpaAddress,@"--username",server.diradminName,@"--password",server.diradminPass, nil]];
-    
-    NSMutableArray* args = [NSMutableArray arrayWithArray:[NSArray arrayWithObjects:server.exportFile,@"/LDAPv3/127.0.0.1",@"I",@"--remoteusername",server.diradminName,@"--remotehost",server.serverName, nil]];
+    NSMutableArray* args = [NSMutableArray arrayWithArray:[NSArray arrayWithObjects:dsimportFile,@"/LDAPv3/127.0.0.1",@"I",@"--remoteusername",server.diradminName,@"--remotehost",server.serverName, nil]];
     
     if(user.userPreset){
         [args addObject:@"--userpreset"];
@@ -46,18 +55,18 @@
     
     [task launch];
     
-    NSFileHandle *sendCmd = [[task standardInput] fileHandleForWriting];
-    NSString * inString = [ NSString stringWithFormat: @"%@\n",server.diradminPass];
+    NSFileHandle* sendCmd = [[task standardInput] fileHandleForWriting];
+    NSString* inString = [ NSString stringWithFormat: @"%@\n",server.diradminPass];
     
-    NSData *data = [inString dataUsingEncoding:NSUTF8StringEncoding];
+    NSData* data = [inString dataUsingEncoding:NSUTF8StringEncoding];
     
     // dsimport asks fot the password twice so we'll just repeat it here
     [sendCmd writeData:data];
     [sendCmd writeData:data];
 
     
-    NSData *outputData = [[outputPipe fileHandleForReading] readDataToEndOfFile];
-    NSString *outputString = [[NSString alloc] initWithData:outputData encoding:NSUTF8StringEncoding];
+    NSData* outputData = [[outputPipe fileHandleForReading] readDataToEndOfFile];
+    NSString* outputString = [[NSString alloc] initWithData:outputData encoding:NSUTF8StringEncoding];
 
     return outputString;
 }
@@ -74,8 +83,8 @@
 }
 
 -(void)uploadToServer:(Server*)server
-                 user:(User *)user
-                withReply:(void (^)(NSString *))reply{
+                 user:(User*)user
+                withReply:(void (^)(NSString*))reply{
    
     [[self.xpcConnection remoteObjectProxy] setProgressMsg:@"Sending to server..."];
     
@@ -91,9 +100,9 @@
 //  Singleton and ListenerDelegate
 //---------------------------------
 
-+ (Uploader *)sharedUploader {
++ (Uploader*)sharedUploader {
     static dispatch_once_t onceToken;
-    static Uploader *shared;
+    static Uploader* shared;
     dispatch_once(&onceToken, ^{
         shared = [Uploader new];
     });
@@ -102,7 +111,7 @@
 
 
 // Implement the one method in the NSXPCListenerDelegate protocol.
-- (BOOL)listener:(NSXPCListener *)listener shouldAcceptNewConnection:(NSXPCConnection *)newConnection {
+- (BOOL)listener:(NSXPCListener*)listener shouldAcceptNewConnection:(NSXPCConnection*)newConnection {
    
     newConnection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Uploader)];
     newConnection.exportedObject = self;

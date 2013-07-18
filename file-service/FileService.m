@@ -20,11 +20,11 @@
 
 -(NSString*)makeUidFromUserName:(NSString*)uname{
     
-    const char *cStr = [uname UTF8String];
+    const char* cStr = [uname UTF8String];
     unsigned char digest[16];
     CC_MD5( cStr, strlen(cStr), digest ); // This is the md5 call
     
-    NSMutableString *md5 = [NSMutableString stringWithCapacity:CC_MD5_DIGEST_LENGTH * 2];
+    NSMutableString* md5 = [NSMutableString stringWithCapacity:CC_MD5_DIGEST_LENGTH* 2];
     
     for(int i = 0; i < CC_MD5_DIGEST_LENGTH; i++)
         [md5 appendFormat:@"%02x", digest[i]];
@@ -68,7 +68,7 @@
     NSString* homeDir = @"";
     NSString* keyWords = user.keyWord;
     
-    NSArray * uArray = [NSArray arrayWithObjects:userName,fullName,lastName,email,uuid,password,passwordPolicy,primaryGroup,nfsHome,homeDir,keyWords, nil];
+    NSArray* uArray = [NSArray arrayWithObjects:userName,fullName,lastName,email,uuid,password,passwordPolicy,primaryGroup,nfsHome,homeDir,keyWords, nil];
     
     for (NSString __strong* i in uArray) {
         if (!i || [i isEqual:@" "]){
@@ -78,28 +78,28 @@
         }
     }
     
-    NSString * userEntry = [NSString stringWithFormat:@"%@:%@:%@:%@:%@:%@:%@:%@:%@:%@:%@:%@\n",userName,fullName,firstName,lastName,email,uuid,password,passwordPolicy,primaryGroup,nfsHome,homeDir,keyWords];
+    NSString* userEntry = [NSString stringWithFormat:@"%@:%@:%@:%@:%@:%@:%@:%@:%@:%@:%@:%@\n",userName,fullName,firstName,lastName,email,uuid,password,passwordPolicy,primaryGroup,nfsHome,homeDir,keyWords];
     [fh writeData:[userEntry dataUsingEncoding:NSUTF8StringEncoding]];
     
     return YES;
    }
 
 -(BOOL)parseUserList:(User*)user toFile:(NSFileHandle*)fh{
-    NSError *err = NULL;
+    NSError* err = NULL;
     
-    NSString *userList = [NSString stringWithContentsOfFile:user.importFile encoding:NSUTF8StringEncoding error:&err];
+    NSString* userList = [NSString stringWithContentsOfFile:user.importFile encoding:NSUTF8StringEncoding error:&err];
     
     // split up the string by new line char and though unnecissary alphabetize them.
-    NSArray *arr = [userList componentsSeparatedByString:@"\n"];
+    NSArray* arr = [userList componentsSeparatedByString:@"\n"];
     arr = [arr sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
 
     // set up the chunk of progress size for indicator upadates...
     //double totalSize = [userArray count];
     //double progress = 100 / totalSize;
    
-    NSArray *tmpArray;
-    NSArray *tmpArray2;
-    NSMutableSet * processed = [NSMutableSet set];
+    NSArray* tmpArray;
+    NSArray* tmpArray2;
+    NSMutableSet* processed = [NSMutableSet set];
     
     for (NSString* item in arr) {
         if ([item rangeOfString:user.userFilter].location != NSNotFound){
@@ -111,15 +111,15 @@
                     [processed addObject:[tmpArray objectAtIndex:0]];
                     
                     // set up a new user to add
-                    User *tmpUser = [User new];
+                    User* tmpUser = [User new];
                     tmpUser.userName = [NSString stringWithFormat:@"%@",[tmpArray objectAtIndex:0]];
                     tmpUser.userCWID = [NSString stringWithFormat:@"%@",[tmpArray objectAtIndex:2]];
                     
                     // break it up one more time...
-                    NSString * rawName = [NSString stringWithFormat:@"%@",[tmpArray objectAtIndex:1]];
+                    NSString* rawName = [NSString stringWithFormat:@"%@",[tmpArray objectAtIndex:1]];
                     tmpArray2 = [rawName componentsSeparatedByString:@","];
-                    NSString * firstName = [NSString stringWithFormat:@"%@",[tmpArray2 objectAtIndex:1]];
-                    NSString * lastName = [NSString stringWithFormat:@"%@",[tmpArray2 objectAtIndex:0]];
+                    NSString* firstName = [NSString stringWithFormat:@"%@",[tmpArray2 objectAtIndex:1]];
+                    NSString* lastName = [NSString stringWithFormat:@"%@",[tmpArray2 objectAtIndex:0]];
                     
                     //Sanatize...
                     firstName = [firstName stringByReplacingOccurrencesOfString:@"\"" withString:@""];
@@ -151,51 +151,59 @@
 
 
 -(void)makeExportFile:(User*)user
-            withReply:(void (^)(NSString *exportFile))reply{
+            withReply:(void (^)(NSString* msg))reply{
     BOOL success;
+    NSString* msg;
     
     [[self.xpcConnection remoteObjectProxy] setProgress:0 withMessage:@"Adding Users..."];
     doSleep(1);
     
-    NSString* exportFile = [NSString stringWithFormat:@"%@%@",NSTemporaryDirectory(),@"MakingBigList"];
-    [[NSFileManager defaultManager] createFileAtPath:exportFile contents:nil attributes:nil];
-    NSFileHandle* outfile = [NSFileHandle fileHandleForWritingAtPath:exportFile];
+   
 
-    [self writeHeaders:outfile];
-    success = [self parseUserList:user toFile:outfile];
+    [self writeHeaders:user.exportFile];
+    success = [self parseUserList:user toFile:user.exportFile];
     
+    if(success)
+        msg = @"made user";
+    else
+        msg = @"there were problems";
     
-    [outfile closeFile];
-    reply(exportFile);
+    [user.exportFile closeFile];
+    
+    reply(msg);
 
     
 }
 
 -(void)makeSingelUserFile:(User*)user
-                withReply:(void (^)(NSString *exportFile))reply{
+                withReply:(void (^)(NSString* msg))reply{
     BOOL success;
+    NSString* msg;
     
     [[self.xpcConnection remoteObjectProxy] setProgress:50 withMessage:@"Adding User..."];
-    doSleep(1);
-    NSString* exportFile = [NSString stringWithFormat:@"%@%@",NSTemporaryDirectory(),user.userName];
-    [[NSFileManager defaultManager] createFileAtPath:exportFile contents:nil attributes:nil];
-    NSFileHandle* fh = [NSFileHandle fileHandleForWritingAtPath:exportFile];
+
+    [self writeHeaders:user.exportFile];
+    success = [self writeUser:user toFile:user.exportFile];
     
-    [self writeHeaders:fh];
-    success = [self writeUser:user toFile:fh];
+    [user.exportFile closeFile];
+   
+    if(success)
+        msg = @"made user";
+    else
+        msg = @"there were problems";
     
+    [user.exportFile closeFile];
     
-    [fh closeFile];
-    reply(exportFile);
+    reply(msg);
     
 }
 //---------------------------------
 //  Singleton and ListenerDelegate
 //---------------------------------
 
-+ (Exporter *)sharedExporter {
++ (Exporter* )sharedExporter {
     static dispatch_once_t onceToken;
-    static Exporter *shared;
+    static Exporter* shared;
     dispatch_once(&onceToken, ^{
         shared = [Exporter new];
     });
@@ -204,7 +212,7 @@
 
 
 // Implement the one method in the NSXPCListenerDelegate protocol.
-- (BOOL)listener:(NSXPCListener *)listener shouldAcceptNewConnection:(NSXPCConnection *)newConnection {
+- (BOOL)listener:(NSXPCListener* )listener shouldAcceptNewConnection:(NSXPCConnection* )newConnection {
     
     newConnection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Exporter)];
     newConnection.exportedObject = self;

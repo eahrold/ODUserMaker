@@ -42,10 +42,10 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
 
     }else{
         
-        NSPipe *pipe1 = [[NSPipe alloc] init];
-        NSPipe *resultPipe = [[NSPipe alloc] init];
+        NSPipe* pipe1 = [[NSPipe alloc] init];
+        NSPipe* resultPipe = [[NSPipe alloc] init];
 
-        NSTask *odutil = [[NSTask alloc]init];
+        NSTask* odutil = [[NSTask alloc]init];
         [odutil setLaunchPath: @"/usr/bin/odutil"];
         [odutil setArguments:[NSArray arrayWithObjects:@"show",@"nodenames",nil]];
         [odutil setStandardOutput:pipe1];
@@ -83,9 +83,9 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
 -(void)getUserPresets{
     if(_dsServerStatus){
         NSLog(@"Getting Presets");
-        NSString * svrldap = [NSString stringWithFormat:@"/LDAPv3/%@",_serverName.stringValue];
-        NSTask *dscl = [[NSTask alloc]init];
-        NSPipe *resultPipe = [[NSPipe alloc] init];
+        NSString* svrldap = [NSString stringWithFormat:@"/LDAPv3/%@",_serverName.stringValue];
+        NSTask* dscl = [[NSTask alloc]init];
+        NSPipe* resultPipe = [[NSPipe alloc] init];
 
         [dscl setLaunchPath: @"/usr/bin/dscl"];
         [dscl setArguments:[NSArray arrayWithObjects:svrldap,@"-list",@"/PresetUsers",nil]];
@@ -101,8 +101,8 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
         if (![dscl isRunning]) {
             int status = [dscl terminationStatus];
             if (status == 0){
-                NSArray *ary = [presetString componentsSeparatedByString:@"\n"];
-                NSMutableArray *mAry = [(NSArray*)ary mutableCopy];
+                NSArray* ary = [presetString componentsSeparatedByString:@"\n"];
+                NSMutableArray* mAry = [(NSArray*)ary mutableCopy];
                 [mAry removeObject:@""];
                 [_userPreset addItemsWithTitles: mAry];
             }
@@ -115,7 +115,7 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
 //  User Default 
 //-----------------------
 -(void)setUserDefaults{
-    NSUserDefaults * setDefaults = [NSUserDefaults standardUserDefaults];
+    NSUserDefaults* setDefaults = [NSUserDefaults standardUserDefaults];
     @try {
         [setDefaults setObject:self.defaultGroup.stringValue forKey:@"defaultGroup"];
         [setDefaults setObject:self.emailDomain.stringValue forKey:@"emailDomain"];
@@ -124,7 +124,7 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
         [setDefaults setObject:self.importFilePath.stringValue forKey:@"lastFile"];
         [SSKeychain setPassword:self.diradminPass.stringValue forService:[[NSBundle mainBundle] bundleIdentifier] account:self.diradminName.stringValue];
     }
-    @catch (NSException *exception) {
+    @catch (NSException* exception) {
     }
     [setDefaults synchronize];
 }
@@ -132,11 +132,11 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
 -(void)tryToSetInterface:(NSTextField*)filed withSetting:(NSString*)string{
     @try {
         filed.stringValue = string;}
-    @catch (NSException *exception){}
+    @catch (NSException* exception){}
 }
 
 -(void)getUserDefualts{
-    NSUserDefaults *getDefaults = [NSUserDefaults standardUserDefaults];
+    NSUserDefaults* getDefaults = [NSUserDefaults standardUserDefaults];
     
     [self tryToSetInterface:_serverName withSetting:[getDefaults stringForKey:@"serverName"]];
     [self tryToSetInterface:_defaultGroup withSetting:[getDefaults stringForKey:@"defaultGroup"]];
@@ -154,7 +154,7 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
 
 
 
-- (void)applicationDidFinishLaunching:(NSNotification *)aNotification
+- (void)applicationDidFinishLaunching:(NSNotification* )aNotification
 {
     // Insert code here to initialize your application
     [self getUserDefualts];
@@ -163,7 +163,7 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
     [self getDirectoryServerStatus];
 }
 
-- (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)theApplication{
+- (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication* )theApplication{
     [self setUserDefaults];
     return YES;
 }

@@ -18,8 +18,11 @@
 @property (copy) NSString *emailDomain;
 @property (copy) NSString *keyWord;
 @property (copy) NSString *userPreset;
-@property (copy) NSString* importFile;
-@property (copy) NSString* userFilter;
+@property (copy) NSString *userFilter;
+
+//The User export file is the one we use for the the file-service
+@property (copy) NSFileHandle *exportFile;
+@property (copy) NSString *importFile;
 
 
 
@@ -33,7 +36,10 @@
 @property (copy) NSString *serverName;
 @property (copy) NSString *diradminName;
 @property (copy) NSString *diradminPass;
-@property (copy) NSString* exportFile;
+
+//The Server export file is the one we use for the the network-service
+@property (copy) NSFileHandle *exportFile;
+
 
 
 @end

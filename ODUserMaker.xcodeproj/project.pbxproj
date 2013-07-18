@@ -11,6 +11,8 @@
 		BE085A63179346020079DFE9 /* SecuredObjects.m in Sources */ = {isa = PBXBuildFile; fileRef = BEC425461792451E00CA45A5 /* SecuredObjects.m */; };
 		BE29322C17965D99001502D7 /* FileService.m in Sources */ = {isa = PBXBuildFile; fileRef = BEC425431792309D00CA45A5 /* FileService.m */; };
 		BE29322F1796F18B001502D7 /* NSString+StringSanitizer.m in Sources */ = {isa = PBXBuildFile; fileRef = BE29322E1796F18B001502D7 /* NSString+StringSanitizer.m */; };
+		BE29325617972994001502D7 /* file-service.entitlements in Resources */ = {isa = PBXBuildFile; fileRef = BE29325517972994001502D7 /* file-service.entitlements */; };
+		BE293258179729C9001502D7 /* network-service.entitlements in Resources */ = {isa = PBXBuildFile; fileRef = BE293257179729C9001502D7 /* network-service.entitlements */; };
 		BE9625E51795A55800839C80 /* SSKeychain.m in Sources */ = {isa = PBXBuildFile; fileRef = BE9625E41795A55800839C80 /* SSKeychain.m */; };
 		BE9625E71795A74100839C80 /* SSKeychain.m in Sources */ = {isa = PBXBuildFile; fileRef = BE9625E41795A55800839C80 /* SSKeychain.m */; };
 		BE9625E91795A74A00839C80 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BE9625E81795A74A00839C80 /* Security.framework */; };
@@ -52,6 +54,8 @@
 		BE085A671794F53F0079DFE9 /* ODUserMaker.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = ODUserMaker.entitlements; sourceTree = "<group>"; };
 		BE29322D1796F18B001502D7 /* NSString+StringSanitizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+StringSanitizer.h"; sourceTree = "<group>"; };
 		BE29322E1796F18B001502D7 /* NSString+StringSanitizer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+StringSanitizer.m"; sourceTree = "<group>"; };
+		BE29325517972994001502D7 /* file-service.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = "file-service.entitlements"; sourceTree = "<group>"; };
+		BE293257179729C9001502D7 /* network-service.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = "network-service.entitlements"; sourceTree = "<group>"; };
 		BE9625E31795A55800839C80 /* SSKeychain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SSKeychain.h; sourceTree = "<group>"; };
 		BE9625E41795A55800839C80 /* SSKeychain.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SSKeychain.m; sourceTree = "<group>"; };
 		BE9625E81795A74A00839C80 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
@@ -196,6 +200,7 @@
 			isa = PBXGroup;
 			children = (
 				BEC425281791A9B500CA45A5 /* NetworkService.m */,
+				BE293257179729C9001502D7 /* network-service.entitlements */,
 				BEC4251A1791A85900CA45A5 /* Supporting Files */,
 			);
 			path = "network-service";
@@ -226,6 +231,7 @@
 		BEC425361792302A00CA45A5 /* file-service */ = {
 			isa = PBXGroup;
 			children = (
+				BE29325517972994001502D7 /* file-service.entitlements */,
 				BEC425431792309D00CA45A5 /* FileService.m */,
 				BEC425371792302A00CA45A5 /* Supporting Files */,
 			);
@@ -353,6 +359,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				BEC4251E1791A85900CA45A5 /* InfoPlist.strings in Resources */,
+				BE293258179729C9001502D7 /* network-service.entitlements in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -361,6 +368,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				BEC4253B1792302A00CA45A5 /* InfoPlist.strings in Resources */,
+				BE29325617972994001502D7 /* file-service.entitlements in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -542,6 +550,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CODE_SIGN_ENTITLEMENTS = "network-service/network-service.entitlements";
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -558,6 +567,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CODE_SIGN_ENTITLEMENTS = "network-service/network-service.entitlements";
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -574,6 +584,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CODE_SIGN_ENTITLEMENTS = "file-service/file-service.entitlements";
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -590,6 +601,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CODE_SIGN_ENTITLEMENTS = "file-service/file-service.entitlements";
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
