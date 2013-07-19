@@ -48,7 +48,7 @@
 
 -(void)writeHeaders:(NSFileHandle*)fh{
     NSString* odHeader = @"0x0A 0x5C 0x3A 0x2C dsRecTypeStandard:Users 12 dsAttrTypeStandard:RecordName dsAttrTypeStandard:RealName dsAttrTypeStandard:FirstName dsAttrTypeStandard:LastName dsAttrTypeStandard:EMailAddress dsAttrTypeStandard:UniqueID dsAttrTypeStandard:Password dsAttrTypeStandard:PasswordPolicyOptions dsAttrTypeStandard:PrimaryGroupID dsAttrTypeStandard:NFSHomeDirectory dsAttrTypeStandard:HomeDirectory dsAttrTypeStandard:Keywords\n";
-    
+        
     [fh writeData:[odHeader dataUsingEncoding:NSUTF8StringEncoding]];
 }
 
@@ -79,20 +79,31 @@
     }
     
     NSString* userEntry = [NSString stringWithFormat:@"%@:%@:%@:%@:%@:%@:%@:%@:%@:%@:%@:%@\n",userName,fullName,firstName,lastName,email,uuid,password,passwordPolicy,primaryGroup,nfsHome,homeDir,keyWords];
+    @try{
     [fh writeData:[userEntry dataUsingEncoding:NSUTF8StringEncoding]];
-    
+    }
+    @catch(NSException* exception){
+        return NO;
+    }
     return YES;
    }
 
 -(BOOL)parseUserList:(User*)user toFile:(NSFileHandle*)fh{
-    NSError* err = NULL;
+    NSData* importFileData = [user.importFileHandle readDataToEndOfFile];
+    user.userList = [[NSString alloc] initWithData:importFileData
+                                          encoding:NSUTF8StringEncoding];
     
-    NSString* userList = [NSString stringWithContentsOfFile:user.importFile encoding:NSUTF8StringEncoding error:&err];
+
+    
     
     // split up the string by new line char and though unnecissary alphabetize them.
-    NSArray* arr = [userList componentsSeparatedByString:@"\n"];
+    NSArray* arr = [user.userList componentsSeparatedByString:@"\n"];
     arr = [arr sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
 
+    if( arr == nil || [arr count] == 0 || [arr count] == 1 ){
+        return NO;
+    }
+    
     // set up the chunk of progress size for indicator upadates...
     //double totalSize = [userArray count];
     //double progress = 100 / totalSize;
@@ -151,50 +162,53 @@
 
 
 -(void)makeExportFile:(User*)user
-            withReply:(void (^)(NSString* msg))reply{
+            withReply:(void (^)(NSError*error,NSString* msg))reply{
     BOOL success;
     NSString* msg;
+    NSError* error = nil;
     
     [[self.xpcConnection remoteObjectProxy] setProgress:0 withMessage:@"Adding Users..."];
-    doSleep(1);
     
-   
-
     [self writeHeaders:user.exportFile];
+
     success = [self parseUserList:user toFile:user.exportFile];
     
-    if(success)
-        msg = @"made user";
-    else
-        msg = @"there were problems";
+    if(success){
+        msg = @"Made user list";
+    }else{
+        NSMutableDictionary* noList = [NSMutableDictionary dictionary];
+        [noList setValue:@"We couldn't create user list" forKey:NSLocalizedDescriptionKey];
+        error =[NSError errorWithDomain:@"fault" code:101 userInfo:noList];
+    }
     
     [user.exportFile closeFile];
-    
-    reply(msg);
+    reply(error,msg);
 
     
 }
 
 -(void)makeSingelUserFile:(User*)user
-                withReply:(void (^)(NSString* msg))reply{
+                withReply:(void (^)(NSError* error,NSString* msg))reply{
     BOOL success;
     NSString* msg;
+    NSError* error = nil;
     
     [[self.xpcConnection remoteObjectProxy] setProgress:50 withMessage:@"Adding User..."];
 
     [self writeHeaders:user.exportFile];
     success = [self writeUser:user toFile:user.exportFile];
     
-    [user.exportFile closeFile];
-   
-    if(success)
+    if(success){
         msg = @"made user";
-    else
-        msg = @"there were problems";
+    }else{
+        NSMutableDictionary* noUser = [NSMutableDictionary dictionary];
+        [noUser setValue:@"We couldn't create user" forKey:NSLocalizedDescriptionKey];
+        error =[NSError errorWithDomain:@"fault" code:101 userInfo:noUser];
+    }
+    
     
     [user.exportFile closeFile];
-    
-    reply(msg);
+    reply(error,msg);
     
 }
 //---------------------------------

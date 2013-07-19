@@ -22,7 +22,11 @@
 
 //The User export file is the one we use for the the file-service
 @property (copy) NSFileHandle *exportFile;
-@property (copy) NSString *importFile;
+@property (copy) NSFileHandle *importFileHandle;
+@property (copy) NSString *importFilePath;
+@property (copy) NSURL *importFileURL;
+
+@property (copy) NSString *userList;
 
 
 

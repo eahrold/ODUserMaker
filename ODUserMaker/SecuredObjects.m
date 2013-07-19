@@ -18,13 +18,21 @@
         _firstName = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"firstName"];
         _lastName = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"lastName"];
         _userCWID = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"userCWID"];
+        
         _primaryGroup = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"primaryGroup"];
         _emailDomain = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"emailDomain"];
         _keyWord = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"keyWord"];
         _userPreset = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"userPreset"];
-        _importFile = [aDecoder decodeObjectOfClass: [NSString class] forKey:@"importFile"];
+        
         _userFilter = [aDecoder decodeObjectOfClass: [NSString class] forKey:@"userFilter"];
+        _userList = [aDecoder decodeObjectOfClass: [NSString class] forKey:@"userList"];
+        
         _exportFile = [aDecoder decodeObjectOfClass: [NSFileHandle class] forKey:@"exportFile"];
+        
+        _importFileHandle = [aDecoder decodeObjectOfClass: [NSFileHandle class] forKey:@"importFileHandle"];
+        _importFilePath = [aDecoder decodeObjectOfClass: [NSString class] forKey:@"importFilePath"];
+        _importFileURL = [aDecoder decodeObjectOfClass: [NSURL class] forKey:@"importFileURL"];
+
     }
     return self;
 }
@@ -39,11 +47,19 @@
     [aEncoder encodeObject:_userCWID forKey:@"userCWID"];
     [aEncoder encodeObject:_primaryGroup forKey:@"primaryGroup"];
     [aEncoder encodeObject:_emailDomain forKey:@"emailDomain"];
+    
     [aEncoder encodeObject:_keyWord forKey:@"keyWord"];
     [aEncoder encodeObject:_userPreset forKey:@"userPreset"];
-    [aEncoder encodeObject:_importFile forKey:@"importFile"];
+    
+    [aEncoder encodeObject:_userList forKey:@"userList"];
     [aEncoder encodeObject:_userFilter forKey:@"userFilter"];
+    
     [aEncoder encodeObject:_exportFile forKey:@"exportFile"];
+    [aEncoder encodeObject:_importFileHandle forKey:@"importFileHandle"];
+    [aEncoder encodeObject:_importFilePath forKey:@"importFilePath"];
+    [aEncoder encodeObject:_importFileURL forKey:@"importFileURL"];
+
+
 
 }
 

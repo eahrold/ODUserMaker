@@ -32,7 +32,7 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
 
 -(void)getDirectoryServerStatus{
     
-    //To Do : This should really be done with DirectoryService API
+    //TO DO: This should really be done with DirectoryService API
     
     NSString* sn = self.serverName.stringValue;
     
