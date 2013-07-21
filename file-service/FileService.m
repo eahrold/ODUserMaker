@@ -68,15 +68,6 @@
     NSString* homeDir = @"";
     NSString* keyWords = user.keyWord;
     
-    NSArray* uArray = [NSArray arrayWithObjects:userName,fullName,lastName,email,uuid,password,passwordPolicy,primaryGroup,nfsHome,homeDir,keyWords, nil];
-    
-    for (NSString __strong* i in uArray) {
-        if (!i || [i isEqual:@" "]){
-            i = @"";
-        }
-        else{
-        }
-    }
     
     NSString* userEntry = [NSString stringWithFormat:@"%@:%@:%@:%@:%@:%@:%@:%@:%@:%@:%@:%@\n",userName,fullName,firstName,lastName,email,uuid,password,passwordPolicy,primaryGroup,nfsHome,homeDir,keyWords];
     @try{
@@ -95,12 +86,11 @@
     
 
     
-    
     // split up the string by new line char and though unnecissary alphabetize them.
     NSArray* arr = [user.userList componentsSeparatedByString:@"\n"];
     arr = [arr sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
 
-    if( arr == nil || [arr count] == 0 || [arr count] == 1 ){
+    if( arr == nil || [arr count] <= 1 ){
         return NO;
     }
     
@@ -149,7 +139,7 @@
                     //[[self.xpcConnection remoteObjectProxy] setProgress:progress];
                     }
             }
-        @catch (NSException* err) {
+        @catch (NSException* exception) {
             }
         }
     }
@@ -176,9 +166,12 @@
     if(success){
         msg = @"Made user list";
     }else{
-        NSMutableDictionary* noList = [NSMutableDictionary dictionary];
-        [noList setValue:@"We couldn't create user list" forKey:NSLocalizedDescriptionKey];
-        error =[NSError errorWithDomain:@"fault" code:101 userInfo:noList];
+       error =[NSError errorWithDomain:NSPOSIXErrorDomain
+                                   code:kReadFailureErr
+                               userInfo:[NSDictionary dictionaryWithObjectsAndKeys:
+                                         kReadFileErrorMsg,
+                                         NSLocalizedDescriptionKey,
+                                         nil]];
     }
     
     [user.exportFile closeFile];
@@ -201,9 +194,13 @@
     if(success){
         msg = @"made user";
     }else{
-        NSMutableDictionary* noUser = [NSMutableDictionary dictionary];
-        [noUser setValue:@"We couldn't create user" forKey:NSLocalizedDescriptionKey];
-        error =[NSError errorWithDomain:@"fault" code:101 userInfo:noUser];
+        error =[NSError errorWithDomain:NSPOSIXErrorDomain
+                                   code:kWriteFailureErr
+                               userInfo:[NSDictionary dictionaryWithObjectsAndKeys:
+                                         kWriteFileErrorMsg,
+                                         NSLocalizedDescriptionKey,
+                                         nil]];
+
     }
     
     

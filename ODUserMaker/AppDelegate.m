@@ -14,8 +14,8 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
 
 @implementation AppDelegate
 
--(void)bgRunner:(void*)method{
-    [NSTimer scheduledTimerWithTimeInterval:2.0
+-(void)bgRunner:(void*)method withTimer:(int)timer{
+    [NSTimer scheduledTimerWithTimeInterval:timer
                                      target:self
                                    selector:@selector(method)
                                    userInfo:nil
@@ -23,7 +23,7 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
 }
 
 //-------------------------------
-//  Directory Severt 
+//  Directory Sever 
 //-------------------------------
 
 - (IBAction)editServerName:(id)sender{
@@ -74,13 +74,13 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
             self.dsStatus = [NSString stringWithFormat:@"Not Connected to  Directory Server %@",sn];
             [_dsServerStatus setState:0];
         }
-        [self getUserPresets];
+        [self getDSUserPresets];
 
     }
 }
 
 
--(void)getUserPresets{
+-(void)getDSUserPresets{
     if(_dsServerStatus){
         NSLog(@"Getting Presets");
         NSString* svrldap = [NSString stringWithFormat:@"/LDAPv3/%@",_serverName.stringValue];
@@ -105,6 +105,12 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
                 NSMutableArray* mAry = [(NSArray*)ary mutableCopy];
                 [mAry removeObject:@""];
                 [_userPreset addItemsWithTitles: mAry];
+            
+            }else{
+                // If we're not connected to Directory Server, and have presets set 
+                // previosuly as defaults just use those...
+                NSUserDefaults* getDefaults = [NSUserDefaults standardUserDefaults];
+                [_userPreset addItemsWithTitles:[getDefaults arrayForKey:@"userPreset"]];
             }
         }
     }
@@ -122,6 +128,15 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
         [setDefaults setObject:self.serverName.stringValue forKey:@"serverName"];
         [setDefaults setObject:self.diradminName.stringValue forKey:@"diradminName"];
         [setDefaults setObject:self.importFilePath.stringValue forKey:@"lastFile"];
+        
+        NSMutableArray *presetList = [[NSMutableArray alloc] init];
+        for(NSMenuItem* item in [self.userPreset itemArray]){
+            [presetList addObject:item.title];
+        }
+        
+        [setDefaults setObject:presetList forKey:@"userPreset"];
+        
+        
         [SSKeychain setPassword:self.diradminPass.stringValue forService:[[NSBundle mainBundle] bundleIdentifier] account:self.diradminName.stringValue];
     }
     @catch (NSException* exception) {
