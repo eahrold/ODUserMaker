@@ -22,6 +22,10 @@
 //---------------------------------------------------
 
 @property (assign) IBOutlet NSButton *dsServerStatus;
+@property (assign) IBOutlet NSButton *refreshPreset;
+@property (assign) IBOutlet NSProgressIndicator *presetStatus;
+
+
 @property (assign) IBOutlet NSTextField *serverName;
 @property (assign) IBOutlet NSTextField *diradminName;
 @property (assign) IBOutlet NSTextField *diradminPass;

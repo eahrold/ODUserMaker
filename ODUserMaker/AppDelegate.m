@@ -9,6 +9,8 @@
 #import "AppDelegate.h"
 #import "SSKeychain.h"
 #import "NetworkService.h"
+#import "OpenDirectoryService.h"
+#import "AppProgress.h"
 
 static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check whether to quit
 
@@ -30,90 +32,62 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
     [self getDirectoryServerStatus];
 }
 
+- (IBAction)refreshUserPreferences:(id)sender{
+    [self getDSUserPresets];
+}
+
 -(void)getDirectoryServerStatus{
-    
-    //TO DO: This should really be done with DirectoryService API
-    
-    NSString* sn = self.serverName.stringValue;
-    
-    if([sn isEqual:@""]){
-        self.dsStatus = @"No Server Specified.";
-        [_dsServerStatus setState:0];
+    NSXPCConnection* connection = [[NSXPCConnection alloc] initWithServiceName:kDirectoryServiceName];
+    connection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(DirectoryServer)];
+    connection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
+    connection.exportedObject = self;
+    [connection resume];
+    [[connection remoteObjectProxy] checkServerStatus:self.serverName.stringValue withReply:^(BOOL connected) {
+        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            if(connected){
+              self.dsStatus = [NSString stringWithFormat:@"Connected to %@",self.serverName.stringValue];
+            }else{
+                self.dsStatus = @"Not Connected to server";
+            }
+        }];
+        [connection invalidate];
+    }];
 
-    }else{
-        
-        NSPipe* pipe1 = [[NSPipe alloc] init];
-        NSPipe* resultPipe = [[NSPipe alloc] init];
-
-        NSTask* odutil = [[NSTask alloc]init];
-        [odutil setLaunchPath: @"/usr/bin/odutil"];
-        [odutil setArguments:[NSArray arrayWithObjects:@"show",@"nodenames",nil]];
-        [odutil setStandardOutput:pipe1];
-        [odutil launch];
-        
-        NSTask* grepNode = [[NSTask alloc]init];
-        [grepNode setLaunchPath:@"/usr/bin/egrep"];
-        
-        [grepNode setArguments:[NSArray arrayWithObjects:@"-w",sn,nil]];
-        [grepNode setStandardInput:pipe1];
-        [grepNode setStandardOutput:resultPipe];
-        [grepNode launch];
-        [grepNode waitUntilExit];
-        
-        NSData* result = [[resultPipe fileHandleForReading] readDataToEndOfFile];
-        NSString* rc= [[NSString alloc] initWithData:result encoding:NSASCIIStringEncoding];
-        //NSLog(@"here's the rc: %@",rc);
-        
-        
-        NSRange textRange;
-        textRange =[rc rangeOfString:@"Online"];
-        if(textRange.location != NSNotFound){
-            self.dsStatus = [NSString stringWithFormat:@"Connected to  Directory Server %@",sn];
-            [_dsServerStatus setState:1];
-        }else{
-            self.dsStatus = [NSString stringWithFormat:@"Not Connected to  Directory Server %@",sn];
-            [_dsServerStatus setState:0];
-        }
-        [self getDSUserPresets];
-
-    }
 }
 
 
 -(void)getDSUserPresets{
-    if(_dsServerStatus){
-        NSLog(@"Getting Presets");
-        NSString* svrldap = [NSString stringWithFormat:@"/LDAPv3/%@",_serverName.stringValue];
-        NSTask* dscl = [[NSTask alloc]init];
-        NSPipe* resultPipe = [[NSPipe alloc] init];
+    [self.refreshPreset setHidden:YES];
+    [self.presetStatus startAnimation:self];
 
-        [dscl setLaunchPath: @"/usr/bin/dscl"];
-        [dscl setArguments:[NSArray arrayWithObjects:svrldap,@"-list",@"/PresetUsers",nil]];
-        [dscl setStandardOutput:resultPipe];
-        [dscl launch];
-        [dscl waitUntilExit];
-        
-        NSData* result = [[resultPipe fileHandleForReading] readDataToEndOfFile];
-        NSString* presetString= [[NSString alloc] initWithData:result encoding:NSASCIIStringEncoding];
-        
-        [_userPreset removeAllItems];
+    [self.userPreset removeAllItems];
+    [self.userPreset addItemWithTitle:@"Getting Presets..."];
 
-        if (![dscl isRunning]) {
-            int status = [dscl terminationStatus];
-            if (status == 0){
-                NSArray* ary = [presetString componentsSeparatedByString:@"\n"];
-                NSMutableArray* mAry = [(NSArray*)ary mutableCopy];
-                [mAry removeObject:@""];
-                [_userPreset addItemsWithTitles: mAry];
-            
+    Server* server = [Server new];
+    server.serverName = _serverName.stringValue;
+    server.diradminPass = _diradminPass.stringValue;
+    server.diradminName = _diradminName.stringValue;
+    
+    NSXPCConnection* connection = [[NSXPCConnection alloc] initWithServiceName:kDirectoryServiceName];
+    connection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(DirectoryServer)];
+    connection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
+    connection.exportedObject = self;
+    [connection resume];
+    [[connection remoteObjectProxy] getUserPresets:server withReply:^(NSArray *pArray, NSError *error) {
+        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            [self.userPreset removeAllItems];
+            if(error){
+                NSLog(@"We got a message back");
             }else{
-                // If we're not connected to Directory Server, and have presets set 
-                // previosuly as defaults just use those...
-                NSUserDefaults* getDefaults = [NSUserDefaults standardUserDefaults];
-                [_userPreset addItemsWithTitles:[getDefaults arrayForKey:@"userPreset"]];
+                [self.userPreset addItemsWithTitles:pArray];
             }
-        }
-    }
+            [self.refreshPreset setHidden:NO];
+            [self.presetStatus stopAnimation:self];
+        }];
+        [connection invalidate];
+    }];
+
+   
 }
 
 
@@ -174,8 +148,8 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
     // Insert code here to initialize your application
     [self getUserDefualts];
     self.dsStatus = @"Checking for Directory Server...";
-    //[self dsRun];  // this just triggers the ds action task to run on another thread
     [self getDirectoryServerStatus];
+    [self getDSUserPresets];
 }
 
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication* )theApplication{

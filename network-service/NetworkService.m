@@ -17,9 +17,7 @@
 
 @implementation Uploader
 
--(NSString*)dsImport:(User*)user withServer:(Server*)server{
-    NSLog(@"Doing Task");
-    
+-(NSString*)dsImport:(User*)user withServer:(Server*)server{    
     
     //  We need to do this get around the sandbox for the NSTask
     NSString* dsimportFile = [NSString stringWithFormat:@"%@%@",NSTemporaryDirectory(),user.userName];

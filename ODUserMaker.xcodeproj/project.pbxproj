@@ -35,6 +35,15 @@
 		BEC4253E1792302A00CA45A5 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = BEC4253D1792302A00CA45A5 /* main.m */; };
 		BEC425471792451E00CA45A5 /* SecuredObjects.m in Sources */ = {isa = PBXBuildFile; fileRef = BEC425461792451E00CA45A5 /* SecuredObjects.m */; };
 		BEC425481792451E00CA45A5 /* SecuredObjects.m in Sources */ = {isa = PBXBuildFile; fileRef = BEC425461792451E00CA45A5 /* SecuredObjects.m */; };
+		BEFBDC5F179C161F00AB0960 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BEC425171791A85900CA45A5 /* Foundation.framework */; };
+		BEFBDC65179C161F00AB0960 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = BEFBDC63179C161F00AB0960 /* InfoPlist.strings */; };
+		BEFBDC68179C161F00AB0960 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = BEFBDC67179C161F00AB0960 /* main.m */; };
+		BEFBDC6C179C163D00AB0960 /* com.aapps.ODUserMaker.opendirectory-service.xpc in CopyFiles */ = {isa = PBXBuildFile; fileRef = BEFBDC5E179C161E00AB0960 /* com.aapps.ODUserMaker.opendirectory-service.xpc */; };
+		BEFBDC6F179C16E200AB0960 /* OpenDirectoryService.m in Sources */ = {isa = PBXBuildFile; fileRef = BEFBDC6E179C16E200AB0960 /* OpenDirectoryService.m */; };
+		BEFBDC72179C311100AB0960 /* OpenDirectory.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BEFBDC71179C311100AB0960 /* OpenDirectory.framework */; };
+		BEFBDC73179C5D1600AB0960 /* SecuredObjects.m in Sources */ = {isa = PBXBuildFile; fileRef = BEC425461792451E00CA45A5 /* SecuredObjects.m */; };
+		BEFBDC76179C967800AB0960 /* opendirectory-service.entitlements in Resources */ = {isa = PBXBuildFile; fileRef = BEFBDC75179C967800AB0960 /* opendirectory-service.entitlements */; };
+		BEFBDC77179D59E300AB0960 /* ODUserMaker.entitlements in Resources */ = {isa = PBXBuildFile; fileRef = BE085A671794F53F0079DFE9 /* ODUserMaker.entitlements */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -44,6 +53,7 @@
 			dstPath = Contents/XPCServices;
 			dstSubfolderSpec = 1;
 			files = (
+				BEFBDC6C179C163D00AB0960 /* com.aapps.ODUserMaker.opendirectory-service.xpc in CopyFiles */,
 				BE085A62179326DE0079DFE9 /* com.aapps.ODUserMaker.file-service.xpc in CopyFiles */,
 				BEC425261791A8AE00CA45A5 /* com.aapps.ODUserMaker.network-service.xpc in CopyFiles */,
 			);
@@ -94,6 +104,15 @@
 		BEC425431792309D00CA45A5 /* FileService.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FileService.m; sourceTree = "<group>"; };
 		BEC425451792451E00CA45A5 /* SecuredObjects.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SecuredObjects.h; path = ODUserMaker/SecuredObjects.h; sourceTree = "<group>"; };
 		BEC425461792451E00CA45A5 /* SecuredObjects.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SecuredObjects.m; path = ODUserMaker/SecuredObjects.m; sourceTree = "<group>"; };
+		BEFBDC5E179C161E00AB0960 /* com.aapps.ODUserMaker.opendirectory-service.xpc */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "com.aapps.ODUserMaker.opendirectory-service.xpc"; sourceTree = BUILT_PRODUCTS_DIR; };
+		BEFBDC62179C161F00AB0960 /* opendirectory-service-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "opendirectory-service-Info.plist"; sourceTree = "<group>"; };
+		BEFBDC64179C161F00AB0960 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		BEFBDC66179C161F00AB0960 /* opendirectory-service-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "opendirectory-service-Prefix.pch"; sourceTree = "<group>"; };
+		BEFBDC67179C161F00AB0960 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		BEFBDC6E179C16E200AB0960 /* OpenDirectoryService.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OpenDirectoryService.m; sourceTree = "<group>"; };
+		BEFBDC70179C173E00AB0960 /* OpenDirectoryService.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = OpenDirectoryService.h; path = "opendirectory-service/OpenDirectoryService.h"; sourceTree = SOURCE_ROOT; };
+		BEFBDC71179C311100AB0960 /* OpenDirectory.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenDirectory.framework; path = System/Library/Frameworks/OpenDirectory.framework; sourceTree = SDKROOT; };
+		BEFBDC75179C967800AB0960 /* opendirectory-service.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "opendirectory-service.entitlements"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -123,6 +142,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		BEFBDC5B179C161E00AB0960 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BEFBDC72179C311100AB0960 /* OpenDirectory.framework in Frameworks */,
+				BEFBDC5F179C161F00AB0960 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -131,6 +159,7 @@
 			children = (
 				BEC4252B1791AA1C00CA45A5 /* Interfaces */,
 				BEC425491792452A00CA45A5 /* Secure Objects */,
+				BEFBDC60179C161F00AB0960 /* opendirectory-service */,
 				BEC425191791A85900CA45A5 /* network-service */,
 				BEC425361792302A00CA45A5 /* file-service */,
 				BEC424FB1791A7FF00CA45A5 /* ODUserMaker */,
@@ -145,6 +174,7 @@
 				BEC424F21791A7FF00CA45A5 /* ODUserMaker.app */,
 				BEC425161791A85900CA45A5 /* com.aapps.ODUserMaker.network-service.xpc */,
 				BEC425341792302A00CA45A5 /* com.aapps.ODUserMaker.file-service.xpc */,
+				BEFBDC5E179C161E00AB0960 /* com.aapps.ODUserMaker.opendirectory-service.xpc */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -153,6 +183,7 @@
 			isa = PBXGroup;
 			children = (
 				BE9625E81795A74A00839C80 /* Security.framework */,
+				BEFBDC71179C311100AB0960 /* OpenDirectory.framework */,
 				BEC424F51791A7FF00CA45A5 /* Cocoa.framework */,
 				BEC425171791A85900CA45A5 /* Foundation.framework */,
 				BEC424F71791A7FF00CA45A5 /* Other Frameworks */,
@@ -173,9 +204,12 @@
 		BEC424FB1791A7FF00CA45A5 /* ODUserMaker */ = {
 			isa = PBXGroup;
 			children = (
+				BEC425071791A80000CA45A5 /* AppDelegate.h */,
 				BEC4252C1791AE3500CA45A5 /* AppController.h */,
+				BEC425081791A80000CA45A5 /* AppDelegate.m */,
 				BEC4252D1791AE3500CA45A5 /* AppController.m */,
 				BEC4250A1791A80000CA45A5 /* MainMenu.xib */,
+				BEFBDC74179C95B000AB0960 /* Supporting Classes */,
 				BEC424FC1791A80000CA45A5 /* Supporting Files */,
 			);
 			path = ODUserMaker;
@@ -184,15 +218,11 @@
 		BEC424FC1791A80000CA45A5 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				BE94E3CA1798E6830024C9E5 /* ODUserMaker.icns */,
-				BE9625E31795A55800839C80 /* SSKeychain.h */,
-				BE9625E41795A55800839C80 /* SSKeychain.m */,
-				BE085A671794F53F0079DFE9 /* ODUserMaker.entitlements */,
-				BEC425071791A80000CA45A5 /* AppDelegate.h */,
-				BEC425081791A80000CA45A5 /* AppDelegate.m */,
+				BEC425011791A80000CA45A5 /* main.m */,
 				BEC424FD1791A80000CA45A5 /* ODUserMaker-Info.plist */,
 				BEC424FE1791A80000CA45A5 /* InfoPlist.strings */,
-				BEC425011791A80000CA45A5 /* main.m */,
+				BE085A671794F53F0079DFE9 /* ODUserMaker.entitlements */,
+				BE94E3CA1798E6830024C9E5 /* ODUserMaker.icns */,
 				BEC425031791A80000CA45A5 /* ODUserMaker-Prefix.pch */,
 				BEC425041791A80000CA45A5 /* Credits.rtf */,
 			);
@@ -223,8 +253,9 @@
 		BEC4252B1791AA1C00CA45A5 /* Interfaces */ = {
 			isa = PBXGroup;
 			children = (
-				BEC425271791A9B500CA45A5 /* NetworkService.h */,
+				BEFBDC70179C173E00AB0960 /* OpenDirectoryService.h */,
 				BEC425421792309D00CA45A5 /* FileService.h */,
+				BEC425271791A9B500CA45A5 /* NetworkService.h */,
 				BEC4252F1792005000CA45A5 /* AppProgress.h */,
 			);
 			name = Interfaces;
@@ -261,6 +292,36 @@
 				BEC425461792451E00CA45A5 /* SecuredObjects.m */,
 			);
 			name = "Secure Objects";
+			sourceTree = "<group>";
+		};
+		BEFBDC60179C161F00AB0960 /* opendirectory-service */ = {
+			isa = PBXGroup;
+			children = (
+				BEFBDC6E179C16E200AB0960 /* OpenDirectoryService.m */,
+				BEFBDC61179C161F00AB0960 /* Supporting Files */,
+			);
+			path = "opendirectory-service";
+			sourceTree = "<group>";
+		};
+		BEFBDC61179C161F00AB0960 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				BEFBDC67179C161F00AB0960 /* main.m */,
+				BEFBDC62179C161F00AB0960 /* opendirectory-service-Info.plist */,
+				BEFBDC63179C161F00AB0960 /* InfoPlist.strings */,
+				BEFBDC75179C967800AB0960 /* opendirectory-service.entitlements */,
+				BEFBDC66179C161F00AB0960 /* opendirectory-service-Prefix.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		BEFBDC74179C95B000AB0960 /* Supporting Classes */ = {
+			isa = PBXGroup;
+			children = (
+				BE9625E31795A55800839C80 /* SSKeychain.h */,
+				BE9625E41795A55800839C80 /* SSKeychain.m */,
+			);
+			name = "Supporting Classes";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -318,6 +379,23 @@
 			productReference = BEC425341792302A00CA45A5 /* com.aapps.ODUserMaker.file-service.xpc */;
 			productType = "com.apple.product-type.bundle";
 		};
+		BEFBDC5D179C161E00AB0960 /* opendirectory-service */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BEFBDC6B179C161F00AB0960 /* Build configuration list for PBXNativeTarget "opendirectory-service" */;
+			buildPhases = (
+				BEFBDC5A179C161E00AB0960 /* Sources */,
+				BEFBDC5B179C161E00AB0960 /* Frameworks */,
+				BEFBDC5C179C161E00AB0960 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "opendirectory-service";
+			productName = "opendirectory-service";
+			productReference = BEFBDC5E179C161E00AB0960 /* com.aapps.ODUserMaker.opendirectory-service.xpc */;
+			productType = "com.apple.product-type.bundle";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -342,6 +420,7 @@
 				BEC424F11791A7FF00CA45A5 /* ODUserMaker */,
 				BEC425151791A85900CA45A5 /* network-service */,
 				BEC425331792302A00CA45A5 /* file-service */,
+				BEFBDC5D179C161E00AB0960 /* opendirectory-service */,
 			);
 		};
 /* End PBXProject section */
@@ -351,6 +430,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BEFBDC77179D59E300AB0960 /* ODUserMaker.entitlements in Resources */,
 				BEC425001791A80000CA45A5 /* InfoPlist.strings in Resources */,
 				BEC425061791A80000CA45A5 /* Credits.rtf in Resources */,
 				BEC4250C1791A80000CA45A5 /* MainMenu.xib in Resources */,
@@ -373,6 +453,15 @@
 			files = (
 				BEC4253B1792302A00CA45A5 /* InfoPlist.strings in Resources */,
 				BE29325617972994001502D7 /* file-service.entitlements in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BEFBDC5C179C161E00AB0960 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BEFBDC76179C967800AB0960 /* opendirectory-service.entitlements in Resources */,
+				BEFBDC65179C161F00AB0960 /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -410,6 +499,16 @@
 				BEC4253E1792302A00CA45A5 /* main.m in Sources */,
 				BE29322C17965D99001502D7 /* FileService.m in Sources */,
 				BE29322F1796F18B001502D7 /* NSString+StringSanitizer.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BEFBDC5A179C161E00AB0960 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BEFBDC73179C5D1600AB0960 /* SecuredObjects.m in Sources */,
+				BEFBDC68179C161F00AB0960 /* main.m in Sources */,
+				BEFBDC6F179C16E200AB0960 /* OpenDirectoryService.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -452,6 +551,14 @@
 			isa = PBXVariantGroup;
 			children = (
 				BEC4253A1792302A00CA45A5 /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		BEFBDC63179C161F00AB0960 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				BEFBDC64179C161F00AB0960 /* en */,
 			);
 			name = InfoPlist.strings;
 			sourceTree = "<group>";
@@ -618,6 +725,40 @@
 			};
 			name = Release;
 		};
+		BEFBDC69179C161F00AB0960 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CODE_SIGN_ENTITLEMENTS = "opendirectory-service/opendirectory-service.entitlements";
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "opendirectory-service/opendirectory-service-Prefix.pch";
+				INFOPLIST_FILE = "opendirectory-service/opendirectory-service-Info.plist";
+				MACH_O_TYPE = mh_execute;
+				PRODUCT_NAME = "com.aapps.ODUserMaker.$(TARGET_NAME:rfc1034identifier)";
+				PROVISIONING_PROFILE = "";
+				WRAPPER_EXTENSION = xpc;
+			};
+			name = Debug;
+		};
+		BEFBDC6A179C161F00AB0960 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CODE_SIGN_ENTITLEMENTS = "opendirectory-service/opendirectory-service.entitlements";
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "opendirectory-service/opendirectory-service-Prefix.pch";
+				INFOPLIST_FILE = "opendirectory-service/opendirectory-service-Info.plist";
+				MACH_O_TYPE = mh_execute;
+				PRODUCT_NAME = "com.aapps.ODUserMaker.$(TARGET_NAME:rfc1034identifier)";
+				PROVISIONING_PROFILE = "";
+				WRAPPER_EXTENSION = xpc;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -656,6 +797,14 @@
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
+		};
+		BEFBDC6B179C161F00AB0960 /* Build configuration list for PBXNativeTarget "opendirectory-service" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BEFBDC69179C161F00AB0960 /* Debug */,
+				BEFBDC6A179C161F00AB0960 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
 		};
 /* End XCConfigurationList section */
 	};

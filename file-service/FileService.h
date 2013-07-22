@@ -22,7 +22,6 @@
 @end
 
 
-
 @interface Exporter : NSObject <NSXPCListenerDelegate, Exporter>
 + (Exporter *)sharedExporter;
 
