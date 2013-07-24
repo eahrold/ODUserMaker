@@ -14,7 +14,7 @@
 
 @protocol Exporter
 -(void)makeExportFile:(User*)user
-            withReply:(void (^)(NSError *error,NSString* msg))reply;
+            withReply:(void (^)(NSError *error,NSDictionary* groups))reply;
 
 -(void)makeSingelUserFile:(User*)user
                 withReply:(void (^)(NSError *error, NSString *msg))reply;

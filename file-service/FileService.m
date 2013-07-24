@@ -54,7 +54,7 @@
 
 -(BOOL)writeUser:(User*)user toFile:(NSFileHandle*)fh{
     
-    // Set up the actual elements we'll need 
+    /* Set up the actual elements we'll need */
     NSString* userName = user.userName;
     NSString* fullName = [NSString stringWithFormat:@"%@ %@",user.firstName, user.lastName];
     NSString* firstName = user.firstName;
@@ -68,16 +68,52 @@
     NSString* homeDir = @"";
     NSString* keyWords = user.keyWord;
     
-    
+    /* make the full string that we'll write out */
     NSString* userEntry = [NSString stringWithFormat:@"%@:%@:%@:%@:%@:%@:%@:%@:%@:%@:%@:%@\n",userName,fullName,firstName,lastName,email,uuid,password,passwordPolicy,primaryGroup,nfsHome,homeDir,keyWords];
+    
     @try{
-    [fh writeData:[userEntry dataUsingEncoding:NSUTF8StringEncoding]];
-    }
-    @catch(NSException* exception){
+        [fh writeData:[userEntry dataUsingEncoding:NSUTF8StringEncoding]];
+    }@catch(NSException* exception){
         return NO;
     }
     return YES;
-   }
+}
+
+
+-(NSDictionary*)makeGroups:(User*)user{
+    NSDictionary *dict = nil;
+    
+    NSMutableSet* groupProcessed = [[NSMutableSet alloc]init];
+    
+    NSData* importFileData = [user.importFileHandle readDataToEndOfFile];
+    user.userList = [[NSString alloc] initWithData:importFileData
+                                          encoding:NSUTF8StringEncoding];
+    
+    /* split up the string by new line char and though unnecissary alphabetize them.*/
+    NSArray* arr = [user.userList componentsSeparatedByString:@"\n"];
+    arr = [arr sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
+    
+    NSArray* tmpArray;
+    for(NSDictionary* group in user.groupList){
+        NSString* groupName = [group objectForKey:@"group"];
+        NSString* matchName = [group objectForKey:@"match"];
+        NSMutableSet* userProcessed = [[NSMutableSet alloc]init];
+        NSMutableArray* userArray = [[NSMutableArray alloc]init];
+        
+        for(NSString *item in arr){
+            if ([item rangeOfString:matchName].location != NSNotFound){
+                tmpArray = [item componentsSeparatedByString:@"\t"];
+                if ([userProcessed containsObject:[tmpArray objectAtIndex:0]] == NO){
+                    [userArray addObject:[tmpArray objectAtIndex:0]];
+                }
+            }
+    
+        }
+        
+    }
+    
+    return dict;
+}
 
 -(BOOL)parseUserList:(User*)user toFile:(NSFileHandle*)fh{
     NSData* importFileData = [user.importFileHandle readDataToEndOfFile];
@@ -86,7 +122,7 @@
     
 
     
-    // split up the string by new line char and though unnecissary alphabetize them.
+    /* split up the string by new line char and though unnecissary alphabetize them.*/
     NSArray* arr = [user.userList componentsSeparatedByString:@"\n"];
     arr = [arr sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
 
@@ -94,7 +130,7 @@
         return NO;
     }
     
-    // set up the chunk of progress size for indicator upadates...
+    /* set up the chunk of progress size for indicator upadates...*/
     //double totalSize = [userArray count];
     //double progress = 100 / totalSize;
    
@@ -108,34 +144,35 @@
                 tmpArray = [item componentsSeparatedByString:@"\t"];
                 if ([processed containsObject:[tmpArray objectAtIndex:0]] == NO) {
                     
-                    // add the object to the processed array
+                    /* add the object to the processed array */
                     [processed addObject:[tmpArray objectAtIndex:0]];
                     
-                    // set up a new user to add
+                    /* set up a new user to add */
                     User* tmpUser = [User new];
                     tmpUser.userName = [NSString stringWithFormat:@"%@",[tmpArray objectAtIndex:0]];
                     tmpUser.userCWID = [NSString stringWithFormat:@"%@",[tmpArray objectAtIndex:2]];
                     
-                    // break it up one more time...
+                    /* break it up one more time. */
                     NSString* rawName = [NSString stringWithFormat:@"%@",[tmpArray objectAtIndex:1]];
                     tmpArray2 = [rawName componentsSeparatedByString:@","];
                     NSString* firstName = [NSString stringWithFormat:@"%@",[tmpArray2 objectAtIndex:1]];
                     NSString* lastName = [NSString stringWithFormat:@"%@",[tmpArray2 objectAtIndex:0]];
                     
-                    //Sanatize...
+                    /* Sanatize */
                     firstName = [firstName stringByReplacingOccurrencesOfString:@"\"" withString:@""];
                     lastName = [lastName stringByReplacingOccurrencesOfString:@"\"" withString:@""];
                     tmpUser.firstName = [firstName stringByTrimmingLeadingWhitespace];
                     tmpUser.lastName = [lastName stringByTrimmingLeadingWhitespace];
                     
-                    // get the items from the User object sent over by the main app...
+                    /* get the items from the User object sent over by the main app */
                     tmpUser.primaryGroup = user.primaryGroup;
                     tmpUser.emailDomain = user.emailDomain;
                     tmpUser.keyWord = user.keyWord;
                     
-                    // then write it to the file...
+                    /* then write it to the file */
                     [self writeUser:tmpUser toFile:fh];
                     
+                    /* send updates back to the UI */
                     //[[self.xpcConnection remoteObjectProxy] setProgress:progress];
                     }
             }
@@ -152,10 +189,11 @@
 
 
 -(void)makeExportFile:(User*)user
-            withReply:(void (^)(NSError*error,NSString* msg))reply{
+            withReply:(void (^)(NSError*error,NSDictionary* groups))reply{
     BOOL success;
     NSString* msg;
     NSError* error = nil;
+    NSDictionary* groups = nil;
     
     [[self.xpcConnection remoteObjectProxy] setProgress:0 withMessage:@"Adding Users..."];
     
@@ -175,7 +213,7 @@
     }
     
     [user.exportFile closeFile];
-    reply(error,msg);
+    reply(error,groups);
 
     
 }
@@ -222,7 +260,7 @@
 }
 
 
-// Implement the one method in the NSXPCListenerDelegate protocol.
+/* Implement the one method in the NSXPCListenerDelegate protocol. */
 - (BOOL)listener:(NSXPCListener* )listener shouldAcceptNewConnection:(NSXPCConnection* )newConnection {
     
     newConnection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Exporter)];

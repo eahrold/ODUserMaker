@@ -36,9 +36,10 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
     [self getDSUserPresets];
 }
 
+
 -(void)getDirectoryServerStatus{
     NSXPCConnection* connection = [[NSXPCConnection alloc] initWithServiceName:kDirectoryServiceName];
-    connection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(DirectoryServer)];
+    connection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(OpenDirectoryService)];
     connection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
     connection.exportedObject = self;
     [connection resume];
@@ -69,17 +70,16 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
     server.diradminName = _diradminName.stringValue;
     
     NSXPCConnection* connection = [[NSXPCConnection alloc] initWithServiceName:kDirectoryServiceName];
-    connection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(DirectoryServer)];
+    connection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(OpenDirectoryService)];
     connection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
     connection.exportedObject = self;
     [connection resume];
     [[connection remoteObjectProxy] getUserPresets:server withReply:^(NSArray *pArray, NSError *error) {
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
             [self.userPreset removeAllItems];
-            if(error){
-                NSLog(@"We got a message back");
-            }else{
-                [self.userPreset addItemsWithTitles:pArray];
+            if(!error){
+                NSSortDescriptor* sortOrder = [NSSortDescriptor sortDescriptorWithKey: @"self" ascending: NO];
+                [self.userPreset addItemsWithTitles:[pArray sortedArrayUsingDescriptors: [NSArray arrayWithObject: sortOrder]]];
             }
             [self.refreshPreset setHidden:NO];
             [self.presetStatus stopAnimation:self];
@@ -90,6 +90,39 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
    
 }
 
+-(void)getDSGroupList{
+    //[self.refreshPreset setHidden:YES];
+    //[self.presetStatus startAnimation:self];
+    
+    [self.serverGroupList removeAllItems];
+    [self.serverGroupList addItemWithTitle:@"Getting List of Groups..."];
+    
+    Server* server = [Server new];
+    server.serverName = _serverName.stringValue;
+    server.diradminPass = _diradminPass.stringValue;
+    server.diradminName = _diradminName.stringValue;
+    
+    NSXPCConnection* connection = [[NSXPCConnection alloc] initWithServiceName:kDirectoryServiceName];
+    connection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(OpenDirectoryService)];
+    connection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
+    connection.exportedObject = self;
+    [connection resume];
+    [[connection remoteObjectProxy] getGroupListFromServer:server withReply:^(NSArray *pArray, NSError *error) {
+        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            [self.serverGroupList removeAllItems];
+            if(!error){
+                NSSortDescriptor* sortOrder = [NSSortDescriptor sortDescriptorWithKey: @"self" ascending: NO];
+                [self.serverGroupList addItemsWithTitles:[pArray sortedArrayUsingDescriptors: [NSArray arrayWithObject: sortOrder]]];
+            }
+            
+            //[self.refreshPreset setHidden:NO];
+            //[self.presetStatus stopAnimation:self];
+        }];
+        [connection invalidate];
+    }];
+    
+    
+}
 
 //-----------------------
 //  User Default 
@@ -150,6 +183,7 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
     self.dsStatus = @"Checking for Directory Server...";
     [self getDirectoryServerStatus];
     [self getDSUserPresets];
+    [self getDSGroupList];
 }
 
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication* )theApplication{

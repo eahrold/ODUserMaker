@@ -11,20 +11,32 @@
 #import "AppProgress.h"
 
 
-@implementation DirectoryServer
+@implementation OpenDirectoryService
 
--(void)checkServerStatus:(NSString*)server withReply:(void (^)(BOOL connected))reply{
-    BOOL connected = YES;
-    if(![self getServerNode:server])
-        connected = NO;
-    reply(connected);
-}
-
--(BOOL)checkServerStatus:(NSString*)server{
-    BOOL connected = YES;
-    if(![self getServerNode:server])
-        connected = NO;
-    return(connected);
+-(void)addUser:(User *)user toGroup:(NSArray *)group toServer:(Server *)server withReply:(void (^)(NSError *error))reply{
+    NSError *error;
+    ODNode *node;
+    
+    /* see if computer is connected to the directory server, if not get a proxy node. */
+    if([self checkServerStatus:server.serverName]){
+        node = [self getServerNode:server.serverName];
+    }else{
+        node = [self getRemServerNode:server];
+    }
+    
+    ODRecord* userRecord = [self getUserRecord:user.userName withNode:node];
+    
+    //ODRecord* diradminRecord = [self getUserRecord:diradmin withNode:node];
+    
+    
+    [node setCredentialsWithRecordType:nil recordName:server.diradminName password:server.diradminPass error:&error];
+    
+    for(NSString* g in group){
+        ODRecord* groupRecord = [self getGroupRecord:g withNode:node];
+        [groupRecord addMemberRecord:userRecord error:&error];
+    }
+ 
+    reply(error);
 }
 
 -(void)getUserPresets:(Server*)server withReply:(void (^)(NSArray *userPreset,NSError *error))reply{
@@ -60,6 +72,86 @@
         }
     }
     reply(userPresets,error);
+}
+
+-(void)getGroupListFromServer:(Server*)server withReply:(void (^)(NSArray *groupList,NSError *error))reply{
+    NSError *error;
+    ODNode *node;
+    if([self checkServerStatus:server.serverName]){
+        node = [self getServerNode:server.serverName];
+    }else{
+        node = [self getRemServerNode:server];
+    }
+    
+    ODQuery *query = [ODQuery  queryWithNode: node
+                              forRecordTypes: kODRecordTypeGroups
+                                   attribute: kODAttributeTypeRecordName
+                                   matchType: kODMatchAny
+                                 queryValues: nil
+                            returnAttributes: kODAttributeTypeStandardOnly
+                              maximumResults: 0
+                                       error: &error];
+    
+    NSArray *odArray = [[NSArray alloc]init];
+    odArray = [query resultsAllowingPartial:NO error:&error];
+    
+    NSMutableArray *groupList = [NSMutableArray arrayWithCapacity:[odArray count]];
+    ODRecord *record;
+    
+    for (record in odArray) {
+        NSError *err;
+        NSArray *recordName = [record valuesForAttribute:kODAttributeTypeRecordName error:&err];
+        
+        if ([recordName count]) {
+            [groupList addObject:[recordName objectAtIndex:0]];
+        }
+    }
+    reply(groupList,error);
+}
+
+
+
+//---------------------------------------------
+//  Open Directory Methods
+//---------------------------------------------
+
+-(ODRecord*)getGroupRecord:(NSString*)group withNode:(ODNode*)node{
+    ODRecord* record;
+    ODQuery *query = [ODQuery  queryWithNode: node
+                              forRecordTypes: kODRecordTypeGroups
+                                   attribute: kODAttributeTypeRecordName
+                                   matchType: kODMatchEqualTo
+                                 queryValues: group
+                            returnAttributes: kODAttributeTypeStandardOnly
+                              maximumResults: 1
+                                       error: nil];
+    
+    NSArray *odArray = [[NSArray alloc]init];
+    odArray = [query resultsAllowingPartial:NO error:nil];
+    
+    record = [odArray objectAtIndex:0];
+    
+    return record;
+    
+}
+
+-(ODRecord*)getUserRecord:(NSString*)user withNode:(ODNode*)node{
+    ODRecord* record;
+    ODQuery *query = [ODQuery  queryWithNode: node
+                              forRecordTypes: kODRecordTypeUsers
+                                   attribute: kODAttributeTypeRecordName
+                                   matchType: kODMatchEqualTo
+                                 queryValues: user
+                            returnAttributes: kODAttributeTypeStandardOnly
+                              maximumResults: 1
+                                       error: nil];
+    
+    NSArray *odArray = [[NSArray alloc]init];
+    odArray = [query resultsAllowingPartial:NO error:nil];
+    
+    record = [odArray objectAtIndex:0];
+    
+    return record;
 }
 
 
@@ -99,16 +191,35 @@
     return node;
 }
 
+//---------------------------------------------
+//  Open Directory Node Status Checks
+//---------------------------------------------
+
+
+-(void)checkServerStatus:(NSString*)server withReply:(void (^)(BOOL connected))reply{
+    BOOL connected = YES;
+    if(![self getServerNode:server])
+        connected = NO;
+    reply(connected);
+}
+
+-(BOOL)checkServerStatus:(NSString*)server{
+    BOOL connected = YES;
+    if(![self getServerNode:server])
+        connected = NO;
+    return(connected);
+}
+
 
 //---------------------------------
 //  Singleton and ListenerDelegate
 //---------------------------------
 
-+ (DirectoryServer*)sharedDirectoryServer {
++ (OpenDirectoryService*)sharedDirectoryServer {
     static dispatch_once_t onceToken;
-    static DirectoryServer* shared;
+    static OpenDirectoryService* shared;
     dispatch_once(&onceToken, ^{
-        shared = [DirectoryServer new];
+        shared = [OpenDirectoryService new];
     });
     return shared;
 }
@@ -117,7 +228,7 @@
 // Implement the one method in the NSXPCListenerDelegate protocol.
 - (BOOL)listener:(NSXPCListener*)listener shouldAcceptNewConnection:(NSXPCConnection*)newConnection {
     
-    newConnection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(DirectoryServer)];
+    newConnection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(OpenDirectoryService)];
     newConnection.exportedObject = self;
     
     newConnection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];

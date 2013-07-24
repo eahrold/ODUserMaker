@@ -26,10 +26,13 @@
         
         _userFilter = [aDecoder decodeObjectOfClass: [NSString class] forKey:@"userFilter"];
         _userList = [aDecoder decodeObjectOfClass: [NSString class] forKey:@"userList"];
-        
+        _groupList = [aDecoder decodeObjectOfClass: [NSArray class] forKey:@"groupList"];
+        _groupDict = [aDecoder decodeObjectOfClass: [NSDictionary class] forKey:@"groupDict"];
+
+
         _exportFile = [aDecoder decodeObjectOfClass: [NSFileHandle class] forKey:@"exportFile"];
-        
         _importFileHandle = [aDecoder decodeObjectOfClass: [NSFileHandle class] forKey:@"importFileHandle"];
+       
         _importFilePath = [aDecoder decodeObjectOfClass: [NSString class] forKey:@"importFilePath"];
         _importFileURL = [aDecoder decodeObjectOfClass: [NSURL class] forKey:@"importFileURL"];
 
@@ -52,6 +55,10 @@
     [aEncoder encodeObject:_userPreset forKey:@"userPreset"];
     
     [aEncoder encodeObject:_userList forKey:@"userList"];
+    [aEncoder encodeObject:_groupList forKey:@"groupList"];
+    [aEncoder encodeObject:_groupDict forKey:@"groupDict"];
+
+
     [aEncoder encodeObject:_userFilter forKey:@"userFilter"];
     
     [aEncoder encodeObject:_exportFile forKey:@"exportFile"];

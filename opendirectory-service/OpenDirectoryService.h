@@ -12,19 +12,27 @@
 
 #define kDirectoryServiceName @"com.aapps.ODUserMaker.opendirectory-service"
 
-@protocol DirectoryServer
+@protocol OpenDirectoryService
+
 -(void)getUserPresets:(Server*)server
             withReply:(void (^)(NSArray *userPreset,NSError *error))reply;
+
+-(void)getGroupListFromServer:(Server*)server
+                    withReply:(void (^)(NSArray *groupList,NSError *error))reply;
 
 -(void)checkServerStatus:(NSString*)server
                withReply:(void (^)(BOOL connected))reply;
 
+-(void)addUser:(User*)user
+       toGroup:(NSArray*)group
+      toServer:(Server*)server
+     withReply:(void (^)(NSError * error))reply;
 
 @end
 
 
-@interface DirectoryServer : NSObject <NSXPCListenerDelegate, DirectoryServer>
-+ (DirectoryServer *)sharedDirectoryServer;
+@interface OpenDirectoryService : NSObject <NSXPCListenerDelegate, OpenDirectoryService>
++ (OpenDirectoryService *)sharedDirectoryServer;
 
 @property (weak) NSXPCConnection *xpcConnection;
 

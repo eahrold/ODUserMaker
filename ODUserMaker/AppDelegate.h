@@ -39,6 +39,8 @@
 //  file items
 //---------------------------------------------------
 @property (assign) IBOutlet NSTextField *importFilePath;
+@property (assign) IBOutlet NSPopUpButton *serverGroupList;
+@property (assign) IBOutlet NSPopUpButton *fileClassList;
 
 
 //---------------------------------------------------

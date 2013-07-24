@@ -22,15 +22,22 @@
 @property (assign) IBOutlet NSPopUpButton *userPreset;
 @property (assign) IBOutlet NSButton *commStudent;
 
+@property (assign,nonatomic) BOOL isSingleUser;
+
 // File Settings
 @property (assign) IBOutlet NSTextField *importFilePath;
 @property (assign) IBOutlet NSButton *chooseImportFile;
 @property (assign) IBOutlet NSTextField *userFilter;
 
 
-
 @property (copy) NSURL *importFile;
 @property (copy) NSString *exportFile;
+
+// Group Settings
+@property (assign) IBOutlet NSPopUpButton *serverGroupList;
+@property (assign) IBOutlet NSTextField *fileClassList;
+@property (assign) IBOutlet NSPopUpButton *groupMatchEntries;
+
 
 // Sever Settings
 @property (assign) IBOutlet NSTextField *serverName;
@@ -47,8 +54,14 @@
 // IBAction Buttons & Calls
 @property (assign) IBOutlet NSButton *makeSingleUser;
 @property (assign) IBOutlet NSButton *makeImportFile;
+
+
+
 - (IBAction)makeSingleUserPressed:(id)sender;
 - (IBAction)makeImportFilePressed:(id)sender;
+
+- (IBAction)addGroupMatchEntry:(id)sender;
+- (IBAction)removeGroupMatchEntry:(id)sender;
 
 
 @end

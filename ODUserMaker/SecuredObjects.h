@@ -27,6 +27,10 @@
 @property (copy) NSURL *importFileURL;
 
 @property (copy) NSString *userList;
+@property (copy) NSArray *groupList;
+@property (copy) NSDictionary *groupDict;
+
+
 
 
 

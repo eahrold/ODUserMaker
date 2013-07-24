@@ -9,6 +9,7 @@
 #import "AppController.h"
 #import "NetworkService.h"
 #import "FileService.h"
+#import "OpenDirectoryService.h"
 #import "AppProgress.h"
 #import "SSKeychain.h"
 
@@ -26,7 +27,7 @@
 }
 
 - (void)startProgressPanelWithMessage:(NSString*)message indeterminate:(BOOL)indeterminate {
-    // Display a progress panel as a sheet
+    /* Display a progress panel as a sheet */
     self.progressMessage = message;
     if (indeterminate) {
         [self.progressIndicator setIndeterminate:YES];
@@ -75,20 +76,21 @@
 //  NSXPC Connections
 //-----------------------------------------------------------
 
--(void)addListOfUsers:(User*)user withServer:(Server*)server{
+/* file-service xpc */
+-(void)addListOfUsers:(User*)user toServer:(Server*)server{
     NSXPCConnection* connection = [[NSXPCConnection alloc] initWithServiceName:kFileServiceName];
     connection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Exporter)];
     connection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
     connection.exportedObject = self;
     [connection resume];
-    [[connection remoteObjectProxy] makeExportFile:user withReply:^(NSError*error,NSString* msg){
+    [[connection remoteObjectProxy] makeExportFile:user withReply:^(NSError* error,NSDictionary* groups){
         
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
             [self stopProgressPanel];
             if(error){
                 [self showErrorAlert:error];
             }else{
-                //[self uploadFileLocally:user withServer:server];
+                //[self uploadUserList:user toServer:server];
             }
         }];
         [connection invalidate];
@@ -96,7 +98,8 @@
 }
 
 
--(void)addUser:(User*)user withServer:(Server*)server{
+-(void)addUser:(User*)user toServer:(Server*)server{
+    self.isSingleUser = YES;
     NSXPCConnection* connection = [[NSXPCConnection alloc] initWithServiceName:kFileServiceName];
     connection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Exporter)];
     connection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
@@ -109,7 +112,7 @@
             if(error){
                 [self showErrorAlert:error];
             }else{
-                [self uploadFileLocally:user withServer:server];
+                [self uploadUserList:user toServer:server];
             }
 
 
@@ -118,7 +121,8 @@
     }];
 }
 
--(void)uploadFileLocally:(User*)user withServer:(Server*)server{
+/* network-service xpc */
+-(void)uploadUserList:(User*)user toServer:(Server*)server{
     [self startProgressPanelWithMessage:@"Uploading User..." indeterminate:NO];
     
     NSXPCConnection* connection = [[NSXPCConnection alloc] initWithServiceName:kUploaderServiceName];
@@ -130,13 +134,50 @@
         
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
             NSLog(@"%@",response);
-            [self stopProgressPanel];
+            if(self.isSingleUser){
+                [self addUser:user toGroup:[[NSMutableArray alloc]init] toServer:server];
+            }else{
+                
+            }
         }];
         [connection invalidate];
     }];
 
 }
 
+/* opendirectory-service xpc */
+-(void)addUser:(User*)user toGroup:(NSMutableArray*)group toServer:(Server*)server{
+    
+    if(self.commStudent.state){
+        [group addObject:@"smc"];
+    }
+    
+    /* lock down the mutable array before passing off to the xpc service */
+    NSArray *dsGroups = [NSArray arrayWithArray:group];
+
+    if(dsGroups.count == 0)
+    {
+        [self stopProgressPanel];
+        return;
+    }
+    
+    NSXPCConnection* connection = [[NSXPCConnection alloc] initWithServiceName:kDirectoryServiceName];
+    connection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(OpenDirectoryService)];
+    connection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
+    connection.exportedObject = self;
+    [connection resume];
+    [[connection remoteObjectProxy] addUser:user toGroup:dsGroups toServer:server withReply:^(NSError *error) {
+        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            [self stopProgressPanel];
+            if(error){
+                NSLog(@"Error: %@",[error localizedDescription]);
+                [self showErrorAlert:error];
+            }
+        }];
+        [connection invalidate];
+    }];
+    
+}
 
 //-------------------------------------------
 //  IBActions
@@ -146,7 +187,7 @@
     NSError* error = nil;
     [self startProgressPanelWithMessage:@"Adding User..." indeterminate:NO];
     
-    // Set up the User Object
+    /* Set up the User Object */
     User* user = nil;
     user = [User new];
     user.firstName = _firstName.stringValue;
@@ -164,14 +205,14 @@
         user.keyWord = @"NonComm";
     }
     
-    // Set up the Serve Object
+    /* Set up the Serve Object */
     Server* server = nil;
     server = [Server new];
     server.serverName = _serverName.stringValue;
     server.diradminName = _diradminName.stringValue;
     server.diradminPass = _diradminPass.stringValue;
     
-    // Create the file and  set up the FileHandles
+    /* Create the file and  set up the FileHandles */
     NSURL* exportFile = [NSURL fileURLWithPath:[NSString stringWithFormat:@"%@%@",NSTemporaryDirectory(),user.userName]];
     if (![[NSData data] writeToURL:exportFile options:0 error:&error]) {
         [self stopProgressPanel];
@@ -181,7 +222,7 @@
     
     user.exportFile = [NSFileHandle fileHandleForWritingToURL:exportFile error:&error];
     server.exportFile = [NSFileHandle fileHandleForReadingFromURL:exportFile error:&error];
-    [self addUser:user withServer:server];
+    [self addUser:user toServer:server];
     
 }
 
@@ -195,7 +236,10 @@
     user.primaryGroup = _defaultGroup.stringValue;
     user.userPreset = [ _userPreset titleOfSelectedItem];
     user.keyWord = @"";
+    user.groupList = [_groupMatchEntries itemArray];
+    NSMenuItem* mymen = [user.groupList objectAtIndex:0];
     
+    NSLog(@"%@",mymen.title);
     
     if(![_userFilter.stringValue isEqualToString:@""]){
         user.userFilter = _userFilter.stringValue;
@@ -208,14 +252,14 @@
     server.diradminName = _diradminName.stringValue;
     server.diradminPass = _diradminPass.stringValue;
         
-    // Set up the import and export FileHandles
+    /* Set up the import and export FileHandles */
     NSURL * importFileURL = [NSURL fileURLWithPath:_importFilePath.stringValue];
     user.importFileHandle = [NSFileHandle fileHandleForReadingFromURL:importFileURL error:&error];
     
     NSString* timeStamp = [NSString stringWithFormat:@"%f",[[NSDate date] timeIntervalSince1970]];
     NSURL* exportFile = [NSURL fileURLWithPath:[NSString stringWithFormat:@"%@%@",NSTemporaryDirectory(),timeStamp]];
     
-    // Touch the file so the file handle can get create successfully
+    /* we've got to touch the file befor creating the file handle */
     if (![[NSData data] writeToURL:exportFile options:0 error:&error]) {
         [self stopProgressPanel];
         [self showErrorAlert:error];
@@ -231,7 +275,7 @@
 //        return;
 //    }
     
-    [self addListOfUsers:user withServer:server];
+    [self addListOfUsers:user toServer:server];
 }
 
 - (IBAction)chooseImportFile:(id)sender{
@@ -247,7 +291,15 @@
         _importFilePath.stringValue = url.path;
     }
 }
-    
 
+-(IBAction)addGroupMatchEntry:(id)sender{
+    NSString* match = _fileClassList.stringValue;
+    NSString* group = [_serverGroupList titleOfSelectedItem];
+    [_groupMatchEntries addItemWithTitle:[NSString stringWithFormat:@"%@:%@",match,group]];
+}
+
+-(IBAction)removeGroupMatchEntry:(id)sender{
+    [_groupMatchEntries removeItemAtIndex:[_groupMatchEntries indexOfSelectedItem]];
+}
 
 @end
