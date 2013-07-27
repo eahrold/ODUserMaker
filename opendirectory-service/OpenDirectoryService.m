@@ -13,6 +13,38 @@
 
 @implementation OpenDirectoryService
 
+-(void)addGroups:(NSArray*)groups toServer:(Server*)server withReply:(void (^)(NSError *))reply{
+    NSError *error = nil;
+    ODNode *node;
+    
+    /* see if computer is connected to the directory server, if not get a proxy node. */
+    if([self checkServerStatus:server.serverName]){
+        node = [self getServerNode:server.serverName];
+    }else{
+        node = [self getRemServerNode:server];
+    }
+    [node setCredentialsWithRecordType:nil recordName:server.diradminName password:server.diradminPass error:&error];
+    
+    for(NSDictionary* g in groups){
+        NSString* groupName = [ g objectForKey:@"group"];
+        NSArray* userNames = [ g objectForKey:@"users"];
+        ODRecord* groupRecord = [self getGroupRecord:groupName withNode:node];
+        
+        for(NSString* u in userNames){
+            NSLog(@"adding %@ to %@",u,groupName);
+            ODRecord* userRecord = [self getUserRecord:u withNode:node];
+            if(userRecord){
+                NSError* err;
+                [groupRecord addMemberRecord:userRecord error:&err];
+                if(err)
+                    NSLog(@"Error:%@",[err localizedDescription]);
+            }
+        }
+    }
+    reply(error);
+}
+
+
 -(void)addUser:(User *)user toGroup:(NSArray *)group toServer:(Server *)server withReply:(void (^)(NSError *error))reply{
     NSError *error;
     ODNode *node;
@@ -25,9 +57,6 @@
     }
     
     ODRecord* userRecord = [self getUserRecord:user.userName withNode:node];
-    
-    //ODRecord* diradminRecord = [self getUserRecord:diradmin withNode:node];
-    
     
     [node setCredentialsWithRecordType:nil recordName:server.diradminName password:server.diradminPass error:&error];
     
@@ -74,6 +103,7 @@
     reply(userPresets,error);
 }
 
+
 -(void)getGroupListFromServer:(Server*)server withReply:(void (^)(NSArray *groupList,NSError *error))reply{
     NSError *error;
     ODNode *node;
@@ -112,7 +142,7 @@
 
 
 //---------------------------------------------
-//  Open Directory Methods
+//  Record Retrevial methods
 //---------------------------------------------
 
 -(ODRecord*)getGroupRecord:(NSString*)group withNode:(ODNode*)node{
@@ -158,9 +188,9 @@
 -(ODNode*)getServerNode:(NSString*) serverName{
     ODSession *session = [ODSession defaultSession];
     
-    NSError *err;
+    NSError *error;
     NSString *ldap = [NSString stringWithFormat:@"/LDAPv3/%@",serverName];
-    ODNode *node = [ODNode nodeWithSession:session name:ldap error:&err];
+    ODNode *node = [ODNode nodeWithSession:session name:ldap error:&error];
         
     if(!node){
         return nil;
@@ -181,9 +211,8 @@
         return nil;
     }
     
-    NSError *err;
     NSString *ldap = [NSString stringWithFormat:@"/LDAPv3/127.0.0.1"];
-    ODNode *node = [ODNode nodeWithSession:session name:ldap error:&err];
+    ODNode *node = [ODNode nodeWithSession:session name:ldap error:&error];
     
     if(!node){
         return nil;
@@ -225,7 +254,7 @@
 }
 
 
-// Implement the one method in the NSXPCListenerDelegate protocol.
+/* Implement the one method in the NSXPCListenerDelegate protocol.*/
 - (BOOL)listener:(NSXPCListener*)listener shouldAcceptNewConnection:(NSXPCConnection*)newConnection {
     
     newConnection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(OpenDirectoryService)];

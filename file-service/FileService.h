@@ -12,18 +12,19 @@
 
 #define kFileServiceName @"com.aapps.ODUserMaker.file-service"
 
-@protocol Exporter
--(void)makeExportFile:(User*)user
-            withReply:(void (^)(NSError *error,NSDictionary* groups))reply;
+@protocol FileService
+-(void)makeMultiUserFile:(User*)user
+         andGroupList:(NSArray*)groups
+            withReply:(void (^)(NSArray* dsgroups,NSError *error))reply;
 
 -(void)makeSingelUserFile:(User*)user
-                withReply:(void (^)(NSError *error, NSString *msg))reply;
+                withReply:(void (^)(NSError *error))reply;
 
 @end
 
 
-@interface Exporter : NSObject <NSXPCListenerDelegate, Exporter>
-+ (Exporter *)sharedExporter;
+@interface FileService : NSObject <NSXPCListenerDelegate, FileService>
++ (FileService *)sharedFileService;
 
 @property (weak) NSXPCConnection *xpcConnection;
 

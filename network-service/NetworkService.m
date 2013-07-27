@@ -82,16 +82,13 @@
 
 -(void)uploadToServer:(Server*)server
                  user:(User*)user
-                withReply:(void (^)(NSString*))reply{
-   
+                withReply:(void (^)(NSString*,NSError* error))reply{
+    NSError* error = nil;
     [[self.xpcConnection remoteObjectProxy] setProgressMsg:@"Sending to server..."];
     
-    
-
     NSString* msg = [self dsImport:user withServer:server];
     [self eyeCandy];
-    //NSString* msg = @"right back at you";
-    reply(msg);
+    reply(msg,error);
 }
 
 //---------------------------------
@@ -108,15 +105,14 @@
 }
 
 
-// Implement the one method in the NSXPCListenerDelegate protocol.
+/* Implement the one method in the NSXPCListenerDelegate protocol.*/
 - (BOOL)listener:(NSXPCListener*)listener shouldAcceptNewConnection:(NSXPCConnection*)newConnection {
    
     newConnection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Uploader)];
+    newConnection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
     newConnection.exportedObject = self;
     
-    newConnection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
     self.xpcConnection = newConnection;
-    
     [newConnection resume];
     
     return YES;

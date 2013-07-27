@@ -15,8 +15,7 @@
 @protocol Uploader
 -(void)uploadToServer:(Server*)serverName
              user:(User*)user
-            withReply:(void (^)(NSString *msg))reply;
-
+            withReply:(void (^)(NSString *msg, NSError* error))reply;
 @end
 
 

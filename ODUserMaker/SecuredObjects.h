@@ -26,9 +26,8 @@
 @property (copy) NSString *importFilePath;
 @property (copy) NSURL *importFileURL;
 
-@property (copy) NSString *userList;
+@property (copy) NSArray *userList;
 @property (copy) NSArray *groupList;
-@property (copy) NSDictionary *groupDict;
 
 
 

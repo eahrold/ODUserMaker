@@ -16,6 +16,7 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
 
 @implementation AppDelegate
 
+
 -(void)bgRunner:(void*)method withTimer:(int)timer{
     [NSTimer scheduledTimerWithTimeInterval:timer
                                      target:self
@@ -29,7 +30,9 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
 //-------------------------------
 
 - (IBAction)editServerName:(id)sender{
-    [self getDirectoryServerStatus];
+    [self getDSStatus];
+    [self getDSUserPresets];
+    [self getDSGroupList];
 }
 
 - (IBAction)refreshUserPreferences:(id)sender{
@@ -37,13 +40,13 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
 }
 
 
--(void)getDirectoryServerStatus{
+-(void)getDSStatus{
     NSXPCConnection* connection = [[NSXPCConnection alloc] initWithServiceName:kDirectoryServiceName];
     connection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(OpenDirectoryService)];
     connection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
     connection.exportedObject = self;
     [connection resume];
-    [[connection remoteObjectProxy] checkServerStatus:self.serverName.stringValue withReply:^(BOOL connected) {
+    [[connection remoteObjectProxy] checkServerStatus:_serverName.stringValue withReply:^(BOOL connected) {
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
             if(connected){
               self.dsStatus = [NSString stringWithFormat:@"Connected to %@",self.serverName.stringValue];
@@ -58,11 +61,11 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
 
 
 -(void)getDSUserPresets{
-    [self.refreshPreset setHidden:YES];
-    [self.presetStatus startAnimation:self];
+    [_refreshPreset setHidden:YES];
+    [_presetStatus startAnimation:self];
 
-    [self.userPreset removeAllItems];
-    [self.userPreset addItemWithTitle:@"Getting Presets..."];
+    [_userPreset removeAllItems];
+    [_userPreset addItemWithTitle:@"Getting Presets..."];
 
     Server* server = [Server new];
     server.serverName = _serverName.stringValue;
@@ -76,13 +79,13 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
     [connection resume];
     [[connection remoteObjectProxy] getUserPresets:server withReply:^(NSArray *pArray, NSError *error) {
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-            [self.userPreset removeAllItems];
+            [_userPreset removeAllItems];
             if(!error){
                 NSSortDescriptor* sortOrder = [NSSortDescriptor sortDescriptorWithKey: @"self" ascending: NO];
-                [self.userPreset addItemsWithTitles:[pArray sortedArrayUsingDescriptors: [NSArray arrayWithObject: sortOrder]]];
+                [_userPreset addItemsWithTitles:[pArray sortedArrayUsingDescriptors: [NSArray arrayWithObject: sortOrder]]];
             }
-            [self.refreshPreset setHidden:NO];
-            [self.presetStatus stopAnimation:self];
+            [_refreshPreset setHidden:NO];
+            [_presetStatus stopAnimation:self];
         }];
         [connection invalidate];
     }];
@@ -94,8 +97,8 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
     //[self.refreshPreset setHidden:YES];
     //[self.presetStatus startAnimation:self];
     
-    [self.serverGroupList removeAllItems];
-    [self.serverGroupList addItemWithTitle:@"Getting List of Groups..."];
+    [_serverGroupList removeAllItems];
+    [_serverGroupList addItemWithTitle:@"Getting List of Groups..."];
     
     Server* server = [Server new];
     server.serverName = _serverName.stringValue;
@@ -109,10 +112,10 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
     [connection resume];
     [[connection remoteObjectProxy] getGroupListFromServer:server withReply:^(NSArray *pArray, NSError *error) {
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-            [self.serverGroupList removeAllItems];
+            [_serverGroupList removeAllItems];
             if(!error){
                 NSSortDescriptor* sortOrder = [NSSortDescriptor sortDescriptorWithKey: @"self" ascending: NO];
-                [self.serverGroupList addItemsWithTitles:[pArray sortedArrayUsingDescriptors: [NSArray arrayWithObject: sortOrder]]];
+                [_serverGroupList addItemsWithTitles:[pArray sortedArrayUsingDescriptors: [NSArray arrayWithObject: sortOrder]]];
             }
             
             //[self.refreshPreset setHidden:NO];
@@ -124,71 +127,79 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
     
 }
 
-//-----------------------
-//  User Default 
-//-----------------------
--(void)setUserDefaults{
+//--------------------------------------------------------------------------
+//  User Preferences/Defaults 
+//--------------------------------------------------------------------------
+-(void)setUserPreferences{
     NSUserDefaults* setDefaults = [NSUserDefaults standardUserDefaults];
     @try {
-        [setDefaults setObject:self.defaultGroup.stringValue forKey:@"defaultGroup"];
-        [setDefaults setObject:self.emailDomain.stringValue forKey:@"emailDomain"];
-        [setDefaults setObject:self.serverName.stringValue forKey:@"serverName"];
-        [setDefaults setObject:self.diradminName.stringValue forKey:@"diradminName"];
-        [setDefaults setObject:self.importFilePath.stringValue forKey:@"lastFile"];
+        [setDefaults setObject:_defaultGroup.stringValue forKey:@"defaultGroup"];
+        [setDefaults setObject:_emailDomain.stringValue forKey:@"emailDomain"];
+        [setDefaults setObject:_serverName.stringValue forKey:@"serverName"];
+        [setDefaults setObject:_diradminName.stringValue forKey:@"diradminName"];
+        [setDefaults setObject:_importFilePath.stringValue forKey:@"lastFile"];
+
         
         NSMutableArray *presetList = [[NSMutableArray alloc] init];
-        for(NSMenuItem* item in [self.userPreset itemArray]){
+        for(NSMenuItem* item in [_userPreset itemArray]){
             [presetList addObject:item.title];
         }
         
         [setDefaults setObject:presetList forKey:@"userPreset"];
         
         
-        [SSKeychain setPassword:self.diradminPass.stringValue forService:[[NSBundle mainBundle] bundleIdentifier] account:self.diradminName.stringValue];
+        [SSKeychain setPassword:_diradminPass.stringValue forService:[[NSBundle mainBundle] bundleIdentifier] account:_diradminName.stringValue];
     }
     @catch (NSException* exception) {
     }
     [setDefaults synchronize];
 }
 
--(void)tryToSetInterface:(NSTextField*)filed withSetting:(NSString*)string{
+-(void)tryToSetIBOutlet:(NSTextField*)field withSetting:(NSString*)string{
     @try {
-        filed.stringValue = string;}
-    @catch (NSException* exception){}
+        field.stringValue = string;
+    }@catch (NSException* exception){
+        /* just ignore errors*/
+    }
+    
 }
 
--(void)getUserDefualts{
+-(void)getUserPreferences{
     NSUserDefaults* getDefaults = [NSUserDefaults standardUserDefaults];
     
-    [self tryToSetInterface:_serverName withSetting:[getDefaults stringForKey:@"serverName"]];
-    [self tryToSetInterface:_defaultGroup withSetting:[getDefaults stringForKey:@"defaultGroup"]];
-    [self tryToSetInterface:_diradminName withSetting:[getDefaults stringForKey:@"diradminName"]];
-    [self tryToSetInterface:_emailDomain withSetting:[getDefaults stringForKey:@"emailDomain"]];
-    [self tryToSetInterface:_importFilePath withSetting:[getDefaults stringForKey:@"lastFile"]];
-
+    [self tryToSetIBOutlet:_serverName withSetting:[getDefaults stringForKey:@"serverName"]];
+    [self tryToSetIBOutlet:_defaultGroup withSetting:[getDefaults stringForKey:@"defaultGroup"]];
+    [self tryToSetIBOutlet:_diradminName withSetting:[getDefaults stringForKey:@"diradminName"]];
+    [self tryToSetIBOutlet:_emailDomain withSetting:[getDefaults stringForKey:@"emailDomain"]];
 
    
     if([getDefaults stringForKey:@"diradminName"])
-        self.diradminPass.stringValue = [SSKeychain passwordForService:[[NSBundle mainBundle] bundleIdentifier] account:[getDefaults stringForKey:@"diradminName"]];
+        _diradminPass.stringValue = [SSKeychain passwordForService:[[NSBundle mainBundle] bundleIdentifier] account:[getDefaults stringForKey:@"diradminName"]];
     if([_defaultGroup.stringValue isEqualToString:@""])
         self.defaultGroup.stringValue = @"20";        
 }
 
 
+//-------------------------------------------------------------------
+//  App Delegate
+//-------------------------------------------------------------------
 
 - (void)applicationDidFinishLaunching:(NSNotification* )aNotification
 {
     // Insert code here to initialize your application
-    [self getUserDefualts];
+    [self getUserPreferences];
     self.dsStatus = @"Checking for Directory Server...";
-    [self getDirectoryServerStatus];
+    [self getDSStatus];
     [self getDSUserPresets];
     [self getDSGroupList];
 }
 
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication* )theApplication{
-    [self setUserDefaults];
     return YES;
+}
+
+-(void)applicationWillTerminate:(NSNotification *)notification{
+    [self setUserPreferences];
 }
 
 @end

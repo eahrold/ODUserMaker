@@ -12,6 +12,7 @@
 		</object>
 		<array key="IBDocument.IntegratedClassDependencies">
 			<string>IBNSLayoutConstraint</string>
+			<string>NSArrayController</string>
 			<string>NSBox</string>
 			<string>NSButton</string>
 			<string>NSButtonCell</string>
@@ -53,6 +54,15 @@
 			</object>
 			<object class="NSCustomObject" id="976324537">
 				<string key="NSClassName">AppDelegate</string>
+			</object>
+			<object class="NSArrayController" id="780472637">
+				<bool key="NSEditable">YES</bool>
+				<object class="_NSManagedProxy" key="_NSManagedProxy"/>
+				<bool key="NSAvoidsEmptySelection">YES</bool>
+				<bool key="NSPreservesSelection">YES</bool>
+				<bool key="NSSelectsInsertedObjects">YES</bool>
+				<bool key="NSFilterRestrictsInsertion">YES</bool>
+				<bool key="NSClearsFilterPredicateOnInsertion">YES</bool>
 			</object>
 			<object class="NSWindowTemplate" id="348267837">
 				<int key="NSWindowStyleMask">30</int>
@@ -3527,14 +3537,6 @@
 					<int key="connectionID">2286</int>
 				</object>
 				<object class="IBConnectionRecord">
-					<object class="IBActionConnection" key="connection">
-						<string key="label">makeImportFilePressed:</string>
-						<reference key="source" ref="912274050"/>
-						<reference key="destination" ref="973854585"/>
-					</object>
-					<int key="connectionID">2295</int>
-				</object>
-				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
 						<string key="label">emailDomain</string>
 						<reference key="source" ref="912274050"/>
@@ -3607,6 +3609,22 @@
 					<int key="connectionID">3093</int>
 				</object>
 				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">arrayController</string>
+						<reference key="source" ref="912274050"/>
+						<reference key="destination" ref="780472637"/>
+					</object>
+					<int key="connectionID">3194</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">makeMultiUserPressed:</string>
+						<reference key="source" ref="912274050"/>
+						<reference key="destination" ref="434589605"/>
+					</object>
+					<int key="connectionID">3199</int>
+				</object>
+				<object class="IBConnectionRecord">
 					<object class="IBBindingConnection" key="connection">
 						<string key="label">value: dsStatus</string>
 						<reference key="source" ref="520927614"/>
@@ -3625,6 +3643,22 @@
 						</object>
 					</object>
 					<int key="connectionID">1595</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBBindingConnection" key="connection">
+						<string key="label">content: arrangedObjects.description</string>
+						<reference key="source" ref="966660807"/>
+						<reference key="destination" ref="780472637"/>
+						<object class="NSNibBindingConnector" key="connector">
+							<reference key="NSSource" ref="966660807"/>
+							<reference key="NSDestination" ref="780472637"/>
+							<string key="NSLabel">content: arrangedObjects.description</string>
+							<string key="NSBinding">content</string>
+							<string key="NSKeyPath">arrangedObjects.description</string>
+							<int key="NSNibBindingConnectorVersion">2</int>
+						</object>
+					</object>
+					<int key="connectionID">3197</int>
 				</object>
 			</array>
 			<object class="IBMutableOrderedSet" key="objectRecords">
@@ -4278,6 +4312,22 @@
 								<reference key="containingView" ref="439893737"/>
 								<int key="scoringType">8</int>
 								<float key="scoringTypeFloat">29</float>
+								<int key="contentType">3</int>
+							</object>
+							<object class="IBNSLayoutConstraint" id="398145917">
+								<reference key="firstItem" ref="860621429"/>
+								<int key="firstAttribute">3</int>
+								<int key="relation">0</int>
+								<reference key="secondItem" ref="439893737"/>
+								<int key="secondAttribute">3</int>
+								<float key="multiplier">1</float>
+								<object class="IBLayoutConstant" key="constant">
+									<double key="value">227</double>
+								</object>
+								<float key="priority">1000</float>
+								<reference key="containingView" ref="439893737"/>
+								<int key="scoringType">3</int>
+								<float key="scoringTypeFloat">9</float>
 								<int key="contentType">3</int>
 							</object>
 							<object class="IBNSLayoutConstraint" id="267243806">
@@ -5322,22 +5372,6 @@
 								<reference key="containingView" ref="615504719"/>
 								<int key="scoringType">6</int>
 								<float key="scoringTypeFloat">24</float>
-								<int key="contentType">3</int>
-							</object>
-							<object class="IBNSLayoutConstraint" id="1056890722">
-								<reference key="firstItem" ref="412789643"/>
-								<int key="firstAttribute">3</int>
-								<int key="relation">0</int>
-								<reference key="secondItem" ref="615504719"/>
-								<int key="secondAttribute">3</int>
-								<float key="multiplier">1</float>
-								<object class="IBLayoutConstant" key="constant">
-									<double key="value">70</double>
-								</object>
-								<float key="priority">1000</float>
-								<reference key="containingView" ref="615504719"/>
-								<int key="scoringType">3</int>
-								<float key="scoringTypeFloat">9</float>
 								<int key="contentType">3</int>
 							</object>
 							<object class="IBNSLayoutConstraint" id="1027274249">
@@ -8100,11 +8134,6 @@
 						<reference key="parent" ref="615504719"/>
 					</object>
 					<object class="IBObjectRecord">
-						<int key="objectID">3100</int>
-						<reference key="object" ref="1056890722"/>
-						<reference key="parent" ref="615504719"/>
-					</object>
-					<object class="IBObjectRecord">
 						<int key="objectID">3169</int>
 						<reference key="object" ref="295205941"/>
 						<reference key="parent" ref="615504719"/>
@@ -8123,6 +8152,16 @@
 						<int key="objectID">3130</int>
 						<reference key="object" ref="240587639"/>
 						<reference key="parent" ref="615504719"/>
+					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">3193</int>
+						<reference key="object" ref="780472637"/>
+						<reference key="parent" ref="0"/>
+					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">3200</int>
+						<reference key="object" ref="398145917"/>
+						<reference key="parent" ref="439893737"/>
 					</object>
 				</array>
 			</object>
@@ -8517,7 +8556,6 @@
 				<string key="3087.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="3089.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="3094.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<string key="3100.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="3120.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="3130.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="3133.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -8532,6 +8570,8 @@
 				<string key="3172.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="3173.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="3174.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
+				<string key="3193.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
+				<string key="3200.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="346.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="348.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="349.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -8541,7 +8581,7 @@
 				<string key="371.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="371.IBWindowTemplateEditedContentRect">{{380, 496}, {480, 360}}</string>
 				<integer value="1" key="371.NSWindowTemplate.visibleAtLaunch"/>
-				<array class="NSMutableArray" key="372.IBNSViewMetadataConstraints">
+				<array key="372.IBNSViewMetadataConstraints">
 					<reference ref="520976626"/>
 					<reference ref="963963737"/>
 					<reference ref="711994235"/>
@@ -8550,6 +8590,7 @@
 					<reference ref="434042139"/>
 					<reference ref="1031357349"/>
 					<reference ref="267243806"/>
+					<reference ref="398145917"/>
 					<reference ref="434717891"/>
 					<reference ref="611108622"/>
 					<reference ref="702032702"/>
@@ -8691,7 +8732,6 @@
 					<reference ref="203483645"/>
 					<reference ref="129856354"/>
 					<reference ref="1027274249"/>
-					<reference ref="1056890722"/>
 					<reference ref="666153755"/>
 					<reference ref="379749140"/>
 					<reference ref="546606498"/>
@@ -8754,7 +8794,7 @@
 			<nil key="activeLocalization"/>
 			<dictionary class="NSMutableDictionary" key="localizations"/>
 			<nil key="sourceID"/>
-			<int key="maxID">3192</int>
+			<int key="maxID">3200</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<array class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -8763,9 +8803,7 @@
 					<string key="superclassName">NSObject</string>
 					<dictionary class="NSMutableDictionary" key="actions">
 						<string key="addGroupMatchEntry:">id</string>
-						<string key="cancel:">id</string>
-						<string key="chooseImportFile:">id</string>
-						<string key="makeImportFilePressed:">id</string>
+						<string key="makeMultiUserPressed:">id</string>
 						<string key="makeSingleUserPressed:">id</string>
 						<string key="removeGroupMatchEntry:">id</string>
 					</dictionary>
@@ -8774,16 +8812,8 @@
 							<string key="name">addGroupMatchEntry:</string>
 							<string key="candidateClassName">id</string>
 						</object>
-						<object class="IBActionInfo" key="cancel:">
-							<string key="name">cancel:</string>
-							<string key="candidateClassName">id</string>
-						</object>
-						<object class="IBActionInfo" key="chooseImportFile:">
-							<string key="name">chooseImportFile:</string>
-							<string key="candidateClassName">id</string>
-						</object>
-						<object class="IBActionInfo" key="makeImportFilePressed:">
-							<string key="name">makeImportFilePressed:</string>
+						<object class="IBActionInfo" key="makeMultiUserPressed:">
+							<string key="name">makeMultiUserPressed:</string>
 							<string key="candidateClassName">id</string>
 						</object>
 						<object class="IBActionInfo" key="makeSingleUserPressed:">
@@ -8927,20 +8957,17 @@
 				<object class="IBPartialClassDescription">
 					<string key="className">AppDelegate</string>
 					<string key="superclassName">NSObject</string>
-					<dictionary class="NSMutableDictionary" key="actions">
-						<string key="editServerName:">id</string>
-						<string key="refreshUserPreferences:">id</string>
-					</dictionary>
-					<dictionary class="NSMutableDictionary" key="actionInfosByName">
-						<object class="IBActionInfo" key="editServerName:">
+					<object class="NSMutableDictionary" key="actions">
+						<string key="NS.key.0">editServerName:</string>
+						<string key="NS.object.0">id</string>
+					</object>
+					<object class="NSMutableDictionary" key="actionInfosByName">
+						<string key="NS.key.0">editServerName:</string>
+						<object class="IBActionInfo" key="NS.object.0">
 							<string key="name">editServerName:</string>
 							<string key="candidateClassName">id</string>
 						</object>
-						<object class="IBActionInfo" key="refreshUserPreferences:">
-							<string key="name">refreshUserPreferences:</string>
-							<string key="candidateClassName">id</string>
-						</object>
-					</dictionary>
+					</object>
 					<dictionary class="NSMutableDictionary" key="outlets">
 						<string key="defaultGroup">NSTextField</string>
 						<string key="diradminName">NSTextField</string>

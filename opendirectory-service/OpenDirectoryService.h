@@ -28,6 +28,8 @@
       toServer:(Server*)server
      withReply:(void (^)(NSError * error))reply;
 
+-(void)addGroups:(NSArray*)groups toServer:(Server*)server withReply:(void (^)(NSError * error))reply;;
+
 @end
 
 

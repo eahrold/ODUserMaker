@@ -30,9 +30,7 @@
 @property (assign) IBOutlet NSTextField *diradminName;
 @property (assign) IBOutlet NSTextField *diradminPass;
 
-@property (copy) NSString *dsStatus;  // this is bound
-
-- (IBAction)editServerName:(id)sender;
+@property (assign) NSString *dsStatus;  // <----     this is bound
 
 
 //---------------------------------------------------
@@ -50,6 +48,5 @@
 @property (nonatomic, assign) BOOL quitThread;
 @property (assign) IBOutlet NSWindow *window;
 
--(void)tryToSetInterface:(NSTextField*)filed withSetting:(NSString*)string;
 
 @end
