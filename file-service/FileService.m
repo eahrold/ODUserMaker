@@ -61,9 +61,8 @@
     
     [self writeHeaders:user.exportFile];
     
-    success = [self parseUserList:user toFile:user.exportFile];
-    
-    dsgroups = [self makeGroups:groups withUserArray:user.userList];
+    success = [self parseUserList:user toFile:user.exportFile];    
+    dsgroups = [self makeGroups:groups withUserArray:user.userList usingFilter:user.userFilter];
     
     if(success){
         msg = @"Made user list";
@@ -108,10 +107,10 @@
     NSArray* tmpArray2;
     NSMutableSet* processed = [NSMutableSet set];
     
-    for (NSString* item in user.userList) {
-        if ([item rangeOfString:user.userFilter].location != NSNotFound){
+    for (NSString* u in user.userList) {
+        if ([u rangeOfString:user.userFilter].location != NSNotFound){
             @try{
-                tmpArray = [item componentsSeparatedByString:@"\t"];
+                tmpArray = [u componentsSeparatedByString:@"\t"];
                 if ([processed containsObject:[tmpArray objectAtIndex:0]] == NO) {
                     
                     /* add the object to the processed array */
@@ -156,7 +155,8 @@
 
 
 -(NSArray*)makeGroups:(NSArray*)groups
-        withUserArray:(NSArray*)users{
+        withUserArray:(NSArray*)users
+          usingFilter:(NSString*)filter{
     /* this takes the array of groups/match specified in the main window and then using the users
      from the array set in the parseList method it creates an array of dictionaries of the groups
      and the users that are in them based on the match.  There has to be a better way but this works*/
@@ -192,13 +192,15 @@
         }
         
         for(NSString *u in users){
-            if ([u rangeOfString:matchName options:NSCaseInsensitiveSearch].location != NSNotFound){
-                NSString *uname = [[u componentsSeparatedByString:@"\t"]objectAtIndex:0];
-                
-                if ([userProcessed containsObject:uname] == NO){
-                    [userSet addObject:uname];
+            if ([u rangeOfString:filter].location != NSNotFound){
+                if ([u rangeOfString:matchName options:NSCaseInsensitiveSearch].location != NSNotFound){
+                    NSString *uname = [[u componentsSeparatedByString:@"\t"]objectAtIndex:0];
+                    
+                    if ([userProcessed containsObject:uname] == NO){
+                        [userSet addObject:uname];
+                    }
+                    [userProcessed addObject:uname];
                 }
-                [userProcessed addObject:uname];
             }
         }
         [groupDict setObject:userSet forKey:@"users"];
