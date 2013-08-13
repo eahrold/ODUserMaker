@@ -13,6 +13,29 @@
 
 @implementation OpenDirectoryService
 
+-(void)resetUserPassword:(User*)user onServer:(Server*)server
+               withReply:(void (^)(NSError *error))reply;
+{
+    NSError *error = nil;
+    ODNode *node;
+    
+    /* see if computer is connected to the directory server, if not get a proxy node. */
+    if([self checkServerStatus:server.serverName]){
+        node = [self getServerNode:server.serverName];
+    }else{
+        node = [self getRemServerNode:server];
+    }
+    
+    [node setCredentialsWithRecordType:nil recordName:server.diradminName password:server.diradminPass error:&error];
+    
+    ODRecord* userRecord = [self getUserRecord:user.userName withNode:node];
+    
+    [userRecord changePassword:nil toPassword:user.userCWID error:&error];
+    [userRecord synchronizeAndReturnError:&error];
+    
+    reply(error);
+}
+
 -(void)addGroups:(NSArray*)groups toServer:(Server*)server withReply:(void (^)(NSError *))reply{
     NSError *error = nil;
     ODNode *node;
@@ -23,6 +46,7 @@
     }else{
         node = [self getRemServerNode:server];
     }
+    
     [node setCredentialsWithRecordType:nil recordName:server.diradminName password:server.diradminPass error:&error];
     
     for(NSDictionary* g in groups){
@@ -139,6 +163,40 @@
     reply(groupList,error);
 }
 
+-(void)getUserListFromServer:(Server*)server withReply:(void (^)(NSArray *userList,NSError *error))reply{
+    NSError *error;
+    ODNode *node;
+    if([self checkServerStatus:server.serverName]){
+        node = [self getServerNode:server.serverName];
+    }else{
+        node = [self getRemServerNode:server];
+    }
+    
+    ODQuery *query = [ODQuery  queryWithNode: node
+                              forRecordTypes: kODRecordTypeUsers
+                                   attribute: kODAttributeTypeRecordName
+                                   matchType: kODMatchAny
+                                 queryValues: nil
+                            returnAttributes: kODAttributeTypeStandardOnly
+                              maximumResults: 0
+                                       error: &error];
+    
+    NSArray *odArray = [[NSArray alloc]init];
+    odArray = [query resultsAllowingPartial:NO error:&error];
+    
+    NSMutableArray *userList = [NSMutableArray arrayWithCapacity:[odArray count]];
+    ODRecord *record;
+    
+    for (record in odArray) {
+        NSError *err;
+        NSArray *recordName = [record valuesForAttribute:kODAttributeTypeRecordName error:&err];
+        
+        if ([recordName count]) {
+            [userList addObject:[recordName objectAtIndex:0]];
+        }
+    }
+    reply(userList,error);
+}
 
 
 //---------------------------------------------

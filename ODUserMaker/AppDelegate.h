@@ -17,6 +17,12 @@
 @property (assign) IBOutlet NSTextField *emailDomain;
 @property (assign) IBOutlet NSTextField *defaultGroup;
 
+
+//---------------------------------------------------
+// Password Reset
+//---------------------------------------------------
+@property (assign) IBOutlet NSPopUpButton *serverUserList;
+
 //---------------------------------------------------
 //  Server items
 //---------------------------------------------------

@@ -14,11 +14,17 @@
 
 @protocol OpenDirectoryService
 
+-(void)resetUserPassword:(User*)user onServer:(Server*)server
+               withReply:(void (^)(NSError *error))reply;
+
 -(void)getUserPresets:(Server*)server
             withReply:(void (^)(NSArray *userPreset,NSError *error))reply;
 
 -(void)getGroupListFromServer:(Server*)server
                     withReply:(void (^)(NSArray *groupList,NSError *error))reply;
+
+-(void)getUserListFromServer:(Server*)server
+                   withReply:(void (^)(NSArray *userList,NSError *error))reply;
 
 -(void)checkServerStatus:(NSString*)server
                withReply:(void (^)(BOOL connected))reply;

@@ -30,6 +30,13 @@
 
 @property (assign,nonatomic) BOOL isSingleUser;
 
+//---------------------------------------------------
+// Password Reset
+//---------------------------------------------------
+@property (assign) IBOutlet NSPopUpButton *serverUserList;
+@property (assign) IBOutlet NSTextField   *passWord;
+@property (assign) IBOutlet NSTextField   *statusUpdate;
+
 
 //---------------------------------------------------
 // File Settings
@@ -74,9 +81,12 @@
 
 - (IBAction)makeSingleUserPressed:(id)sender;
 - (IBAction)makeMultiUserPressed:(id)sender;
+- (IBAction)resetPasswordPressed:(id)sender;
+
 
 - (IBAction)addGroupMatchEntry:(id)sender;
 - (IBAction)removeGroupMatchEntry:(id)sender;
+
 
 
 @end

@@ -215,6 +215,49 @@
 }
 
 
+//
+
+//-------------------------------------------
+//  Password Reset
+//-------------------------------------------
+- (IBAction)resetPasswordPressed:(id)sender{
+    
+    /* Set up the User Object */
+    User* user = [User new];
+    user.userName = [_serverUserList titleOfSelectedItem];
+    user.userCWID = [_passWord stringValue];
+    
+    /* Set up the Serve Object */
+    Server* server = [Server new];
+    server.serverName = _serverName.stringValue;
+    server.diradminName = _diradminName.stringValue;
+    server.diradminPass = _diradminPass.stringValue;
+    [self resetUserPassword:user onServer:server];
+    
+}
+
+-(void)resetUserPassword:(User*)user onServer:(Server*)server{
+    NSXPCConnection* connection = [[NSXPCConnection alloc] initWithServiceName:kDirectoryServiceName];
+    connection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(OpenDirectoryService)];
+    connection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
+    connection.exportedObject = self;
+    [connection resume];
+    [[connection remoteObjectProxy] resetUserPassword:user onServer:server withReply:^(NSError *error) {
+        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            [self stopProgressPanel];
+            if(error){
+                NSLog(@"Error: %@",[error localizedDescription]);
+                [self showErrorAlert:error];
+            }else{
+                _statusUpdate.textColor = [NSColor redColor];
+                _statusUpdate.stringValue = [NSString stringWithFormat:@"Password reset for %@",user.userName];
+            }
+        }];
+        [connection invalidate];
+    }];
+    
+}
+
 //-------------------------------------------
 //  Common Methods
 //-------------------------------------------

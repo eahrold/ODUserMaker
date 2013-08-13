@@ -41,6 +41,8 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
 
 
 -(void)getDSStatus{
+    self.dsStatus = @"Checking for Directory Server...";
+
     NSXPCConnection* connection = [[NSXPCConnection alloc] initWithServiceName:kDirectoryServiceName];
     connection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(OpenDirectoryService)];
     connection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
@@ -127,6 +129,35 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
     
 }
 
+-(void)getDSUserList{
+    [_serverUserList removeAllItems];
+    [_serverUserList addItemWithTitle:@"Getting List of Users..."];
+    
+    Server* server = [Server new];
+    server.serverName = _serverName.stringValue;
+    server.diradminPass = _diradminPass.stringValue;
+    server.diradminName = _diradminName.stringValue;
+    
+    NSXPCConnection* connection = [[NSXPCConnection alloc] initWithServiceName:kDirectoryServiceName];
+    connection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(OpenDirectoryService)];
+    connection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
+    connection.exportedObject = self;
+    [connection resume];
+    [[connection remoteObjectProxy] getUserListFromServer:server withReply:^(NSArray *pArray, NSError *error) {
+        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            [_serverUserList removeAllItems];
+            if(!error){
+                NSSortDescriptor* sortOrder = [NSSortDescriptor sortDescriptorWithKey: @"self" ascending: NO];
+                [_serverUserList addItemsWithTitles:[pArray sortedArrayUsingDescriptors: [NSArray arrayWithObject: sortOrder]]];
+            }
+        }];
+        [connection invalidate];
+    }];
+    
+    
+}
+
+
 //--------------------------------------------------------------------------
 //  User Preferences/Defaults 
 //--------------------------------------------------------------------------
@@ -188,10 +219,10 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
 {
     // Insert code here to initialize your application
     [self getUserPreferences];
-    self.dsStatus = @"Checking for Directory Server...";
     [self getDSStatus];
     [self getDSUserPresets];
     [self getDSGroupList];
+    [self getDSUserList];
 }
 
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication* )theApplication{
