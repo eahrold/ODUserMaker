@@ -19,11 +19,12 @@
 
 -(void)makeSingelUserFile:(User*)user
                 withReply:(void (^)(NSError* error))reply{
+    [[self.xpcConnection remoteObjectProxy] setProgressMsg:@"Setting Users Properties..."];
+
     BOOL success;
     NSString* msg;
     NSError* error = nil;
     
-    [[self.xpcConnection remoteObjectProxy] setProgressMsg:@"Setting Users Properties..."];
     
     [self writeHeaders:user.exportFile];
     success = [self writeUser:user toFile:user.exportFile];
@@ -277,7 +278,7 @@
                              invertedSet]] componentsJoinedByString:@""];
     
     NSString* noZeros = [noLetters stringByReplacingOccurrencesOfString:@"0" withString:@""];
-    NSString* uuid = [noZeros substringFromIndex:[noZeros length]-5];
+    NSString* uuid = [noZeros substringFromIndex:[noZeros length]-6];
     
     return uuid;
 }

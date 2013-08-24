@@ -61,9 +61,6 @@
     [aEncoder encodeObject:_importFileHandle forKey:@"importFileHandle"];
     [aEncoder encodeObject:_importFilePath forKey:@"importFilePath"];
     [aEncoder encodeObject:_importFileURL forKey:@"importFileURL"];
-
-
-
 }
 
 @end

@@ -55,8 +55,11 @@
         ODRecord* groupRecord = [self getGroupRecord:groupName withNode:node];
         
         for(NSString* u in userNames){
+            [[self.xpcConnection remoteObjectProxy] setProgressMsg:[NSString stringWithFormat:@"Updating %@ membership, adding %@",groupName,u]];
+            
             NSLog(@"adding %@ to %@",u,groupName);
             ODRecord* userRecord = [self getUserRecord:u withNode:node];
+            
             if(userRecord){
                 NSError* err;
                 [groupRecord addMemberRecord:userRecord error:&err];
@@ -93,6 +96,7 @@
 }
 
 -(void)getUserPresets:(Server*)server withReply:(void (^)(NSArray *userPreset,NSError *error))reply{
+
     NSError *error;
     ODNode *node;
     if([self checkServerStatus:server.serverName]){
@@ -146,6 +150,7 @@
                               maximumResults: 0
                                        error: &error];
     
+    
     NSArray *odArray = [[NSArray alloc]init];
     odArray = [query resultsAllowingPartial:NO error:&error];
     
@@ -174,7 +179,7 @@
     
     ODQuery *query = [ODQuery  queryWithNode: node
                               forRecordTypes: kODRecordTypeUsers
-                                   attribute: kODAttributeTypeRecordName
+                                   attribute: kODAttributeTypeAllAttributes
                                    matchType: kODMatchAny
                                  queryValues: nil
                             returnAttributes: kODAttributeTypeStandardOnly
@@ -224,7 +229,7 @@
 }
 
 -(ODRecord*)getUserRecord:(NSString*)user withNode:(ODNode*)node{
-    ODRecord* record;
+    ODRecord* record = nil;
     ODQuery *query = [ODQuery  queryWithNode: node
                               forRecordTypes: kODRecordTypeUsers
                                    attribute: kODAttributeTypeRecordName
@@ -237,7 +242,9 @@
     NSArray *odArray = [[NSArray alloc]init];
     odArray = [query resultsAllowingPartial:NO error:nil];
     
-    record = [odArray objectAtIndex:0];
+    if(odArray.count > 0){
+        record = [odArray objectAtIndex:0];
+    }
     
     return record;
 }

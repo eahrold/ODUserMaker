@@ -10,7 +10,6 @@
 
 @interface AppController : NSObject{
     IBOutlet NSArrayController *arrayController;
-    
     NSMutableArray *groups;
     NSArray* dsGroupList;
 }

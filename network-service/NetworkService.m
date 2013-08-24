@@ -84,7 +84,7 @@
                  user:(User*)user
                 withReply:(void (^)(NSString*,NSError* error))reply{
     NSError* error = nil;
-    [[self.xpcConnection remoteObjectProxy] setProgressMsg:@"Sending to server..."];
+    [[self.xpcConnection remoteObjectProxy] setProgressMsg:@"Adding users to server..."];
     
     NSString* msg = [self dsImport:user withServer:server];
     [self eyeCandy];

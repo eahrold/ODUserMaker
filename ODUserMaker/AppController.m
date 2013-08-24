@@ -22,7 +22,7 @@
 - (IBAction)makeSingleUserPressed:(id)sender{
     _isSingleUser = YES;
     NSError* error = nil;
-    [self startProgressPanelWithMessage:@"Adding User..." indeterminate:NO];
+    [self startProgressPanelWithMessage:@"Adding User..." indeterminate:YES];
     
     /* Set up the User Object */
     User* user = nil;
@@ -124,7 +124,6 @@
 //-----------------------------------------------------------
 - (IBAction)makeMultiUserPressed:(id)sender{
     NSError* error = nil;
-    [self startProgressPanelWithMessage:@"Making User List..." indeterminate:YES];
     
     /*set up the user object*/
     User* user = [User new];
@@ -264,7 +263,6 @@
 
 /* network-service xpc */
 -(void)uploadUserList:(User*)user toServer:(Server*)server{
-    [self startProgressPanelWithMessage:@"Uploading User..." indeterminate:NO];
     
     NSXPCConnection* connection = [[NSXPCConnection alloc] initWithServiceName:kUploaderServiceName];
     connection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Uploader)];
@@ -344,6 +342,7 @@
                                               didEndSelector:nil
                                                  contextInfo:nil];
 }
+
 
 - (void)startProgressPanelWithMessage:(NSString*)message indeterminate:(BOOL)indeterminate {
     /* Display a progress panel as a sheet */

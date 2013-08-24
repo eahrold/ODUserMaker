@@ -157,12 +157,12 @@
 		BEC424E91791A7FF00CA45A5 = {
 			isa = PBXGroup;
 			children = (
+				BEC424FB1791A7FF00CA45A5 /* ODUserMaker */,
 				BEC4252B1791AA1C00CA45A5 /* Interfaces */,
 				BEC425491792452A00CA45A5 /* Secure Objects */,
 				BEFBDC60179C161F00AB0960 /* opendirectory-service */,
 				BEC425191791A85900CA45A5 /* network-service */,
 				BEC425361792302A00CA45A5 /* file-service */,
-				BEC424FB1791A7FF00CA45A5 /* ODUserMaker */,
 				BEC424F41791A7FF00CA45A5 /* Frameworks */,
 				BEC424F31791A7FF00CA45A5 /* Products */,
 			);
