@@ -71,9 +71,11 @@
     connection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
     connection.exportedObject = self;
     [connection resume];
-    [[connection remoteObjectProxy] makeSingelUserFile:user withReply:^(NSError *error){
+    [[connection remoteObjectProxy] makeSingelUserFile:user
+                                             withReply:^(NSError *error){
         
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            
             [self stopProgressPanel];
             if(error){
                 NSLog(@"Error: %@",[error localizedDescription]);
@@ -163,18 +165,23 @@
     user.exportFile = [NSFileHandle fileHandleForWritingToURL:exportFile error:&error];
     server.exportFile = [NSFileHandle fileHandleForReadingFromURL:exportFile error:&error];
     
-    [self addListOfUsers:user toServer:server];
+    [self makeMultiUserFile:user toServer:server];
 }
 
+
 /* file-service xpc */
--(void)addListOfUsers:(User*)user toServer:(Server*)server{
+-(void)makeMultiUserFile:(User*)user toServer:(Server*)server{
     NSXPCConnection* connection = [[NSXPCConnection alloc] initWithServiceName:kFileServiceName];
     connection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(FileService)];
     connection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
     connection.exportedObject = self;
     [connection resume];
-    [[connection remoteObjectProxy] makeMultiUserFile:user andGroupList:groups withReply:^(NSArray* dsgroups,NSNumber* ucount, NSError* error){
+    [[connection remoteObjectProxy] makeMultiUserFile:user
+                                         andGroupList:groups
+                                            withReply:^(NSArray* dsgroups,NSNumber* ucount, NSError* error){
+                                                
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            
             if(error){
                 [self stopProgressPanel];
                 NSLog(@"Error: %@",[error localizedDescription]);
@@ -183,9 +190,10 @@
                 dsGroupList = [[NSArray alloc ]initWithArray:dsgroups];
                 user.userCount = ucount;
                 NSLog(@"UserList:%@",user.userCount);
-
+                
                 [self uploadUserList:user toServer:server];
             }
+            
         }];
         [connection invalidate];
     }];
@@ -205,7 +213,10 @@
     connection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
     connection.exportedObject = self;
     [connection resume];
-    [[connection remoteObjectProxy] addGroups:dsGroupList toServer:server withReply:^(NSError *error) {
+    [[connection remoteObjectProxy] addGroups:dsGroupList
+                                     toServer:server
+                                    withReply:^(NSError *error){
+                                        
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
             [self stopProgressPanel];
             if(error){
@@ -285,7 +296,7 @@
                 [self showErrorAlert:error];
             }else{
                 if(self.isSingleUser){
-                    [self addUser:user toGroup:[[NSMutableArray alloc]init] toServer:server];
+                    [self addUser:user toGroup:[NSMutableArray new] toServer:server];
                 }else{
                     [self addGroupsToServer:server];
                 }

@@ -17,7 +17,19 @@
 
 @implementation Uploader
 
--(NSString*)dsImport:(User*)user withServer:(Server*)server{    
+-(void)uploadToServer:(Server*)server
+                 user:(User*)user
+            withReply:(void (^)(NSString* response,NSError* error))reply{
+    
+    NSError* error = nil;
+    
+    [[self.xpcConnection remoteObjectProxy] setProgressMsg:[NSString stringWithFormat:@"Adding %@ users to server...", user.userCount]];
+    
+    NSString* response = [self dsImport:user withServer:server];
+    reply(response,error);
+}
+
+-(NSString*)dsImport:(User*)user withServer:(Server*)server{
     
     //  We need to do this get around the sandbox for the NSTask
     NSString* dsimportFile = [NSString stringWithFormat:@"%@%@",NSTemporaryDirectory(),user.userName];
@@ -32,8 +44,13 @@
     
     
     NSTask* task = [[NSTask alloc] init];
+    NSMutableArray* args;
     
-    NSMutableArray* args = [NSMutableArray arrayWithArray:[NSArray arrayWithObjects:dsimportFile,@"/LDAPv3/127.0.0.1",@"I",@"--remoteusername",server.diradminName,@"--remotehost",server.serverName, nil]];
+    if([server.serverName isEqualToString:@"127.0.0.1"]){
+       args = [NSMutableArray arrayWithArray:[NSArray arrayWithObjects:dsimportFile,@"/LDAPv3/127.0.0.1",@"I",@"--username",server.diradminName, nil]];
+    }else{
+        args = [NSMutableArray arrayWithArray:[NSArray arrayWithObjects:dsimportFile,@"/LDAPv3/127.0.0.1",@"I",@"--remoteusername",server.diradminName,@"--remotehost",server.serverName, nil]];
+    }
     
     if(user.userPreset){
         [args addObject:@"--userpreset"];
@@ -44,7 +61,6 @@
     [task setArguments:args];
     
     //setup system pipes and filehandles to process output data
-    
     NSPipe* outputPipe = [[NSPipe alloc] init];
     
     [task setStandardInput: [NSPipe pipe]];
@@ -58,9 +74,12 @@
     
     NSData* data = [inString dataUsingEncoding:NSUTF8StringEncoding];
     
-    // dsimport asks fot the password twice so we'll just repeat it here
     [sendCmd writeData:data];
-    [sendCmd writeData:data];
+
+    // if remotehost dsimport asks fot the password twice
+    if(![server.serverName isEqualToString:@"127.0.0.1"]){
+        [sendCmd writeData:data];
+    }
 
     NSData* outputData = [[outputPipe fileHandleForReading] readDataToEndOfFile];
     NSString* outputString = [[NSString alloc] initWithData:outputData encoding:NSUTF8StringEncoding];
@@ -79,18 +98,6 @@
 
 }
 
--(void)uploadToServer:(Server*)server
-                 user:(User*)user
-                withReply:(void (^)(NSString* response,NSError* error))reply{
-   
-    NSError* error = nil;
-    
-    [[self.xpcConnection remoteObjectProxy] setProgressMsg:[NSString stringWithFormat:@"Adding %@ users to server...", user.userCount]];
-    
-    NSString* response = [self dsImport:user withServer:server];
-    [self eyeCandy];
-    reply(response,error);
-}
 
 //---------------------------------
 //  Singleton and ListenerDelegate
