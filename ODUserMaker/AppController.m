@@ -34,6 +34,7 @@
     user.emailDomain = _emailDomain.stringValue;
     user.primaryGroup = _defaultGroup.stringValue;
     user.userPreset = [ _userPreset titleOfSelectedItem];
+    user.userList = [NSArray new];
     
     if([_commStudent state]){
         user.keyWord = @"CommStudent";
@@ -124,7 +125,8 @@
 //-----------------------------------------------------------
 - (IBAction)makeMultiUserPressed:(id)sender{
     NSError* error = nil;
-    
+    [self startProgressPanelWithMessage:@"Adding List of Users..." indeterminate:YES];
+
     /*set up the user object*/
     User* user = [User new];
     user.emailDomain = _emailDomain.stringValue;
@@ -171,14 +173,17 @@
     connection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
     connection.exportedObject = self;
     [connection resume];
-    [[connection remoteObjectProxy] makeMultiUserFile:user andGroupList:groups withReply:^(NSArray* dsgroups,NSError* error){
+    [[connection remoteObjectProxy] makeMultiUserFile:user andGroupList:groups withReply:^(NSArray* dsgroups,NSNumber* ucount, NSError* error){
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-            [self stopProgressPanel];
             if(error){
+                [self stopProgressPanel];
                 NSLog(@"Error: %@",[error localizedDescription]);
                 [self showErrorAlert:error];
             }else{
                 dsGroupList = [[NSArray alloc ]initWithArray:dsgroups];
+                user.userCount = ucount;
+                NSLog(@"UserList:%@",user.userCount);
+
                 [self uploadUserList:user toServer:server];
             }
         }];
@@ -268,8 +273,12 @@
     connection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Uploader)];
     connection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
     connection.exportedObject = self;
+    
     [connection resume];
-    [[connection remoteObjectProxy] uploadToServer:server user:user withReply:^(NSString* response,NSError* error){
+    [[connection remoteObjectProxy] uploadToServer:server
+                                              user:user
+                                         withReply:^(NSString* response,NSError* error){
+                                             
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
             if(error){
                 NSLog(@"Error: %@",[error localizedDescription]);

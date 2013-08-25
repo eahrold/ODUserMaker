@@ -25,7 +25,6 @@
     NSString* msg;
     NSError* error = nil;
     
-    
     [self writeHeaders:user.exportFile];
     success = [self writeUser:user toFile:user.exportFile];
     
@@ -53,21 +52,20 @@
 
 -(void)makeMultiUserFile:(User*)user
             andGroupList:(NSArray*)groups
-               withReply:(void (^)(NSArray* dsgroup,NSError*error))reply{
+               withReply:(void (^)(NSArray* dsgroup,NSNumber* ucount,NSError*error))reply{
     BOOL success;
-    NSString* msg;
     NSError* error = nil;
     NSArray* dsgroups = nil;
+    NSNumber* ucount = nil;
+    NSMutableArray* ulist = [NSMutableArray new];
     
     
     [self writeHeaders:user.exportFile];
     
-    success = [self parseUserList:user toFile:user.exportFile];    
+    success = [self parseUserList:user toFile:user.exportFile getArray:&ulist];
     dsgroups = [self makeGroups:groups withUserArray:user.userList usingFilter:user.userFilter];
     
-    if(success){
-        msg = @"Made user list";
-    }else{
+    if(!success){
         error =[NSError errorWithDomain:NSPOSIXErrorDomain
                                    code:kReadFailureErr
                                userInfo:[NSDictionary dictionaryWithObjectsAndKeys:
@@ -75,15 +73,15 @@
                                          NSLocalizedDescriptionKey,
                                          nil]];
     }
-    
+    ucount = [NSNumber numberWithInteger:ulist.count];
     [user.exportFile closeFile];
-    reply(dsgroups,error);
+    reply(dsgroups,ucount,error);
     
     
 }
 
 
--(BOOL)parseUserList:(User*)user toFile:(NSFileHandle*)fh{
+-(BOOL)parseUserList:(User*)user toFile:(NSFileHandle*)fh getArray:(NSMutableArray**)ulist{
     [[self.xpcConnection remoteObjectProxy] setProgressMsg:@"Making Users List..."];
 
     NSData* importFileData = [user.importFileHandle readDataToEndOfFile];
@@ -113,7 +111,8 @@
             @try{
                 tmpArray = [u componentsSeparatedByString:@"\t"];
                 if ([processed containsObject:[tmpArray objectAtIndex:0]] == NO) {
-                    
+                    [*ulist addObject:u];
+
                     /* add the object to the processed array */
                     [processed addObject:[tmpArray objectAtIndex:0]];
                     

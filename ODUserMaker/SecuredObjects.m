@@ -25,8 +25,10 @@
         _userPreset = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"userPreset"];
         
         _userFilter = [aDecoder decodeObjectOfClass: [NSString class] forKey:@"userFilter"];
-        _userList = [aDecoder decodeObjectOfClass: [NSString class] forKey:@"userList"];
+        
+        _userList = [aDecoder decodeObjectOfClass: [NSArray class] forKey:@"userList"];
         _groupList = [aDecoder decodeObjectOfClass: [NSArray class] forKey:@"groupList"];
+        _userCount = [aDecoder decodeObjectOfClass: [NSNumber class] forKey:@"userCount"];
         
         _exportFile = [aDecoder decodeObjectOfClass: [NSFileHandle class] forKey:@"exportFile"];
         _importFileHandle = [aDecoder decodeObjectOfClass: [NSFileHandle class] forKey:@"importFileHandle"];
@@ -53,6 +55,8 @@
     [aEncoder encodeObject:_userPreset forKey:@"userPreset"];
     
     [aEncoder encodeObject:_userList forKey:@"userList"];
+    [aEncoder encodeObject:_userCount forKey:@"userCount"];
+
     [aEncoder encodeObject:_groupList forKey:@"groupList"];
 
     [aEncoder encodeObject:_userFilter forKey:@"userFilter"];

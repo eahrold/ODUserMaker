@@ -28,6 +28,8 @@
 
 @property (copy) NSArray *userList;
 @property (copy) NSArray *groupList;
+@property (copy) NSNumber *userCount;
+
 
 
 

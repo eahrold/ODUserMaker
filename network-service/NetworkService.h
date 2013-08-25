@@ -13,9 +13,9 @@
 #define kUploaderServiceName @"com.aapps.ODUserMaker.network-service"
 
 @protocol Uploader
--(void)uploadToServer:(Server*)serverName
-             user:(User*)user
-            withReply:(void (^)(NSString *msg, NSError* error))reply;
+-(void)uploadToServer:(Server*)server
+                 user:(User*)user
+            withReply:(void (^)(NSString* response,NSError* error))reply;
 @end
 
 

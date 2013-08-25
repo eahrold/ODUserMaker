@@ -15,7 +15,7 @@
 @protocol FileService
 -(void)makeMultiUserFile:(User*)user
          andGroupList:(NSArray*)groups
-            withReply:(void (^)(NSArray* dsgroups,NSError *error))reply;
+            withReply:(void (^)(NSArray* dsgroups,NSNumber* ucount,NSError *error))reply;
 
 -(void)makeSingelUserFile:(User*)user
                 withReply:(void (^)(NSError *error))reply;

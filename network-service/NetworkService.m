@@ -62,7 +62,6 @@
     [sendCmd writeData:data];
     [sendCmd writeData:data];
 
-    
     NSData* outputData = [[outputPipe fileHandleForReading] readDataToEndOfFile];
     NSString* outputString = [[NSString alloc] initWithData:outputData encoding:NSUTF8StringEncoding];
 
@@ -82,13 +81,15 @@
 
 -(void)uploadToServer:(Server*)server
                  user:(User*)user
-                withReply:(void (^)(NSString*,NSError* error))reply{
+                withReply:(void (^)(NSString* response,NSError* error))reply{
+   
     NSError* error = nil;
-    [[self.xpcConnection remoteObjectProxy] setProgressMsg:@"Adding users to server..."];
     
-    NSString* msg = [self dsImport:user withServer:server];
+    [[self.xpcConnection remoteObjectProxy] setProgressMsg:[NSString stringWithFormat:@"Adding %@ users to server...", user.userCount]];
+    
+    NSString* response = [self dsImport:user withServer:server];
     [self eyeCandy];
-    reply(msg,error);
+    reply(response,error);
 }
 
 //---------------------------------
