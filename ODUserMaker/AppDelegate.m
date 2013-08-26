@@ -30,9 +30,11 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
 //-------------------------------
 
 - (IBAction)editServerName:(id)sender{
+    [self getKeychainPass];
     [self getDSStatus];
     [self getDSUserPresets];
     [self getDSGroupList];
+    [self getDSUserList];
 }
 
 - (IBAction)refreshUserPreferences:(id)sender{
@@ -178,8 +180,8 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
         
         [setDefaults setObject:presetList forKey:@"userPreset"];
         
-        
-        [SSKeychain setPassword:_diradminPass.stringValue forService:[[NSBundle mainBundle] bundleIdentifier] account:_diradminName.stringValue];
+        NSString* kcacct =[NSString stringWithFormat:@"%@:%@",_diradminName.stringValue,_serverName.stringValue];
+        [SSKeychain setPassword:_diradminPass.stringValue forService:[[NSBundle mainBundle] bundleIdentifier] account:kcacct];
     }
     @catch (NSException* exception) {
     }
@@ -203,13 +205,23 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
     [self tryToSetIBOutlet:_diradminName withSetting:[getDefaults stringForKey:@"diradminName"]];
     [self tryToSetIBOutlet:_emailDomain withSetting:[getDefaults stringForKey:@"emailDomain"]];
 
-   
-    if([getDefaults stringForKey:@"diradminName"])
-        _diradminPass.stringValue = [SSKeychain passwordForService:[[NSBundle mainBundle] bundleIdentifier] account:[getDefaults stringForKey:@"diradminName"]];
+    
+    if([getDefaults stringForKey:@"diradminName"]){
+        [self getKeychainPass];
+    }
     if([_defaultGroup.stringValue isEqualToString:@""])
         self.defaultGroup.stringValue = @"20";        
 }
 
+-(void)getKeychainPass{
+    NSString* dan = _diradminName.stringValue;
+    NSString* sn = _serverName.stringValue;
+    
+    if(![dan isEqualToString:@""] || ![sn isEqualToString:@""]){
+    NSString* kcAccount = [NSString stringWithFormat:@"%@:%@",dan,sn];
+    _diradminPass.stringValue = [SSKeychain passwordForService:[[NSBundle mainBundle] bundleIdentifier] account:kcAccount];
+    }
+}
 
 //-------------------------------------------------------------------
 //  App Delegate
