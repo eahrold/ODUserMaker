@@ -28,11 +28,12 @@
     
     [node setCredentialsWithRecordType:nil recordName:server.diradminName password:server.diradminPass error:&error];
     
-    ODRecord* userRecord = [self getUserRecord:user.userName withNode:node];
-    
-    [userRecord changePassword:nil toPassword:user.userCWID error:&error];
-    [userRecord synchronizeAndReturnError:&error];
-    
+    if(!error){
+        ODRecord* userRecord = [self getUserRecord:user.userName withNode:node];
+        
+        [userRecord changePassword:nil toPassword:user.userCWID error:&error];
+        [userRecord synchronizeAndReturnError:&error];
+    }
     reply(error);
 }
 
@@ -203,6 +204,20 @@
     reply(userList,error);
 }
 
+-(void)checkCredentials:(Server*)server withReply:(void (^)(BOOL authenticated))reply{
+    BOOL authenticated = NO;
+    
+    ODNode *node;
+    if([self checkServerStatus:server.serverName]){
+        node = [self getServerNode:server.serverName];
+    }else{
+        node = [self getRemServerNode:server];
+    }
+    
+    authenticated = [node setCredentialsWithRecordType:nil recordName:server.diradminName password:server.diradminPass error:nil];
+    
+    reply(authenticated);
+}
 
 //---------------------------------------------
 //  Record Retrevial methods
@@ -303,6 +318,7 @@
         connected = NO;
     return(connected);
 }
+
 
 
 //---------------------------------

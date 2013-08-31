@@ -13,6 +13,7 @@
 #define kDirectoryServiceName @"com.aapps.ODUserMaker.opendirectory-service"
 
 @protocol OpenDirectoryService
+-(void)checkCredentials:(Server*)server withReply:(void (^)(BOOL authenticated))reply;
 
 -(void)resetUserPassword:(User*)user onServer:(Server*)server
                withReply:(void (^)(NSError *error))reply;

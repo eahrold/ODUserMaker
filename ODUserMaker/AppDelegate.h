@@ -38,6 +38,8 @@
 
 @property (assign) NSString *dsStatus;  // <----     this is bound
 
+@property (assign) BOOL passCorrect;  // <----     this is bound
+
 
 //---------------------------------------------------
 //  file items

@@ -228,7 +228,9 @@
     NSString* firstName = user.firstName;
     NSString* lastName = user.lastName;
     NSString* email = [NSString stringWithFormat:@"%@@%@",user.userName,user.emailDomain];
+    
     NSString* uuid = [self makeUidFromUserName:userName];
+    
     NSString* password = user.userCWID;
     NSString* passwordPolicy = [self setPasswordPoilcy];
     NSString* primaryGroup = user.primaryGroup;

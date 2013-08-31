@@ -25,7 +25,10 @@
 @property (assign) IBOutlet NSTextField *lastName;
 @property (assign) IBOutlet NSTextField *userCWID;
 @property (assign) IBOutlet NSPopUpButton *userPreset;
+
 @property (assign) IBOutlet NSButton *commStudent;
+@property (assign) IBOutlet NSButton *overrideUID;
+
 
 @property (assign,nonatomic) BOOL isSingleUser;
 

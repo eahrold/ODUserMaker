@@ -157,8 +157,8 @@
 		BEC424E91791A7FF00CA45A5 = {
 			isa = PBXGroup;
 			children = (
-				BEC424FB1791A7FF00CA45A5 /* ODUserMaker */,
 				BEC4252B1791AA1C00CA45A5 /* Interfaces */,
+				BEC424FB1791A7FF00CA45A5 /* ODUserMaker */,
 				BEC425491792452A00CA45A5 /* Secure Objects */,
 				BEFBDC60179C161F00AB0960 /* opendirectory-service */,
 				BEC425191791A85900CA45A5 /* network-service */,
@@ -636,6 +636,7 @@
 				GCC_PREFIX_HEADER = "ODUserMaker/ODUserMaker-Prefix.pch";
 				HEADER_SEARCH_PATHS = "./**";
 				INFOPLIST_FILE = "ODUserMaker/ODUserMaker-Info.plist";
+				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				WRAPPER_EXTENSION = app;
@@ -653,6 +654,7 @@
 				GCC_PREFIX_HEADER = "ODUserMaker/ODUserMaker-Prefix.pch";
 				HEADER_SEARCH_PATHS = "./**";
 				INFOPLIST_FILE = "ODUserMaker/ODUserMaker-Info.plist";
+				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				WRAPPER_EXTENSION = app;

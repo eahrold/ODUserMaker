@@ -29,12 +29,16 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
 //  Directory Sever 
 //-------------------------------
 
+
+- (IBAction)editPassword:(id)sender{
+    [self checkCredentials];
+}
+
 - (IBAction)editServerName:(id)sender{
-    [self getKeychainPass];
-    [self getDSStatus];
-    [self getDSUserPresets];
-    [self getDSGroupList];
-    [self getDSUserList];
+    if([_diradminPass.stringValue isEqualToString:@""]){
+        [self getKeychainPass];
+    }
+    [self checkCredentials];
 }
 
 - (IBAction)refreshUserPreferences:(id)sender{
@@ -159,6 +163,35 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
     
 }
 
+-(void)checkCredentials{
+    self.dsStatus = @"Checking user credentials";
+
+    Server* server = [Server new];
+    server.serverName = _serverName.stringValue;
+    server.diradminPass = _diradminPass.stringValue;
+    server.diradminName = _diradminName.stringValue;
+    
+    NSXPCConnection* connection = [[NSXPCConnection alloc] initWithServiceName:kDirectoryServiceName];
+    connection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(OpenDirectoryService)];
+    connection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
+    connection.exportedObject = self;
+    [connection resume];
+    [[connection remoteObjectProxy] checkCredentials:server withReply:^(BOOL authenticated) {
+        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            if(authenticated){
+                self.dsStatus = @"The the username and password are correct";
+                [self getDSUserPresets];
+                [self getDSGroupList];
+                [self getDSUserList];
+            }else{
+               self.dsStatus = @"The the username and password are not correct";
+            }
+        }];
+        [connection invalidate];
+    }];
+}
+
+
 
 //--------------------------------------------------------------------------
 //  User Preferences/Defaults 
@@ -218,8 +251,15 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
     NSString* sn = _serverName.stringValue;
     
     if(![dan isEqualToString:@""] || ![sn isEqualToString:@""]){
-    NSString* kcAccount = [NSString stringWithFormat:@"%@:%@",dan,sn];
-    _diradminPass.stringValue = [SSKeychain passwordForService:[[NSBundle mainBundle] bundleIdentifier] account:kcAccount];
+    
+        NSString* kcAccount = [NSString stringWithFormat:@"%@:%@",dan,sn];
+        NSString* kcPass = [SSKeychain passwordForService:
+                            [[NSBundle mainBundle] bundleIdentifier] account:kcAccount];
+        if(kcPass){
+            _diradminPass.stringValue = kcPass;
+        }else{
+            _diradminPass.stringValue = @"";
+        }
     }
 }
 
@@ -231,10 +271,7 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
 {
     // Insert code here to initialize your application
     [self getUserPreferences];
-    [self getDSStatus];
-    [self getDSUserPresets];
-    [self getDSGroupList];
-    [self getDSUserList];
+    [self checkCredentials];
 }
 
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication* )theApplication{
