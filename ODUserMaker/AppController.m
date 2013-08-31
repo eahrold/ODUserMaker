@@ -22,6 +22,16 @@
 - (IBAction)makeSingleUserPressed:(id)sender{
     _isSingleUser = YES;
     NSError* error = nil;
+    
+    NSArray* requiredFields = [NSArray arrayWithObjects:_firstName,_lastName,_userName,_userCWID,_emailDomain,_defaultGroup, nil];
+    
+    for (NSTextField* i in requiredFields){
+        if([i.stringValue isEqual: @""]){
+            [self showAlert:@"Missing fileds" withDescription:@"Please fill out all fields"];
+            return;
+        }
+    }
+    
     [self startProgressPanelWithMessage:@"Adding User..." indeterminate:YES];
     
     /* Set up the User Object */
@@ -35,6 +45,11 @@
     user.primaryGroup = _defaultGroup.stringValue;
     user.userPreset = [ _userPreset titleOfSelectedItem];
     user.userList = [NSArray new];
+    user.userCount = [NSNumber numberWithInt:1];
+    
+    if(![_uuid.stringValue isEqualToString:@""]){
+        user.uuid = _uuid.stringValue;
+    }
     
     if([_commStudent state]){
         user.keyWord = @"CommStudent";
@@ -75,10 +90,9 @@
                                              withReply:^(NSError *error){
         
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-            
-            [self stopProgressPanel];
             if(error){
                 NSLog(@"Error: %@",[error localizedDescription]);
+                [self stopProgressPanel];
                 [self showErrorAlert:error];
             }else{
                 [self uploadUserList:user toServer:server];
@@ -120,6 +134,15 @@
         [connection invalidate];
     }];
     
+}
+
+-(IBAction)overrideUUID:(id)sender{
+    if([_overrideUID state]){
+        [_uuid setHidden:FALSE];
+    }else{
+        [_uuid setHidden:TRUE];
+        [_uuid setStringValue:@""];
+    }
 }
 
 //-----------------------------------------------------------
@@ -184,13 +207,10 @@
             
             if(error){
                 [self stopProgressPanel];
-                NSLog(@"Error: %@",[error localizedDescription]);
                 [self showErrorAlert:error];
             }else{
                 dsGroupList = [[NSArray alloc ]initWithArray:dsgroups];
                 user.userCount = ucount;
-                NSLog(@"UserList:%@",user.userCount);
-                
                 [self uploadUserList:user toServer:server];
             }
             
@@ -239,14 +259,25 @@
     
     /* Set up the User Object */
     User* user = [User new];
-    user.userName = [_serverUserList titleOfSelectedItem];
+    user.userName = [_userList stringValue];
     user.userCWID = [_passWord stringValue];
+
+    if([user.userName isEqualToString:@""]){
+        [self showAlert:@"Name feild empty" withDescription:@"The name field can't be empty"];
+        return;
+    }
+    
+    if([user.userCWID isEqualToString:@""]){
+        [self showAlert:@"New Password Feild Empty" withDescription:@"The password field can't be empty"];
+        return;
+    }
     
     /* Set up the Serve Object */
     Server* server = [Server new];
     server.serverName = _serverName.stringValue;
     server.diradminName = _diradminName.stringValue;
     server.diradminPass = _diradminPass.stringValue;
+    
     [self resetUserPassword:user onServer:server];
     
 }
@@ -293,6 +324,7 @@
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
             if(error){
                 NSLog(@"Error: %@",[error localizedDescription]);
+                [self stopProgressPanel];
                 [self showErrorAlert:error];
             }else{
                 if(self.isSingleUser){
@@ -361,6 +393,19 @@
                                                modalDelegate:self
                                               didEndSelector:nil
                                                  contextInfo:nil];
+}
+
+- (void)showAlert:(NSString *)alert withDescription:(NSString *)msg {
+    if(!msg){
+        msg = @"";
+    }
+    [[NSAlert alertWithMessageText:alert defaultButton:@"OK"
+                   alternateButton:nil otherButton:nil informativeTextWithFormat:msg]
+     
+     beginSheetModalForWindow:[[NSApplication sharedApplication] mainWindow]
+                modalDelegate:self
+                 didEndSelector:nil
+                 contextInfo:nil];
 }
 
 

@@ -8,9 +8,11 @@
 
 #import <Cocoa/Cocoa.h>
 #import <Foundation/Foundation.h>
-#import "SecuredObjects.h"
+#import <CommonCrypto/CommonDigest.h>
 
-#define kFileServiceName @"com.aapps.ODUserMaker.file-service"
+#import "ODUserBridge.h"
+#import "NSString+StringSanitizer.h"
+
 
 @protocol FileService
 -(void)makeMultiUserFile:(User*)user

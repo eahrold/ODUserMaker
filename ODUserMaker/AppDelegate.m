@@ -102,12 +102,9 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
 }
 
 -(void)getDSGroupList{
-    //[self.refreshPreset setHidden:YES];
-    //[self.presetStatus startAnimation:self];
-    
-    [_serverGroupList removeAllItems];
-    [_serverGroupList addItemWithTitle:@"Getting List of Groups..."];
-    
+
+    [dsGroupArrayController setContent:[NSArray arrayWithObject:@"Getting List of Groups..."]];
+
     Server* server = [Server new];
     server.serverName = _serverName.stringValue;
     server.diradminPass = _diradminPass.stringValue;
@@ -118,16 +115,12 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
     connection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
     connection.exportedObject = self;
     [connection resume];
-    [[connection remoteObjectProxy] getGroupListFromServer:server withReply:^(NSArray *pArray, NSError *error) {
+    [[connection remoteObjectProxy] getGroupListFromServer:server withReply:^(NSArray *gArray, NSError *error) {
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
             [_serverGroupList removeAllItems];
             if(!error){
-                NSSortDescriptor* sortOrder = [NSSortDescriptor sortDescriptorWithKey: @"self" ascending: NO];
-                [_serverGroupList addItemsWithTitles:[pArray sortedArrayUsingDescriptors: [NSArray arrayWithObject: sortOrder]]];
+                [dsGroupArrayController setContent:gArray];
             }
-            
-            //[self.refreshPreset setHidden:NO];
-            //[self.presetStatus stopAnimation:self];
         }];
         [connection invalidate];
     }];
@@ -149,12 +142,13 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
     connection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
     connection.exportedObject = self;
     [connection resume];
-    [[connection remoteObjectProxy] getUserListFromServer:server withReply:^(NSArray *pArray, NSError *error) {
+    [[connection remoteObjectProxy] getUserListFromServer:server withReply:^(NSArray *uArray, NSError *error) {
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
             [_serverUserList removeAllItems];
             if(!error){
                 NSSortDescriptor* sortOrder = [NSSortDescriptor sortDescriptorWithKey: @"self" ascending: NO];
-                [_serverUserList addItemsWithTitles:[pArray sortedArrayUsingDescriptors: [NSArray arrayWithObject: sortOrder]]];
+                [_serverUserList addItemsWithTitles:[uArray sortedArrayUsingDescriptors: [NSArray arrayWithObject: sortOrder]]];
+                [dsUserArrayController setContent:uArray];
             }
         }];
         [connection invalidate];
@@ -164,6 +158,15 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
 }
 
 -(void)checkCredentials{
+    /* don't bother checking untill everything is in place */
+    if([_diradminName.stringValue isEqualToString:@""] ||
+       [_diradminPass.stringValue isEqualToString:@""] ||
+       [_diradminPass.stringValue isEqualToString:@""]){
+        self.dsStatus = @"";
+        return;
+    }
+    
+    
     self.dsStatus = @"Checking user credentials";
 
     Server* server = [Server new];

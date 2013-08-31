@@ -13,6 +13,10 @@
 		BE29322F1796F18B001502D7 /* NSString+StringSanitizer.m in Sources */ = {isa = PBXBuildFile; fileRef = BE29322E1796F18B001502D7 /* NSString+StringSanitizer.m */; };
 		BE29325617972994001502D7 /* file-service.entitlements in Resources */ = {isa = PBXBuildFile; fileRef = BE29325517972994001502D7 /* file-service.entitlements */; };
 		BE293258179729C9001502D7 /* network-service.entitlements in Resources */ = {isa = PBXBuildFile; fileRef = BE293257179729C9001502D7 /* network-service.entitlements */; };
+		BE2D96B417D220540076258A /* ODUserError.m in Sources */ = {isa = PBXBuildFile; fileRef = BE2D96B317D220540076258A /* ODUserError.m */; };
+		BE2D96B517D220540076258A /* ODUserError.m in Sources */ = {isa = PBXBuildFile; fileRef = BE2D96B317D220540076258A /* ODUserError.m */; };
+		BE2D96B617D220540076258A /* ODUserError.m in Sources */ = {isa = PBXBuildFile; fileRef = BE2D96B317D220540076258A /* ODUserError.m */; };
+		BE2D96B717D220540076258A /* ODUserError.m in Sources */ = {isa = PBXBuildFile; fileRef = BE2D96B317D220540076258A /* ODUserError.m */; };
 		BE94E3CB1798E6830024C9E5 /* ODUserMaker.icns in Resources */ = {isa = PBXBuildFile; fileRef = BE94E3CA1798E6830024C9E5 /* ODUserMaker.icns */; };
 		BE9625E51795A55800839C80 /* SSKeychain.m in Sources */ = {isa = PBXBuildFile; fileRef = BE9625E41795A55800839C80 /* SSKeychain.m */; };
 		BE9625E71795A74100839C80 /* SSKeychain.m in Sources */ = {isa = PBXBuildFile; fileRef = BE9625E41795A55800839C80 /* SSKeychain.m */; };
@@ -67,6 +71,9 @@
 		BE29322E1796F18B001502D7 /* NSString+StringSanitizer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+StringSanitizer.m"; sourceTree = "<group>"; };
 		BE29325517972994001502D7 /* file-service.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = "file-service.entitlements"; sourceTree = "<group>"; };
 		BE293257179729C9001502D7 /* network-service.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = "network-service.entitlements"; sourceTree = "<group>"; };
+		BE2D96B217D220540076258A /* ODUserError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ODUserError.h; sourceTree = "<group>"; };
+		BE2D96B317D220540076258A /* ODUserError.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ODUserError.m; sourceTree = "<group>"; };
+		BE2D96B817D222880076258A /* ODUserBridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ODUserBridge.h; path = ODUserMaker/ODUserBridge.h; sourceTree = SOURCE_ROOT; };
 		BE94E3CA1798E6830024C9E5 /* ODUserMaker.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = ODUserMaker.icns; sourceTree = "<group>"; };
 		BE9625E31795A55800839C80 /* SSKeychain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SSKeychain.h; sourceTree = "<group>"; };
 		BE9625E41795A55800839C80 /* SSKeychain.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SSKeychain.m; sourceTree = "<group>"; };
@@ -257,6 +264,7 @@
 				BEC425421792309D00CA45A5 /* FileService.h */,
 				BEC425271791A9B500CA45A5 /* NetworkService.h */,
 				BEC4252F1792005000CA45A5 /* AppProgress.h */,
+				BE2D96B817D222880076258A /* ODUserBridge.h */,
 			);
 			name = Interfaces;
 			path = "uploader-service";
@@ -318,6 +326,8 @@
 		BEFBDC74179C95B000AB0960 /* Supporting Classes */ = {
 			isa = PBXGroup;
 			children = (
+				BE2D96B217D220540076258A /* ODUserError.h */,
+				BE2D96B317D220540076258A /* ODUserError.m */,
 				BE9625E31795A55800839C80 /* SSKeychain.h */,
 				BE9625E41795A55800839C80 /* SSKeychain.m */,
 			);
@@ -477,6 +487,7 @@
 				BEC4252E1791AE3500CA45A5 /* AppController.m in Sources */,
 				BEC425471792451E00CA45A5 /* SecuredObjects.m in Sources */,
 				BE9625E51795A55800839C80 /* SSKeychain.m in Sources */,
+				BE2D96B417D220540076258A /* ODUserError.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -488,6 +499,7 @@
 				BEC425211791A85900CA45A5 /* main.m in Sources */,
 				BEC425291791A9B500CA45A5 /* NetworkService.m in Sources */,
 				BEC425481792451E00CA45A5 /* SecuredObjects.m in Sources */,
+				BE2D96B517D220540076258A /* ODUserError.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -499,6 +511,7 @@
 				BEC4253E1792302A00CA45A5 /* main.m in Sources */,
 				BE29322C17965D99001502D7 /* FileService.m in Sources */,
 				BE29322F1796F18B001502D7 /* NSString+StringSanitizer.m in Sources */,
+				BE2D96B617D220540076258A /* ODUserError.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -509,6 +522,7 @@
 				BEFBDC73179C5D1600AB0960 /* SecuredObjects.m in Sources */,
 				BEFBDC68179C161F00AB0960 /* main.m in Sources */,
 				BEFBDC6F179C16E200AB0960 /* OpenDirectoryService.m in Sources */,
+				BE2D96B717D220540076258A /* ODUserError.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

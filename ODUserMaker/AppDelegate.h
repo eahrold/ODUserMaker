@@ -8,7 +8,14 @@
 
 #import <Cocoa/Cocoa.h>
 
-@interface AppDelegate : NSObject <NSApplicationDelegate>
+@interface AppDelegate : NSObject <NSApplicationDelegate>{
+    IBOutlet NSArrayController *dsGroupArrayController;
+    IBOutlet NSArrayController *dsUserArrayController;
+
+    NSMutableArray *groups;
+    NSArray* dsGroups;
+
+}
 
 //---------------------------------------------------
 //  User items
@@ -38,14 +45,15 @@
 
 @property (assign) NSString *dsStatus;  // <----     this is bound
 
-@property (assign) BOOL passCorrect;  // <----     this is bound
-
 
 //---------------------------------------------------
 //  file items
 //---------------------------------------------------
 @property (assign) IBOutlet NSTextField *importFilePath;
+
 @property (assign) IBOutlet NSPopUpButton *serverGroupList;
+@property (assign) IBOutlet NSPopUpButton *serverGroupListSingleUser;
+
 @property (assign) IBOutlet NSPopUpButton *fileClassList;
 
 

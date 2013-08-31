@@ -14,6 +14,8 @@
 @property (copy) NSString *firstName;
 @property (copy) NSString *lastName;
 @property (copy) NSString *userCWID;
+@property (copy) NSString *uuid;
+
 @property (copy) NSString *primaryGroup;
 @property (copy) NSString *emailDomain;
 @property (copy) NSString *keyWord;

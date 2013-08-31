@@ -6,18 +6,15 @@
 //  Copyright (c) 2013 Eldon Ahrold. All rights reserved.
 //
 
-#import <OpenDirectory/OpenDirectory.h>
 #import "OpenDirectoryService.h"
-#import "AppProgress.h"
 
 
 @implementation OpenDirectoryService
 
--(void)resetUserPassword:(User*)user onServer:(Server*)server
-               withReply:(void (^)(NSError *error))reply;
-{
+-(void)resetUserPassword:(User*)user onServer:(Server*)server withReply:(void (^)(NSError *error))reply{
     NSError *error = nil;
     ODNode *node;
+    ODRecord* userRecord;
     
     /* see if computer is connected to the directory server, if not get a proxy node. */
     if([self checkServerStatus:server.serverName]){
@@ -26,14 +23,27 @@
         node = [self getRemServerNode:server];
     }
     
+    if(!node){
+        SET_ERROR(1, ODUMCantConnectToNodeMsg);
+        goto nsxpc_return;
+    }
+    
     [node setCredentialsWithRecordType:nil recordName:server.diradminName password:server.diradminPass error:&error];
     
-    if(!error){
-        ODRecord* userRecord = [self getUserRecord:user.userName withNode:node];
-        
+    if(error){
+        SET_ERROR(1, ODUMCantAuthenicateMsg);
+        goto nsxpc_return;
+    }
+    
+    userRecord = [self getUserRecord:user.userName withNode:node];
+    
+    if(userRecord){
         [userRecord changePassword:nil toPassword:user.userCWID error:&error];
         [userRecord synchronizeAndReturnError:&error];
+    }else{
+        SET_ERROR(1, ODUMUserNotFoundMsg);
     }
+nsxpc_return:
     reply(error);
 }
 
@@ -48,8 +58,17 @@
         node = [self getRemServerNode:server];
     }
     
+    if(!node){
+        SET_ERROR(1, ODUMCantConnectToNodeMsg);
+        goto nsxpc_return;
+    }
     [node setCredentialsWithRecordType:nil recordName:server.diradminName password:server.diradminPass error:&error];
     
+    if(error){
+        SET_ERROR(1, ODUMCantAuthenicateMsg);
+        goto nsxpc_return;
+    }
+
     for(NSDictionary* g in groups){
         NSString* groupName = [ g objectForKey:@"group"];
         NSArray* userNames = [ g objectForKey:@"users"];
@@ -58,7 +77,7 @@
         for(NSString* u in userNames){
             [[self.xpcConnection remoteObjectProxy] setProgressMsg:[NSString stringWithFormat:@"Updating %@ membership, adding %@",groupName,u]];
             
-            NSLog(@"adding %@ to %@",u,groupName);
+            //NSLog(@"adding %@ to %@",u,groupName);
             ODRecord* userRecord = [self getUserRecord:u withNode:node];
             
             if(userRecord){
@@ -69,13 +88,15 @@
             }
         }
     }
+nsxpc_return:
     reply(error);
 }
 
 
 -(void)addUser:(User *)user toGroup:(NSArray *)group toServer:(Server *)server withReply:(void (^)(NSError *error))reply{
-    NSError *error;
+    NSError *error = nil;
     ODNode *node;
+    ODRecord* userRecord;
     
     /* see if computer is connected to the directory server, if not get a proxy node. */
     if([self checkServerStatus:server.serverName]){
@@ -84,29 +105,53 @@
         node = [self getRemServerNode:server];
     }
     
-    ODRecord* userRecord = [self getUserRecord:user.userName withNode:node];
-    
+    if(!node){
+        SET_ERROR(1, ODUMCantConnectToNodeMsg);
+        goto nsxpc_return;
+
+    }
     [node setCredentialsWithRecordType:nil recordName:server.diradminName password:server.diradminPass error:&error];
     
+    if(error){
+        SET_ERROR(1, ODUMCantAuthenicateMsg);
+        goto nsxpc_return;
+    }
+
+    userRecord = [self getUserRecord:user.userName withNode:node];
+
     for(NSString* g in group){
         ODRecord* groupRecord = [self getGroupRecord:g withNode:node];
         [groupRecord addMemberRecord:userRecord error:&error];
     }
- 
+nsxpc_return:
     reply(error);
 }
 
--(void)getUserPresets:(Server*)server withReply:(void (^)(NSArray *userPreset,NSError *error))reply{
 
-    NSError *error;
+
+-(void)getUserPresets:(Server*)server withReply:(void (^)(NSArray *userPreset,NSError *error))reply{
+    NSError *error = nil;
     ODNode *node;
+    ODRecord *record;
+    NSArray *odArray;
+    NSMutableArray *userPresets;
+    ODQuery *query;
+
+    /* see if computer is connected to the directory server, if not get a proxy node. */
     if([self checkServerStatus:server.serverName]){
         node = [self getServerNode:server.serverName];
     }else{
         node = [self getRemServerNode:server];
     }
     
-    ODQuery *query = [ODQuery  queryWithNode: node
+    if(!node){
+        SET_ERROR(1, ODUMCantConnectToNodeMsg);
+        goto nsxpc_return;
+        
+    }
+
+    
+    query = [ODQuery  queryWithNode: node
                                 forRecordTypes: kODRecordTypePresetUsers
                                      attribute: kODAttributeTypeRecordName
                                      matchType: kODMatchAny
@@ -115,11 +160,8 @@
                                 maximumResults: 0
                                          error: &error];
     
-    NSArray *odArray = [[NSArray alloc]init];
     odArray = [query resultsAllowingPartial:NO error:&error];
-    
-    NSMutableArray *userPresets = [NSMutableArray arrayWithCapacity:[odArray count]];
-    ODRecord *record;
+    userPresets = [NSMutableArray arrayWithCapacity:[odArray count]];
     
     for (record in odArray) {
         NSError *err;
@@ -129,20 +171,34 @@
             [userPresets addObject:[recordName objectAtIndex:0]];
         }
     }
+nsxpc_return:
     reply(userPresets,error);
 }
 
 
 -(void)getGroupListFromServer:(Server*)server withReply:(void (^)(NSArray *groupList,NSError *error))reply{
-    NSError *error;
+    NSError *error = nil;
     ODNode *node;
+    NSArray * odArray;
+    ODQuery *query;
+    NSMutableArray *groupList;
+    ODRecord *record;
+
+    
+    /* see if computer is connected to the directory server, if not get a proxy node. */
     if([self checkServerStatus:server.serverName]){
         node = [self getServerNode:server.serverName];
     }else{
         node = [self getRemServerNode:server];
     }
     
-    ODQuery *query = [ODQuery  queryWithNode: node
+    if(!node){
+        SET_ERROR(1, ODUMCantConnectToNodeMsg);
+        goto nsxpc_return;
+        
+    }
+    
+    query = [ODQuery  queryWithNode: node
                               forRecordTypes: kODRecordTypeGroups
                                    attribute: kODAttributeTypeRecordName
                                    matchType: kODMatchAny
@@ -151,12 +207,8 @@
                               maximumResults: 0
                                        error: &error];
     
-    
-    NSArray *odArray = [[NSArray alloc]init];
     odArray = [query resultsAllowingPartial:NO error:&error];
-    
-    NSMutableArray *groupList = [NSMutableArray arrayWithCapacity:[odArray count]];
-    ODRecord *record;
+    groupList = [NSMutableArray arrayWithCapacity:[odArray count]];
     
     for (record in odArray) {
         NSError *err;
@@ -166,19 +218,33 @@
             [groupList addObject:[recordName objectAtIndex:0]];
         }
     }
+    
+nsxpc_return:
     reply(groupList,error);
 }
 
 -(void)getUserListFromServer:(Server*)server withReply:(void (^)(NSArray *userList,NSError *error))reply{
-    NSError *error;
+    NSError *error = nil;
     ODNode *node;
+    ODRecord *record;
+    ODQuery *query;
+    NSArray *odArray;
+    NSMutableArray *userList;
+    
+    /* see if computer is connected to the directory server, if not get a proxy node. */
     if([self checkServerStatus:server.serverName]){
         node = [self getServerNode:server.serverName];
     }else{
         node = [self getRemServerNode:server];
     }
     
-    ODQuery *query = [ODQuery  queryWithNode: node
+    if(!node){
+        SET_ERROR(1, ODUMCantConnectToNodeMsg);
+        goto nsxpc_return;
+        
+    }
+    
+    query = [ODQuery  queryWithNode: node
                               forRecordTypes: kODRecordTypeUsers
                                    attribute: kODAttributeTypeAllAttributes
                                    matchType: kODMatchAny
@@ -187,11 +253,9 @@
                               maximumResults: 0
                                        error: &error];
     
-    NSArray *odArray = [[NSArray alloc]init];
-    odArray = [query resultsAllowingPartial:NO error:&error];
     
-    NSMutableArray *userList = [NSMutableArray arrayWithCapacity:[odArray count]];
-    ODRecord *record;
+    odArray = [query resultsAllowingPartial:NO error:&error];
+    userList = [NSMutableArray arrayWithCapacity:[odArray count]];
     
     for (record in odArray) {
         NSError *err;
@@ -201,21 +265,31 @@
             [userList addObject:[recordName objectAtIndex:0]];
         }
     }
+    
+nsxpc_return:
     reply(userList,error);
 }
 
 -(void)checkCredentials:(Server*)server withReply:(void (^)(BOOL authenticated))reply{
     BOOL authenticated = NO;
-    
+    NSError *error = nil;
     ODNode *node;
+    
     if([self checkServerStatus:server.serverName]){
         node = [self getServerNode:server.serverName];
     }else{
         node = [self getRemServerNode:server];
     }
     
+    if(!node){
+        SET_ERROR(1, ODUMCantConnectToNodeMsg);
+        goto nsxpc_return;
+        
+    }
+    
     authenticated = [node setCredentialsWithRecordType:nil recordName:server.diradminName password:server.diradminPass error:nil];
     
+nsxpc_return:
     reply(authenticated);
 }
 
@@ -234,8 +308,7 @@
                               maximumResults: 1
                                        error: nil];
     
-    NSArray *odArray = [[NSArray alloc]init];
-    odArray = [query resultsAllowingPartial:NO error:nil];
+    NSArray * odArray = [query resultsAllowingPartial:NO error:nil];
     
     record = [odArray objectAtIndex:0];
     
@@ -254,8 +327,7 @@
                               maximumResults: 1
                                        error: nil];
     
-    NSArray *odArray = [[NSArray alloc]init];
-    odArray = [query resultsAllowingPartial:NO error:nil];
+    NSArray *odArray = [query resultsAllowingPartial:NO error:nil];
     
     if(odArray.count > 0){
         record = [odArray objectAtIndex:0];

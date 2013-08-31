@@ -8,9 +8,8 @@
 
 #import <Cocoa/Cocoa.h>
 #import <Foundation/Foundation.h>
-#import "SecuredObjects.h"
+#import "ODUserBridge.h"
 
-#define kUploaderServiceName @"com.aapps.ODUserMaker.network-service"
 
 @protocol Uploader
 -(void)uploadToServer:(Server*)server

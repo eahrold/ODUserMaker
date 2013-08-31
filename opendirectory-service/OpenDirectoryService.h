@@ -8,9 +8,10 @@
 
 #import <Cocoa/Cocoa.h>
 #import <Foundation/Foundation.h>
-#import "SecuredObjects.h"
+#import <OpenDirectory/OpenDirectory.h>
 
-#define kDirectoryServiceName @"com.aapps.ODUserMaker.opendirectory-service"
+#import "ODUserBridge.h"
+
 
 @protocol OpenDirectoryService
 -(void)checkCredentials:(Server*)server withReply:(void (^)(BOOL authenticated))reply;

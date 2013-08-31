@@ -7,9 +7,7 @@
 //
 
 #import "FileService.h"
-#import "AppProgress.h"
-#import "NSString+StringSanitizer.h"
-#import <CommonCrypto/CommonDigest.h>
+
 
 @implementation FileService
 
@@ -19,25 +17,14 @@
 
 -(void)makeSingelUserFile:(User*)user
                 withReply:(void (^)(NSError* error))reply{
-    [[self.xpcConnection remoteObjectProxy] setProgressMsg:@"Setting Users Properties..."];
-
     BOOL success;
-    NSString* msg;
     NSError* error = nil;
     
     [self writeHeaders:user.exportFile];
     success = [self writeUser:user toFile:user.exportFile];
     
-    if(success){
-        msg = @"made user";
-    }else{
-        error =[NSError errorWithDomain:NSPOSIXErrorDomain
-                                   code:kWriteFailureErr
-                               userInfo:[NSDictionary dictionaryWithObjectsAndKeys:
-                                         kWriteFileErrorMsg,
-                                         NSLocalizedDescriptionKey,
-                                         nil]];
-        
+    if(!success){
+        SET_ERROR(1, ODUMWriteFileErrorMsg);
     }
     
     
@@ -69,7 +56,7 @@
         error =[NSError errorWithDomain:NSPOSIXErrorDomain
                                    code:kReadFailureErr
                                userInfo:[NSDictionary dictionaryWithObjectsAndKeys:
-                                         kReadFileErrorMsg,
+                                         ODUMWriteFileErrorMsg,
                                          NSLocalizedDescriptionKey,
                                          nil]];
     }
@@ -228,8 +215,13 @@
     NSString* firstName = user.firstName;
     NSString* lastName = user.lastName;
     NSString* email = [NSString stringWithFormat:@"%@@%@",user.userName,user.emailDomain];
+    NSString* uuid;
     
-    NSString* uuid = [self makeUidFromUserName:userName];
+    if(user.uuid){
+        uuid = user.uuid;
+    }else{
+        uuid = [self makeUidFromUserName:userName];
+    }
     
     NSString* password = user.userCWID;
     NSString* passwordPolicy = [self setPasswordPoilcy];

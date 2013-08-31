@@ -28,6 +28,8 @@
 
 @property (assign) IBOutlet NSButton *commStudent;
 @property (assign) IBOutlet NSButton *overrideUID;
+@property (assign) IBOutlet NSTextField *uuid;
+
 
 
 @property (assign,nonatomic) BOOL isSingleUser;
@@ -36,6 +38,8 @@
 // Password Reset
 //---------------------------------------------------
 @property (assign) IBOutlet NSPopUpButton *serverUserList;
+@property (assign) IBOutlet NSComboBox *userList;
+
 @property (assign) IBOutlet NSTextField   *passWord;
 @property (assign) IBOutlet NSTextField   *statusUpdate;
 
@@ -55,8 +59,13 @@
 // Group Settings
 //---------------------------------------------------
 @property (assign) IBOutlet NSPopUpButton *serverGroupList;
+@property (assign) IBOutlet NSPopUpButton *serverGroupListSingleUser;
+
 @property (assign) IBOutlet NSTextField *fileClassList;
+
 @property (assign) IBOutlet NSPopUpButton *groupMatchEntries;
+@property (assign) IBOutlet NSPopUpButton *groupEntries;
+
 
 //---------------------------------------------------
 // Sever Settings

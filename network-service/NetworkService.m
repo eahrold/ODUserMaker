@@ -7,7 +7,6 @@
 //
 
 #import "NetworkService.h"
-#import "AppProgress.h"
 
 @interface Uploader ()
 -(NSString*)dsImport:(User*)user withServer:(Server*)server;
@@ -22,8 +21,15 @@
             withReply:(void (^)(NSString* response,NSError* error))reply{
     
     NSError* error = nil;
+    NSString* msg;
     
-    [[self.xpcConnection remoteObjectProxy] setProgressMsg:[NSString stringWithFormat:@"Adding %@ users to server...", user.userCount]];
+    if([user.userCount isEqualToNumber:[NSNumber numberWithInt:1]]){
+        msg = [NSString stringWithFormat:@"Adding %@ to server...", user.userName];
+    }else{
+        msg =[NSString stringWithFormat:@"Adding %@ users to server...", user.userCount];
+    }
+    
+    [[self.xpcConnection remoteObjectProxy] setProgressMsg:msg];
     
     NSString* response = [self dsImport:user withServer:server];
     reply(response,error);
@@ -68,7 +74,7 @@
     [task setStandardError:outputPipe]; // Get standard error output too
     
     [task launch];
-    
+
     NSFileHandle* sendCmd = [[task standardInput] fileHandleForWriting];
     NSString* inString = [ NSString stringWithFormat: @"%@\n",server.diradminPass];
     
