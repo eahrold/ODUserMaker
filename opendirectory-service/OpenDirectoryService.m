@@ -11,6 +11,13 @@
 
 @implementation OpenDirectoryService
 
+-(void)addSingleUser:(User*)user toServer:(Server*)server withReply:(void (^)(NSError *error))reply{
+    NSError* error = nil;
+
+nsxpc_return:
+    reply(error);
+}
+
 -(void)resetUserPassword:(User*)user onServer:(Server*)server withReply:(void (^)(NSError *error))reply{
     NSError *error = nil;
     ODNode *node;

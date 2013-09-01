@@ -16,6 +16,8 @@
 @protocol OpenDirectoryService
 -(void)checkCredentials:(Server*)server withReply:(void (^)(BOOL authenticated))reply;
 
+-(void)addSingleUser:(User*)user toServer:(Server*)server withReply:(void (^)(NSError *error))reply;
+
 -(void)resetUserPassword:(User*)user onServer:(Server*)server
                withReply:(void (^)(NSError *error))reply;
 
