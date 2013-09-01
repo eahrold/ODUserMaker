@@ -40,35 +40,32 @@
 -(void)makeMultiUserFile:(User*)user
             andGroupList:(NSArray*)groups
                withReply:(void (^)(NSArray* dsgroup,NSNumber* ucount,NSError*error))reply{
-    BOOL success;
+    
     NSError* error = nil;
     NSArray* dsgroups = nil;
     NSNumber* ucount = nil;
-    NSMutableArray* ulist = [NSMutableArray new];
-    
+    static int userCounter = 0;
     
     [self writeHeaders:user.exportFile];
     
-    success = [self parseUserList:user toFile:user.exportFile getArray:&ulist];
+    if(![self parseUserList:user toFile:user.exportFile gettingCount:&userCounter]){
+        SET_ERROR(1, ODUMWriteFileErrorMsg);
+        goto nsxpc_return;
+    }
+
     dsgroups = [self makeGroups:groups withUserArray:user.userList usingFilter:user.userFilter];
     
-    if(!success){
-        error =[NSError errorWithDomain:NSPOSIXErrorDomain
-                                   code:kReadFailureErr
-                               userInfo:[NSDictionary dictionaryWithObjectsAndKeys:
-                                         ODUMWriteFileErrorMsg,
-                                         NSLocalizedDescriptionKey,
-                                         nil]];
-    }
-    ucount = [NSNumber numberWithInteger:ulist.count];
+    ucount = [NSNumber numberWithInteger:userCounter];
     [user.exportFile closeFile];
+   
+nsxpc_return:
     reply(dsgroups,ucount,error);
-    
-    
 }
 
 
--(BOOL)parseUserList:(User*)user toFile:(NSFileHandle*)fh getArray:(NSMutableArray**)ulist{
+-(BOOL)parseUserList:(User*)user toFile:(NSFileHandle*)fh gettingCount:(int*)uc{
+    *uc = 0;
+    
     [[self.xpcConnection remoteObjectProxy] setProgressMsg:@"Making Users List..."];
 
     NSData* importFileData = [user.importFileHandle readDataToEndOfFile];
@@ -98,8 +95,8 @@
             @try{
                 tmpArray = [u componentsSeparatedByString:@"\t"];
                 if ([processed containsObject:[tmpArray objectAtIndex:0]] == NO) {
-                    [*ulist addObject:u];
-
+                    *uc = *uc + 1;
+                    
                     /* add the object to the processed array */
                     [processed addObject:[tmpArray objectAtIndex:0]];
                     
@@ -148,7 +145,7 @@
      from the array set in the parseList method it creates an array of dictionaries of the groups
      and the users that are in them based on the match.  There has to be a better way but this works*/
     
-    [[self.xpcConnection remoteObjectProxy] setProgressMsg:@"Checking group Membership..."];
+    [[self.xpcConnection remoteObjectProxy] setProgressMsg:@"Determining Group Membership..."];
 
     
     NSMutableDictionary* groupDict = [[NSMutableDictionary alloc]init];

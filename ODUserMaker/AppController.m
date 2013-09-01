@@ -278,6 +278,7 @@
     server.diradminName = _diradminName.stringValue;
     server.diradminPass = _diradminPass.stringValue;
     
+    [self startProgressPanelWithMessage:@"Resetting password..." indeterminate:YES];
     [self resetUserPassword:user onServer:server];
     
 }

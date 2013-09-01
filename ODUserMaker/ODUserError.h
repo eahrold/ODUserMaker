@@ -19,10 +19,8 @@ error = [ODUserError errorWithCode:rc message:m];\
 
 
 
-/* define some error strings */
+/* define some error messages */
 #define ODUMReadFileErrorMsg @"There was a problem reading the import file.  Please make sure that it's located inside you home directory",
-
-#define ODUMWriteFileErrorMsg @"There was a problem writing the DSimport file.  Please make sure you've chosen a location inside you home directory"
 
 #define ODUMWriteFileErrorMsg @"There was a problem writing the DSimport file.  Please make sure you've chosen a location inside you home directory"
 
@@ -30,6 +28,6 @@ error = [ODUserError errorWithCode:rc message:m];\
 #define ODUMGroupNotFoundMsg @"Couldn't locate the group record on this server"
 
 #define ODUMCantConnectToNodeMsg @"Couldn't connect to the Directory Server"
-#define ODUMCantAuthenicateMsg @"Couldn't authenticate to the Directory Server with this username and password"
+#define ODUMCantAuthenicateMsg @"Couldn't authenticate to the Directory Server with username and password"
 
 

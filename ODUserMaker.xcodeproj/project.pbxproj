@@ -240,7 +240,6 @@
 			isa = PBXGroup;
 			children = (
 				BEC425281791A9B500CA45A5 /* NetworkService.m */,
-				BE293257179729C9001502D7 /* network-service.entitlements */,
 				BEC4251A1791A85900CA45A5 /* Supporting Files */,
 			);
 			path = "network-service";
@@ -249,6 +248,7 @@
 		BEC4251A1791A85900CA45A5 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				BE293257179729C9001502D7 /* network-service.entitlements */,
 				BEC425201791A85900CA45A5 /* main.m */,
 				BEC4251B1791A85900CA45A5 /* network-service-Info.plist */,
 				BEC4251C1791A85900CA45A5 /* InfoPlist.strings */,
@@ -273,7 +273,6 @@
 		BEC425361792302A00CA45A5 /* file-service */ = {
 			isa = PBXGroup;
 			children = (
-				BE29325517972994001502D7 /* file-service.entitlements */,
 				BEC425431792309D00CA45A5 /* FileService.m */,
 				BEC425371792302A00CA45A5 /* Supporting Files */,
 			);
@@ -283,6 +282,7 @@
 		BEC425371792302A00CA45A5 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				BE29325517972994001502D7 /* file-service.entitlements */,
 				BE29322D1796F18B001502D7 /* NSString+StringSanitizer.h */,
 				BE29322E1796F18B001502D7 /* NSString+StringSanitizer.m */,
 				BEC4253D1792302A00CA45A5 /* main.m */,

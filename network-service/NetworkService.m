@@ -8,12 +8,6 @@
 
 #import "NetworkService.h"
 
-@interface Uploader ()
--(NSString*)dsImport:(User*)user withServer:(Server*)server;
--(void)eyeCandy;
-@end
-
-
 @implementation Uploader
 
 -(void)uploadToServer:(Server*)server
@@ -93,16 +87,6 @@
     return outputString;
 }
 
-
--(void)eyeCandy{
-    double z = 0.1;
-    int i = 0;
-    for (i=0; i < 1000; i++) {
-        [[self.xpcConnection remoteObjectProxy] setProgress:z];
-        doSleep(0.001)
-    }
-
-}
 
 
 //---------------------------------
