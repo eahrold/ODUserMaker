@@ -10,6 +10,8 @@
 
 @interface User : NSObject <NSSecureCoding>
 
++(NSDictionary*)makeDictFromUser:(User*)user;
+
 @property (copy) NSString *userName;
 @property (copy) NSString *firstName;
 @property (copy) NSString *lastName;

@@ -26,6 +26,7 @@ error = [ODUserError errorWithCode:rc message:m];\
 
 #define ODUMUserNotFoundMsg @"No user with that name was found on the server"
 #define ODUMGroupNotFoundMsg @"Couldn't locate the group record on this server"
+#define ODUMPresetNotFoundMsg @"No preset with that name was found on the server"
 
 #define ODUMCantConnectToNodeMsg @"Couldn't connect to the Directory Server"
 #define ODUMCantAuthenicateMsg @"Couldn't authenticate to the Directory Server with username and password"

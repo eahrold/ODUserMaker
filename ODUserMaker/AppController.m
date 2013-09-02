@@ -199,6 +199,54 @@
     [self getUserArrayFromFile:user forServer:server];
 }
 
+/* file-service xpc */
+-(void)getUserArrayFromFile:(User*)user forServer:(Server*)server{
+    NSXPCConnection* connection = [[NSXPCConnection alloc] initWithServiceName:kFileServiceName];
+    connection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(FileService)];
+    connection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
+    connection.exportedObject = self;
+    [connection resume];
+    [[connection remoteObjectProxy] makeUserArray:user andGroupList:groups withReply:^(NSArray* dsgroups,NSArray* userlist, NSError* error){
+        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            if(error){
+                [self stopProgressPanel];
+                [self showErrorAlert:error];
+            }else{
+                [self addListOfUsers:userlist usingPresetsIn:user toServer:server andGroups:dsgroups];
+            }
+        }];
+        [connection invalidate];
+    }];
+}
+
+/* opendirectory-service xpc */
+-(void)addListOfUsers:(NSArray*)list usingPresetsIn:(User*)user toServer:(Server*)server andGroups:(NSArray*)userGroups{
+    NSString* progress = [NSString stringWithFormat:@"adding %lu users to %@...", (unsigned long)[list count], server.serverName];
+    [self startProgressPanelWithMessage:progress indeterminate:NO];
+    
+    NSXPCConnection* connection = [[NSXPCConnection alloc] initWithServiceName:kDirectoryServiceName];
+    connection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(OpenDirectoryService)];
+    connection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
+    connection.exportedObject = self;
+    [connection resume];
+    [[connection remoteObjectProxy] addListOfUsers:list usingPresetsIn:user toServer:server andGroups:userGroups withReply:^(NSError *error) {
+        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            [self stopProgressPanel];
+            if(error){
+                NSLog(@"Error: %@",[error localizedDescription]);
+                [self showErrorAlert:error];
+            }else{
+                //[self uploadUserList:user toServer:server];
+            }
+        }];
+        [connection invalidate];
+    }];
+}
+
+
+//-----------------------------------------------------------
+//  DSImport File Creation
+//-----------------------------------------------------------
 - (IBAction)makeDSImportFilePressed:(id)sender{
     NSError* error = nil;
     [self startProgressPanelWithMessage:@"Creating DSImport File..." indeterminate:YES];
@@ -272,30 +320,7 @@
     }];
 }
 
-/* file-service xpc */
--(void)getUserArrayFromFile:(User*)user forServer:(Server*)server{
-    NSXPCConnection* connection = [[NSXPCConnection alloc] initWithServiceName:kFileServiceName];
-    connection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(FileService)];
-    connection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
-    connection.exportedObject = self;
-    [connection resume];
-    [[connection remoteObjectProxy] makeUserArray:user
-                                         andGroupList:groups
-                                            withReply:^(NSArray* dsgroups,NSArray* userlist, NSError* error){
-                                                
-            [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-                
-                if(error){
-                    [self stopProgressPanel];
-                    [self showErrorAlert:error];
-                }else{
-                    dsGroupList = [[NSArray alloc ]initWithArray:dsgroups];
-                    user.userList = userlist;
-                }
-            }];
-            [connection invalidate];
-        }];
-}
+
 
 /* opendirectory-service xpc */
 -(void)addGroupsToServer:(Server*)server{

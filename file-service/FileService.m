@@ -144,7 +144,7 @@ nsxpc_return:
                     
                     /* then write it to the file */
                     [self writeUser:tmpUser toFile:fh];
-                    [returnArray addObject:[self makeUserDict:tmpUser]];
+                    [returnArray addObject:[User makeDictFromUser:tmpUser]];
                     
                     /* send updates back to the UI */
                     //[[self.xpcConnection remoteObjectProxy] setProgress:progress];
@@ -158,15 +158,7 @@ nsxpc_return:
     return YES;
 }
 
--(NSDictionary*)makeUserDict:(User*)user{
-    NSMutableDictionary* dict =[NSMutableDictionary dictionaryWithCapacity:4];
-    [dict setObject:user.userName forKey:@"userName" ];
-    [dict setObject:user.firstName forKey:@"firstName" ];
-    [dict setObject:user.lastName forKey:@"lastName" ];
-    [dict setObject:user.userCWID forKey:@"userCWID" ];
-    
-    return [NSDictionary dictionaryWithDictionary:dict];
-}
+
 
 -(NSArray*)makeGroups:(NSArray*)groups
         withUserArray:(NSArray*)users

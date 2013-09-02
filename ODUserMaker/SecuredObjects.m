@@ -70,6 +70,16 @@
     [aEncoder encodeObject:_importFileURL forKey:@"importFileURL"];
 }
 
++(NSDictionary*)makeDictFromUser:(User*)user{
+    NSMutableDictionary* dict =[NSMutableDictionary dictionaryWithCapacity:4];
+    [dict setObject:user.userName forKey:@"userName" ];
+    [dict setObject:user.firstName forKey:@"firstName" ];
+    [dict setObject:user.lastName forKey:@"lastName" ];
+    [dict setObject:user.userCWID forKey:@"userCWID" ];
+    
+    return [NSDictionary dictionaryWithDictionary:dict];
+}
+
 @end
 
 @implementation Server
