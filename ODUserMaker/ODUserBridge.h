@@ -9,6 +9,7 @@
 #import "AppProgress.h"
 #import "ODUserError.h"
 #import "SecuredObjects.h"
+#import "NSString+uuidFromString.h"
 
 #define kFileServiceName @"com.aapps.ODUserMaker.file-service"
 #define kUploaderServiceName @"com.aapps.ODUserMaker.network-service"

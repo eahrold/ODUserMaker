@@ -7,38 +7,86 @@
 //
 
 #import "OpenDirectoryService.h"
-
+#import "TBXML.h"
+#import "NSString+uuidFromString.h"
 
 @implementation OpenDirectoryService
 
--(void)addSingleUser:(User*)user toServer:(Server*)server withReply:(void (^)(NSError *error))reply{
+-(void)addSingleUser:(User*)user toServer:(Server*)server andGroups:(NSArray*)groups withReply:(void (^)(NSError *error))reply{
     NSError* error = nil;
+    ODNode *node;
+    ODRecord* userRecord;
+    ODRecord* userPreset;
+    NSString* progress;
+    
+    [self getAuthenticatedNode:&node forServer:server withError:&error];
+    
+    if(error){
+        goto nsxpc_return;
+    }
+    
+    userRecord = [self getUserRecord:user.userName withNode:node];
+    if(userRecord){
+        SET_ERROR(1, ODUMUserAlreadyExistsMsg);
+        goto update_group;
+    }
+    
+    userPreset = [self getPresetRecord:user.userPreset ForNode:node];
+    
+    if(!userPreset){
+        SET_ERROR(1, ODUMUserNotFoundMsg);
+        goto nsxpc_return;
+    }else{
+        // get the afp home directory record and parse it out
+        NSString *afph = [[userPreset valuesForAttribute:kODAttributeTypeHomeDirectory error:nil]objectAtIndex:0];
+        NSData *data = [afph dataUsingEncoding:NSUTF8StringEncoding];
+        
+        TBXML *xml = [[TBXML alloc]initWithXMLData:data error:nil];
+        TBXMLElement *rootElement = [xml rootXMLElement];
+        TBXMLElement *path = [TBXML childElementNamed:@"path" parentElement:rootElement];
+        TBXMLElement *url = [TBXML childElementNamed:@"url" parentElement:rootElement];
+        
+        user.afpURL = [NSString stringWithUTF8String:url->text];
+        user.afpPath = [NSString stringWithUTF8String:path->text];
+        
+        // get set nfsHome attr
+        user.nfsPath = [[userPreset valuesForAttribute:kODAttributeTypeNFSHomeDirectory error:nil]objectAtIndex:0];
+        user.userShell = [[userPreset valuesForAttribute:kODAttributeTypeUserShell error:nil]objectAtIndex:0];
+    }
+    
+    userRecord = [self createNewUser:user withNode:node error:&error];
 
+    if(!userRecord){
+        goto nsxpc_return;
+    }
+    
+update_group:
+    for(NSString *g in groups){
+        error = nil;
+        progress = [NSString stringWithFormat:@"Adding %@ to group %@...",user.userName,g];
+        [[self.xpcConnection remoteObjectProxy] setProgressMsg:progress];
+
+        ODRecord* groupRecord = [self getGroupRecord:g withNode:node];
+        [groupRecord addMemberRecord:userRecord error:&error];
+        if(error){
+            SET_ERROR(1, ODUMCantAddUserToGroupMSG);
+        }
+    }
+ 
+    
 nsxpc_return:
     reply(error);
 }
+
+
 
 -(void)resetUserPassword:(User*)user onServer:(Server*)server withReply:(void (^)(NSError *error))reply{
     NSError *error = nil;
     ODNode *node;
     ODRecord* userRecord;
     
-    /* see if computer is connected to the directory server, if not get a proxy node. */
-    if([self checkServerStatus:server.serverName]){
-        node = [self getServerNode:server.serverName];
-    }else{
-        node = [self getRemServerNode:server];
-    }
-    
-    if(!node){
-        SET_ERROR(1, ODUMCantConnectToNodeMsg);
-        goto nsxpc_return;
-    }
-    
-    [node setCredentialsWithRecordType:nil recordName:server.diradminName password:server.diradminPass error:&error];
-    
+    [self getAuthenticatedNode:&node forServer:server withError:&error];
     if(error){
-        SET_ERROR(1, ODUMCantAuthenicateMsg);
         goto nsxpc_return;
     }
     
@@ -54,25 +102,55 @@ nsxpc_return:
     reply(error);
 }
 
+//--------------------------------------------------------------
+//
+//--------------------------------------------------------------
+
+-(ODRecord*)createNewUser:(User*)user withNode:(ODNode*)node error:(NSError**)error{
+    
+    NSMutableDictionary *settings = [[NSMutableDictionary alloc]init];
+    
+    if(user.afpPath && user.afpURL){
+        NSString* afpHome = [NSString stringWithFormat:@"<home_dir><url>%@</url><path>%@%@</path></home_dir>",user.afpURL,user.afpPath,user.userName];
+        [settings setObject:[NSArray arrayWithObject:afpHome] forKey:kODAttributeTypeHomeDirectory];
+    }
+    
+    if(user.nfsPath){
+        NSString* nfsHome = [NSString stringWithFormat:@"%@%@",user.nfsPath,user.userName];
+        [settings setObject:[NSArray arrayWithObject:nfsHome] forKey:kODAttributeTypeNFSHomeDirectory];
+    }
+    
+    if(!user.userUUID){
+        user.userUUID = [user.userName uuidFromString];
+    }
+    
+    if(!user.userShell){
+        user.userShell = @"/dev/null";
+        [settings setObject:[NSArray arrayWithObject:user.userShell] forKey:kODAttributeTypeUserShell];
+        
+    }
+    
+    [settings setObject:[NSArray arrayWithObject:user.primaryGroup] forKey:kODAttributeTypePrimaryGroupID];
+    [settings setObject:[NSArray arrayWithObject:user.firstName] forKey:kODAttributeTypeFirstName];
+    [settings setObject:[NSArray arrayWithObject:user.lastName] forKey:kODAttributeTypeLastName];
+    [settings setObject:[NSArray arrayWithObject:user.userUUID] forKey:kODAttributeTypeUniqueID];
+    [settings setObject:[NSArray arrayWithObject:[NSString stringWithFormat:@"%@ %@",user.firstName,user.lastName]] forKey:kODAttributeTypeFullName];
+    
+    ODRecord* userRecord = [node createRecordWithRecordType:kODRecordTypeUsers name:user.userName attributes:settings error:&*error];
+    [userRecord changePassword:nil toPassword:user.userCWID error:&*error];
+    
+    return userRecord;
+}
+
+
+
 -(void)addGroups:(NSArray*)groups toServer:(Server*)server withReply:(void (^)(NSError *))reply{
     NSError *error = nil;
     ODNode *node;
     
-    /* see if computer is connected to the directory server, if not get a proxy node. */
-    if([self checkServerStatus:server.serverName]){
-        node = [self getServerNode:server.serverName];
-    }else{
-        node = [self getRemServerNode:server];
-    }
-    
-    if(!node){
-        SET_ERROR(1, ODUMCantConnectToNodeMsg);
-        goto nsxpc_return;
-    }
-    [node setCredentialsWithRecordType:nil recordName:server.diradminName password:server.diradminPass error:&error];
+    [self getAuthenticatedNode:&node forServer:server withError:&error];
     
     if(error){
-        SET_ERROR(1, ODUMCantAuthenicateMsg);
         goto nsxpc_return;
     }
 
@@ -105,22 +183,9 @@ nsxpc_return:
     ODNode *node;
     ODRecord* userRecord;
     
-    /* see if computer is connected to the directory server, if not get a proxy node. */
-    if([self checkServerStatus:server.serverName]){
-        node = [self getServerNode:server.serverName];
-    }else{
-        node = [self getRemServerNode:server];
-    }
-    
-    if(!node){
-        SET_ERROR(1, ODUMCantConnectToNodeMsg);
-        goto nsxpc_return;
-
-    }
-    [node setCredentialsWithRecordType:nil recordName:server.diradminName password:server.diradminPass error:&error];
+    [self getAuthenticatedNode:&node forServer:server withError:&error];
     
     if(error){
-        SET_ERROR(1, ODUMCantAuthenicateMsg);
         goto nsxpc_return;
     }
 
@@ -144,17 +209,10 @@ nsxpc_return:
     NSMutableArray *userPresets;
     ODQuery *query;
 
-    /* see if computer is connected to the directory server, if not get a proxy node. */
-    if([self checkServerStatus:server.serverName]){
-        node = [self getServerNode:server.serverName];
-    }else{
-        node = [self getRemServerNode:server];
-    }
-    
+    [self getNode:&node forServer:server withError:&error];
+
     if(!node){
-        SET_ERROR(1, ODUMCantConnectToNodeMsg);
-        goto nsxpc_return;
-        
+        goto nsxpc_return;        
     }
 
     
@@ -192,17 +250,9 @@ nsxpc_return:
     ODRecord *record;
 
     
-    /* see if computer is connected to the directory server, if not get a proxy node. */
-    if([self checkServerStatus:server.serverName]){
-        node = [self getServerNode:server.serverName];
-    }else{
-        node = [self getRemServerNode:server];
-    }
-    
+    [self getNode:&node forServer:server withError:&error];
     if(!node){
-        SET_ERROR(1, ODUMCantConnectToNodeMsg);
-        goto nsxpc_return;
-        
+        goto nsxpc_return;        
     }
     
     query = [ODQuery  queryWithNode: node
@@ -238,17 +288,10 @@ nsxpc_return:
     NSArray *odArray;
     NSMutableArray *userList;
     
-    /* see if computer is connected to the directory server, if not get a proxy node. */
-    if([self checkServerStatus:server.serverName]){
-        node = [self getServerNode:server.serverName];
-    }else{
-        node = [self getRemServerNode:server];
-    }
+    [self getNode:&node forServer:server withError:&error];
     
     if(!node){
-        SET_ERROR(1, ODUMCantConnectToNodeMsg);
-        goto nsxpc_return;
-        
+        goto nsxpc_return;        
     }
     
     query = [ODQuery  queryWithNode: node
@@ -282,16 +325,10 @@ nsxpc_return:
     NSError *error = nil;
     ODNode *node;
     
-    if([self checkServerStatus:server.serverName]){
-        node = [self getServerNode:server.serverName];
-    }else{
-        node = [self getRemServerNode:server];
-    }
+    [self getNode:&node forServer:server withError:&error];
     
     if(!node){
-        SET_ERROR(1, ODUMCantConnectToNodeMsg);
-        goto nsxpc_return;
-        
+        goto nsxpc_return;        
     }
     
     authenticated = [node setCredentialsWithRecordType:nil recordName:server.diradminName password:server.diradminPass error:nil];
@@ -323,6 +360,24 @@ nsxpc_return:
     
 }
 
+-(ODRecord*)getPresetRecord:(NSString*)preset
+                         ForNode:(ODNode*)node{
+    ODQuery *upQuery = [ODQuery  queryWithNode: node
+                                forRecordTypes: kODRecordTypePresetUsers
+                                     attribute: kODAttributeTypeRecordName
+                                     matchType: kODMatchEqualTo
+                                   queryValues: preset
+                              returnAttributes: kODAttributeTypeStandardOnly
+                                maximumResults: 1
+                                         error: nil];
+    
+    NSArray *odArray = [[NSArray alloc]init];
+    odArray = [upQuery resultsAllowingPartial:NO error:nil];
+    ODRecord* record = [odArray objectAtIndex:0];
+    
+    return record;
+}
+
 -(ODRecord*)getUserRecord:(NSString*)user withNode:(ODNode*)node{
     ODRecord* record = nil;
     ODQuery *query = [ODQuery  queryWithNode: node
@@ -343,8 +398,38 @@ nsxpc_return:
     return record;
 }
 
+-(void)getAuthenticatedNode:(ODNode**)node forServer:(Server*)server withError:(NSError**)error{    
+    /* first try to get node if this computer is bound to directory
+        if it's not then connect via a proxy */
+    *node = [self getLocalServerNode:server.serverName];
+    
+    if(!node){
+        *node = [self getRemServerNode:server];
+    }
+    if(!node){
+        *error = [ODUserError errorWithCode:1 message:ODUMCantConnectToNodeMsg];
+    }
+    
+    [*node setCredentialsWithRecordType:nil recordName:server.diradminName password:server.diradminPass error:&*error];
+    if(*error){
+        *error = [ODUserError errorWithCode:1 message:ODUMCantAuthenicateMsg];
+    }
+}
 
--(ODNode*)getServerNode:(NSString*) serverName{
+-(void)getNode:(ODNode**)node forServer:(Server*)server withError:(NSError**)error{
+    *node = [self getLocalServerNode:server.serverName];
+    
+    if(!node){
+        *node = [self getRemServerNode:server];
+    }
+    
+    if(!node){
+        *error = [ODUserError errorWithCode:1 message:ODUMCantConnectToNodeMsg];
+    }
+}
+
+
+-(ODNode*)getLocalServerNode:(NSString*) serverName{
     ODSession *session = [ODSession defaultSession];
     
     NSError *error;
@@ -386,16 +471,9 @@ nsxpc_return:
 
 -(void)checkServerStatus:(NSString*)server withReply:(void (^)(BOOL connected))reply{
     BOOL connected = YES;
-    if(![self getServerNode:server])
+    if(![self getLocalServerNode:server])
         connected = NO;
     reply(connected);
-}
-
--(BOOL)checkServerStatus:(NSString*)server{
-    BOOL connected = YES;
-    if(![self getServerNode:server])
-        connected = NO;
-    return(connected);
 }
 
 

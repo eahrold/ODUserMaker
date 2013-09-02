@@ -30,4 +30,6 @@ error = [ODUserError errorWithCode:rc message:m];\
 #define ODUMCantConnectToNodeMsg @"Couldn't connect to the Directory Server"
 #define ODUMCantAuthenicateMsg @"Couldn't authenticate to the Directory Server with username and password"
 
+#define ODUMUserAlreadyExistsMsg @"A user with that User Name already exists."
+#define ODUMCantAddUserToGroupMSG @"We Couldn't add the user to the group."
 

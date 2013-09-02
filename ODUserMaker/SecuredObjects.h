@@ -14,12 +14,21 @@
 @property (copy) NSString *firstName;
 @property (copy) NSString *lastName;
 @property (copy) NSString *userCWID;
-@property (copy) NSString *uuid;
+@property (copy) NSString *userUUID;
 
 @property (copy) NSString *primaryGroup;
 @property (copy) NSString *emailDomain;
 @property (copy) NSString *keyWord;
 @property (copy) NSString *userPreset;
+
+@property (copy) NSString *afpURL;
+@property (copy) NSString *afpPath;
+@property (copy) NSString *nfsPath;
+@property (copy) NSString *userShell;
+
+
+
+
 @property (copy) NSString *userFilter;
 
 //The User export file is the one we use for the the file-service

@@ -19,6 +19,10 @@
          andGroupList:(NSArray*)groups
             withReply:(void (^)(NSArray* dsgroups,NSNumber* ucount,NSError *error))reply;
 
+-(void)makeUserArray:(User*)user
+            andGroupList:(NSArray*)groups
+               withReply:(void (^)(NSArray* dsgroups,NSArray* userlist,NSError *error))reply;
+
 -(void)makeSingelUserFile:(User*)user
                 withReply:(void (^)(NSError *error))reply;
 

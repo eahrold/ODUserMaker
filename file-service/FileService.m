@@ -8,7 +8,6 @@
 
 #import "FileService.h"
 
-
 @implementation FileService
 
 //------------------------------------------------
@@ -44,11 +43,13 @@
     NSError* error = nil;
     NSArray* dsgroups = nil;
     NSNumber* ucount = nil;
+    NSArray* ulist = nil;
+
     static int userCounter = 0;
     
     [self writeHeaders:user.exportFile];
     
-    if(![self parseUserList:user toFile:user.exportFile gettingCount:&userCounter]){
+    if(![self parseUserList:user toFile:user.exportFile gettingCount:&userCounter andArray:&ulist]){
         SET_ERROR(1, ODUMWriteFileErrorMsg);
         goto nsxpc_return;
     }
@@ -62,16 +63,35 @@ nsxpc_return:
     reply(dsgroups,ucount,error);
 }
 
-
--(BOOL)parseUserList:(User*)user toFile:(NSFileHandle*)fh gettingCount:(int*)uc{
-    *uc = 0;
+-(void)makeUserArray:(User*)user
+                andGroupList:(NSArray*)groups
+                   withReply:(void (^)(NSArray* dsgroups,NSArray* userlist,NSError *error))reply{
     
-    [[self.xpcConnection remoteObjectProxy] setProgressMsg:@"Making Users List..."];
+    NSError* error = nil;
+    NSArray* dsgroups = nil;
+    NSArray* ulist = nil;
 
+    static int userCounter = 0;
+
+    if(![self parseUserList:user toFile:user.exportFile gettingCount:&userCounter andArray:&ulist]){
+        SET_ERROR(1, ODUMWriteFileErrorMsg);
+        goto nsxpc_return;
+    }
+    
+    dsgroups = [self makeGroups:groups withUserArray:user.userList usingFilter:user.userFilter];
+
+nsxpc_return:
+    reply(dsgroups,ulist,error);
+    
+}
+
+-(BOOL)parseUserList:(User*)user toFile:(NSFileHandle*)fh gettingCount:(int*)uc andArray:(NSArray**)ulist{
+    *uc = 0;
+    NSMutableArray* returnArray = [NSMutableArray new];
+    
     NSData* importFileData = [user.importFileHandle readDataToEndOfFile];
     NSString* str = [[NSString alloc] initWithData:importFileData
                                           encoding:NSUTF8StringEncoding];
-    
     
     
     /* split up the string by new line char and though unnecissary alphabetize them.*/
@@ -86,27 +106,27 @@ nsxpc_return:
     //double totalSize = [userArray count];
     //double progress = 100 / totalSize;
     
-    NSArray* tmpArray;
+    NSArray* tmpArray1;
     NSArray* tmpArray2;
     NSMutableSet* processed = [NSMutableSet set];
     
     for (NSString* u in user.userList) {
         if ([u rangeOfString:user.userFilter].location != NSNotFound){
             @try{
-                tmpArray = [u componentsSeparatedByString:@"\t"];
-                if ([processed containsObject:[tmpArray objectAtIndex:0]] == NO) {
+                tmpArray1 = [u componentsSeparatedByString:@"\t"];
+                if ([processed containsObject:[tmpArray1 objectAtIndex:0]] == NO) {
                     *uc = *uc + 1;
                     
                     /* add the object to the processed array */
-                    [processed addObject:[tmpArray objectAtIndex:0]];
+                    [processed addObject:[tmpArray1 objectAtIndex:0]];
                     
                     /* set up a new user to add */
                     User* tmpUser = [User new];
-                    tmpUser.userName = [NSString stringWithFormat:@"%@",[tmpArray objectAtIndex:0]];
-                    tmpUser.userCWID = [NSString stringWithFormat:@"%@",[tmpArray objectAtIndex:2]];
+                    tmpUser.userName = [NSString stringWithFormat:@"%@",[tmpArray1 objectAtIndex:0]];
+                    tmpUser.userCWID = [NSString stringWithFormat:@"%@",[tmpArray1 objectAtIndex:2]];
                     
                     /* break it up one more time. */
-                    NSString* rawName = [NSString stringWithFormat:@"%@",[tmpArray objectAtIndex:1]];
+                    NSString* rawName = [NSString stringWithFormat:@"%@",[tmpArray1 objectAtIndex:1]];
                     tmpArray2 = [rawName componentsSeparatedByString:@","];
                     NSString* firstName = [NSString stringWithFormat:@"%@",[tmpArray2 objectAtIndex:1]];
                     NSString* lastName = [NSString stringWithFormat:@"%@",[tmpArray2 objectAtIndex:0]];
@@ -124,6 +144,7 @@ nsxpc_return:
                     
                     /* then write it to the file */
                     [self writeUser:tmpUser toFile:fh];
+                    [returnArray addObject:[self makeUserDict:tmpUser]];
                     
                     /* send updates back to the UI */
                     //[[self.xpcConnection remoteObjectProxy] setProgress:progress];
@@ -133,10 +154,19 @@ nsxpc_return:
             }
         }
     }
+    *ulist = [NSArray arrayWithArray:returnArray];
     return YES;
 }
 
-
+-(NSDictionary*)makeUserDict:(User*)user{
+    NSMutableDictionary* dict =[NSMutableDictionary dictionaryWithCapacity:4];
+    [dict setObject:user.userName forKey:@"userName" ];
+    [dict setObject:user.firstName forKey:@"firstName" ];
+    [dict setObject:user.lastName forKey:@"lastName" ];
+    [dict setObject:user.userCWID forKey:@"userCWID" ];
+    
+    return [NSDictionary dictionaryWithDictionary:dict];
+}
 
 -(NSArray*)makeGroups:(NSArray*)groups
         withUserArray:(NSArray*)users
@@ -214,10 +244,10 @@ nsxpc_return:
     NSString* email = [NSString stringWithFormat:@"%@@%@",user.userName,user.emailDomain];
     NSString* uuid;
     
-    if(user.uuid){
-        uuid = user.uuid;
+    if(user.userUUID){
+        uuid = user.userUUID;
     }else{
-        uuid = [self makeUidFromUserName:userName];
+        uuid = [userName uuidFromString];
     }
     
     NSString* password = user.userCWID;
@@ -251,27 +281,6 @@ nsxpc_return:
     [fh writeData:[odHeader dataUsingEncoding:NSUTF8StringEncoding]];
 }
 
--(NSString*)makeUidFromUserName:(NSString*)uname{
-    /*This makes a 5 digit user ID based on the user name*/
-    const char* cStr = [uname UTF8String];
-    unsigned char digest[16];
-    CC_MD5( cStr, strlen(cStr), digest ); // This is the md5 call
-    
-    NSMutableString* md5 = [NSMutableString stringWithCapacity:CC_MD5_DIGEST_LENGTH* 2];
-    
-    for(int i = 0; i < CC_MD5_DIGEST_LENGTH; i++)
-        [md5 appendFormat:@"%02x", digest[i]];
-    
-    
-    NSString* noLetters = [[md5 componentsSeparatedByCharactersInSet:
-                            [[NSCharacterSet decimalDigitCharacterSet]
-                             invertedSet]] componentsJoinedByString:@""];
-    
-    NSString* noZeros = [noLetters stringByReplacingOccurrencesOfString:@"0" withString:@""];
-    NSString* uuid = [noZeros substringFromIndex:[noZeros length]-6];
-    
-    return uuid;
-}
 
 
 //---------------------------------

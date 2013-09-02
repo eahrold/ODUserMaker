@@ -18,7 +18,7 @@
         _firstName = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"firstName"];
         _lastName = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"lastName"];
         _userCWID = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"userCWID"];
-        _uuid = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"uuid"];
+        _userUUID = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"userUUID"];
         
         _primaryGroup = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"primaryGroup"];
         _emailDomain = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"emailDomain"];
@@ -49,7 +49,7 @@
     [aEncoder encodeObject:_firstName forKey:@"firstName"];
     [aEncoder encodeObject:_lastName forKey:@"lastName"];
     [aEncoder encodeObject:_userCWID forKey:@"userCWID"];
-    [aEncoder encodeObject:_uuid forKey:@"uuid"];
+    [aEncoder encodeObject:_userUUID forKey:@"userUUID"];
 
     [aEncoder encodeObject:_primaryGroup forKey:@"primaryGroup"];
     [aEncoder encodeObject:_emailDomain forKey:@"emailDomain"];
