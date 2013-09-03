@@ -218,32 +218,27 @@
     NSURL * importFileURL = [NSURL fileURLWithPath:_importFilePath.stringValue];
     user.importFileHandle = [NSFileHandle fileHandleForReadingFromURL:importFileURL error:&error];
     
-    NSSavePanel *savePanel = [NSSavePanel savePanel];
-    [savePanel setAllowedFileTypes:[NSArray arrayWithObject:@"txt"]];
-    [savePanel setNameFieldStringValue:@"dsimport.txt"];
+    if(error){
+        [self showAlert:@"Couldn't use the selected file" withDescription:@"Make sure it's in you home directory"];
+        return;
+    }
     
-    [savePanel beginSheetModalForWindow:[[NSApplication sharedApplication] mainWindow] completionHandler:^(NSInteger result){
-        if (result == NSOKButton ){
-            [savePanel orderOut:self];
-            [self startProgressPanelWithMessage:@"Creating DSImport File..." indeterminate:YES];
+    NSURL* exportFileURL =[self getURLFromSavePanel];
+    
+    if(!exportFileURL){
+        [self showAlert:@"You must specify a location to save the file" withDescription:nil];
+        return;
+    }
 
-            NSError* err = nil;
-            NSURL* exportFileURL = [savePanel URL];
-            
-            /* we've got to touch the file befor creating the file handle */
-            if (![[NSData data] writeToURL:exportFileURL options:0 error:&err]) {
-                [self stopProgressPanel];
-                [self showErrorAlert:err];
-                return;
-            }
-            
-            user.exportFile = [NSFileHandle fileHandleForWritingToURL:exportFileURL error:&err];
-            
-            [self makeDSImportFile:user];
-        }else{
-            [self showAlert:@"You must specify a location to save the file" withDescription:nil];
-        }
-    }];
+    [[NSData data] writeToURL:exportFileURL options:0 error:&error];
+    if(!error){
+        [self startProgressPanelWithMessage:@"Creating DSImport File..." indeterminate:YES];
+        user.exportFile = [NSFileHandle fileHandleForWritingToURL:exportFileURL error:&error];
+        [self makeDSImportFile:user];
+    }else{
+        [self showAlert:@"We couldn't write to that file" withDescription:nil];
+    }
+
 }
 
 
@@ -327,11 +322,6 @@
     
 }
 
-//-------------------------------------------
-//  Common Methods
-//-------------------------------------------
-
-
 
 //-------------------------------------------
 //  IBActions
@@ -339,21 +329,13 @@
 
 
 - (IBAction)chooseImportFile:(id)sender{
-    
-    NSOpenPanel* openDlg = [NSOpenPanel openPanel];
-    [openDlg setCanChooseFiles:YES];
-    [openDlg setAllowsMultipleSelection:NO];
-    [openDlg setCanChooseDirectories:NO];
-    
-    if ( [openDlg runModal] == NSOKButton )
-    {
-        NSURL* url = [openDlg URL];
-        _importFilePath.stringValue = url.path;
+    NSURL* importFile = [self getURLFromOpenPanel];
+    if(importFile){
+        _importFilePath.stringValue = importFile.path;
     }
 }
 
 
-/*group matching methods*/
 -(IBAction)addGroupMatchEntry:(id)sender{
     NSString* match = [_fileClassList stringValue];
     NSString* group = [_serverGroupList titleOfSelectedItem];
@@ -371,6 +353,7 @@
     
     [arrayController setContent:groups];
 }
+
 
 -(IBAction)removeGroupMatchEntry:(id)sender{
     [groups removeObjectAtIndex:[_groupMatchEntries indexOfSelectedItem]];
@@ -451,5 +434,34 @@
     [NSApp endSheet:self.progressPanel returnCode:1];
 }
 
+//-----------------------------
+//  Open and Save panels
+//-----------------------------
 
+-(NSURL*)getURLFromSavePanel{
+    NSURL* url;
+    NSSavePanel *savePanel = [NSSavePanel savePanel];
+    [savePanel setAllowedFileTypes:[NSArray arrayWithObject:@"txt"]];
+    [savePanel setNameFieldStringValue:@"dsimport.txt"];
+    
+    if([savePanel runModal] == NSOKButton){
+        url = [savePanel URL];
+    }
+    
+    return url;
+}
+
+-(NSURL*)getURLFromOpenPanel{
+    NSURL* url;
+    NSOpenPanel* openDlg = [NSOpenPanel openPanel];
+    [openDlg setCanChooseFiles:YES];
+    [openDlg setAllowsMultipleSelection:NO];
+    [openDlg setCanChooseDirectories:NO];
+    
+    if ( [openDlg runModal] == NSOKButton )
+    {
+       url = [openDlg URL];
+    }
+    return url;
+}
 @end

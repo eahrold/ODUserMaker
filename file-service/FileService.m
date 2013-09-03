@@ -214,7 +214,22 @@ nsxpc_return:
     return arr;
 }
 
+//------------------------------------------------
+//  Save Panel
+//------------------------------------------------
 
+-(NSURL*)getURLFromSavePanel{
+    NSURL* url;
+    NSSavePanel *savePanel = [NSSavePanel savePanel];
+    [savePanel setAllowedFileTypes:[NSArray arrayWithObject:@"txt"]];
+    [savePanel setNameFieldStringValue:@"dsimport.txt"];
+    
+    if([savePanel runModal] == NSOKButton){
+        url = [savePanel URL];
+    }
+    
+    return url;
+}
 //------------------------------------------------
 //  Common Items
 //------------------------------------------------
