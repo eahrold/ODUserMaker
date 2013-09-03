@@ -28,6 +28,8 @@ error = [ODUserError errorWithCode:rc message:m];\
 #define ODUMUserAlreadyExistsMsg @"A user with that User Name already exists."
 #define ODUMCantAddUserToServerMSG @"There were problems adding the user to the server."
 #define ODUMCantAddUserToGroupMSG @"We Couldn't add the user to the group."
+#define ODUMCantAddUserToServerOrGroupMSG @"We Couldn't add the user to server or update the the group."
+
 
 #define ODUMGroupNotFoundMsg @"Couldn't locate the group record on this server"
 #define ODUMPresetNotFoundMsg @"No preset with that name was found on the server"

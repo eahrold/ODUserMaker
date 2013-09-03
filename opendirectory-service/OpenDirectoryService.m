@@ -8,7 +8,6 @@
 
 #import "OpenDirectoryService.h"
 #import "TBXML.h"
-#import "NSString+uuidFromString.h"
 
 @implementation OpenDirectoryService
 //------------------------------------------------------------
@@ -18,6 +17,8 @@
 
 -(void)addSingleUser:(User*)user toServer:(Server*)server andGroups:(NSArray*)groups withReply:(void (^)(NSError *error))reply{
     NSError* error = nil;
+    NSError* gerror = nil;
+
     ODNode *node;
     ODRecord* userRecord;
     NSString* progress;
@@ -47,17 +48,19 @@
     
 update_group:
     for(NSString *g in groups){
-        error = nil;
         progress = [NSString stringWithFormat:@"Adding %@ to group %@...",user.userName,g];
         [[self.xpcConnection remoteObjectProxy] setProgressMsg:progress];
 
         ODRecord* groupRecord = [self getGroupRecord:g withNode:node];
-        [groupRecord addMemberRecord:userRecord error:&error];
-        if(error){
-            SET_ERROR(1, ODUMCantAddUserToGroupMSG);
-        }
+        [groupRecord addMemberRecord:userRecord error:&gerror];
     }
  
+    if(error && gerror){
+        SET_ERROR(1, ODUMCantAddUserToServerOrGroupMSG);
+    }else if (gerror){
+        SET_ERROR(1, ODUMCantAddUserToGroupMSG);
+    }
+
     
 nsxpc_return:
     reply(error);

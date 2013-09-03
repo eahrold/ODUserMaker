@@ -11,10 +11,6 @@
 @interface AppDelegate : NSObject <NSApplicationDelegate>{
     IBOutlet NSArrayController *dsGroupArrayController;
     IBOutlet NSArrayController *dsUserArrayController;
-
-    NSMutableArray *groups;
-    NSArray* dsGroups;
-
 }
 
 //---------------------------------------------------

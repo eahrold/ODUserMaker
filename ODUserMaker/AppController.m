@@ -220,7 +220,7 @@
     
     NSSavePanel *savePanel = [NSSavePanel savePanel];
     [savePanel setAllowedFileTypes:[NSArray arrayWithObject:@"txt"]];
-    
+    [savePanel setNameFieldStringValue:@"dsimport.txt"];
     
     [savePanel beginSheetModalForWindow:[[NSApplication sharedApplication] mainWindow] completionHandler:^(NSInteger result){
         if (result == NSOKButton ){
