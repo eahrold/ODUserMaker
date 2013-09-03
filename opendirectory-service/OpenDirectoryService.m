@@ -226,10 +226,11 @@ nsxpc_return:
             userRecord = [self getUserRecord:u withNode:node];
             
             if(userRecord){
-                *error = nil;
                 [groupRecord addMemberRecord:userRecord error:&*error];
-                if(*error)
+                if(*error){
                     NSLog(@"Couldn't add %@ to %@: %@",u,g,[*error localizedDescription]);
+                    *error = nil;
+                }
             }
         }
     }
@@ -412,8 +413,7 @@ nsxpc_return:
                                 maximumResults: 1
                                          error: nil];
     
-    NSArray *odArray = [[NSArray alloc]init];
-    odArray = [upQuery resultsAllowingPartial:NO error:nil];
+    NSArray *odArray = [upQuery resultsAllowingPartial:NO error:nil];
     ODRecord* record = [odArray objectAtIndex:0];
     
     return record;
@@ -440,7 +440,7 @@ nsxpc_return:
 }
 
 /*Node Retrevial Methods*/
--(void)getAuthenticatedNode:(ODNode**)node forServer:(Server*)server withError:(NSError**)error{    
+-(BOOL)getAuthenticatedNode:(ODNode**)node forServer:(Server*)server withError:(NSError**)error{
     /* first try to get node if this computer is bound to directory
         if it's not then connect via a proxy */
     *node = [self getLocalServerNode:server.serverName];
@@ -450,16 +450,19 @@ nsxpc_return:
     }
     if(!node){
         *error = [ODUserError errorWithCode:1 message:ODUMCantConnectToNodeMsg];
+        return NO;
     }
     
     [*node setCredentialsWithRecordType:nil recordName:server.diradminName password:server.diradminPass error:&*error];
     if(*error){
         *error = [ODUserError errorWithCode:1 message:ODUMCantAuthenicateMsg];
+        return NO;
     }
+    return YES;
 }
 
 
--(void)getNode:(ODNode**)node forServer:(Server*)server withError:(NSError**)error{
+-(BOOL)getNode:(ODNode**)node forServer:(Server*)server withError:(NSError**)error{
     *node = [self getLocalServerNode:server.serverName];
     
     if(!node){
@@ -468,7 +471,9 @@ nsxpc_return:
     
     if(!node){
         *error = [ODUserError errorWithCode:1 message:ODUMCantConnectToNodeMsg];
+        return NO;
     }
+    return YES;
 }
 
 
@@ -511,12 +516,12 @@ nsxpc_return:
 //  Utility Methods
 //---------------------------------------------
 
--(void)configurPreset:(User*)user usingNode:(ODNode*)node error:(NSError**)error{
+-(BOOL)configurPreset:(User*)user usingNode:(ODNode*)node error:(NSError**)error{
     // get the afp home directory record and parse it out
     ODRecord* record = [self getPresetRecord:user.userPreset ForNode:node];
-    
     if(!record){
         [ODUserError errorWithCode:1 message:ODUMPresetNotFoundMsg];
+        return NO;
     }else{
         NSString *afph = [[record valuesForAttribute:kODAttributeTypeHomeDirectory error:nil]objectAtIndex:0];
         NSData *data = [afph dataUsingEncoding:NSUTF8StringEncoding];
@@ -533,6 +538,7 @@ nsxpc_return:
         user.nfsPath = [[record valuesForAttribute:kODAttributeTypeNFSHomeDirectory error:nil]objectAtIndex:0];
         user.userShell = [[record valuesForAttribute:kODAttributeTypeUserShell error:nil]objectAtIndex:0];
     }
+    return YES;
 }
 
 

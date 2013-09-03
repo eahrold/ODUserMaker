@@ -13,7 +13,6 @@
 + (NSError*) errorWithCode:(NSInteger)code message:(NSString*)msg
 {
     NSDictionary* info = [NSDictionary dictionaryWithObjectsAndKeys:msg, NSLocalizedDescriptionKey, nil];
-    
     return [self errorWithDomain:@"ODUserError" code:code userInfo:info];
 }
 

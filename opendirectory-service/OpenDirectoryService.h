@@ -14,13 +14,18 @@
 
 
 @protocol OpenDirectoryService
--(void)checkCredentials:(Server*)server withReply:(void (^)(BOOL authenticated))reply;
 
+/* methods for editing users/group*/
 -(void)addSingleUser:(User*)user toServer:(Server*)server andGroups:(NSArray*)groups withReply:(void (^)(NSError *error))reply;
+
 -(void)addListOfUsers:(NSArray*)list usingPresetsIn:(User*)user toServer:(Server*)server andGroups:(NSArray*)userGroups withReply:(void (^)(NSError *error))reply;
+
 
 -(void)resetUserPassword:(User*)user onServer:(Server*)server
                withReply:(void (^)(NSError *error))reply;
+
+
+/* methods for getting lists*/ 
 
 -(void)getUserPresets:(Server*)server
             withReply:(void (^)(NSArray *userPreset,NSError *error))reply;
@@ -31,15 +36,13 @@
 -(void)getUserListFromServer:(Server*)server
                    withReply:(void (^)(NSArray *userList,NSError *error))reply;
 
+
+/* methods for status checking */
+-(void)checkCredentials:(Server*)server withReply:(void (^)(BOOL authenticated))reply;
+
 -(void)checkServerStatus:(NSString*)server
                withReply:(void (^)(BOOL connected))reply;
 
--(void)addUser:(User*)user
-       toGroup:(NSArray*)group
-      toServer:(Server*)server
-     withReply:(void (^)(NSError * error))reply;
-
--(void)addGroups:(NSArray*)groups toServer:(Server*)server withReply:(void (^)(NSError * error))reply;
 
 @end
 

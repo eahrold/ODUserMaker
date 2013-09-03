@@ -8,16 +8,13 @@
 
 #import <Cocoa/Cocoa.h>
 #import <Foundation/Foundation.h>
-#import <CommonCrypto/CommonDigest.h>
 
 #import "ODUserBridge.h"
 #import "NSString+StringSanitizer.h"
 
 
 @protocol FileService
--(void)makeMultiUserFile:(User*)user
-         andGroupList:(NSArray*)groups
-            withReply:(void (^)(NSArray* dsgroups,NSNumber* ucount,NSError *error))reply;
+-(void)makeMultiUserFile:(User*)user withReply:(void (^)(NSError *error))reply;
 
 -(void)makeUserArray:(User*)user
             andGroupList:(NSArray*)groups

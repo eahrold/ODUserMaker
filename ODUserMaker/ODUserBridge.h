@@ -12,5 +12,4 @@
 #import "NSString+uuidFromString.h"
 
 #define kFileServiceName @"com.aapps.ODUserMaker.file-service"
-#define kUploaderServiceName @"com.aapps.ODUserMaker.network-service"
 #define kDirectoryServiceName @"com.aapps.ODUserMaker.opendirectory-service"

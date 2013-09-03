@@ -25,12 +25,14 @@ error = [ODUserError errorWithCode:rc message:m];\
 #define ODUMWriteFileErrorMsg @"There was a problem writing the DSimport file.  Please make sure you've chosen a location inside you home directory"
 
 #define ODUMUserNotFoundMsg @"No user with that name was found on the server"
+#define ODUMUserAlreadyExistsMsg @"A user with that User Name already exists."
+#define ODUMCantAddUserToServerMSG @"There were problems adding the user to the server."
+#define ODUMCantAddUserToGroupMSG @"We Couldn't add the user to the group."
+
 #define ODUMGroupNotFoundMsg @"Couldn't locate the group record on this server"
 #define ODUMPresetNotFoundMsg @"No preset with that name was found on the server"
 
 #define ODUMCantConnectToNodeMsg @"Couldn't connect to the Directory Server"
 #define ODUMCantAuthenicateMsg @"Couldn't authenticate to the Directory Server with username and password"
 
-#define ODUMUserAlreadyExistsMsg @"A user with that User Name already exists."
-#define ODUMCantAddUserToGroupMSG @"We Couldn't add the user to the group."
 

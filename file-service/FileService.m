@@ -26,23 +26,19 @@
         SET_ERROR(1, ODUMWriteFileErrorMsg);
     }
     
-    
     [user.exportFile closeFile];
     reply(error);
     
 }
 
 //------------------------------------------------
-//  Multi User Creation
+//  DSImport File Creation
 //------------------------------------------------
 
 -(void)makeMultiUserFile:(User*)user
-            andGroupList:(NSArray*)groups
-               withReply:(void (^)(NSArray* dsgroup,NSNumber* ucount,NSError*error))reply{
+               withReply:(void (^)(NSError*error))reply{
     
     NSError* error = nil;
-    NSArray* dsgroups = nil;
-    NSNumber* ucount = nil;
     NSArray* ulist = nil;
 
     static int userCounter = 0;
@@ -51,17 +47,14 @@
     
     if(![self parseUserList:user toFile:user.exportFile gettingCount:&userCounter andArray:&ulist]){
         SET_ERROR(1, ODUMWriteFileErrorMsg);
-        goto nsxpc_return;
     }
-
-    dsgroups = [self makeGroups:groups withUserArray:user.userList usingFilter:user.userFilter];
     
-    ucount = [NSNumber numberWithInteger:userCounter];
-    [user.exportFile closeFile];
-   
-nsxpc_return:
-    reply(dsgroups,ucount,error);
+    reply(error);
 }
+
+//------------------------------------------------
+//  Multi User Array 
+//------------------------------------------------
 
 -(void)makeUserArray:(User*)user
                 andGroupList:(NSArray*)groups

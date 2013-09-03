@@ -16,15 +16,11 @@
 		BE29322C17965D99001502D7 /* FileService.m in Sources */ = {isa = PBXBuildFile; fileRef = BEC425431792309D00CA45A5 /* FileService.m */; };
 		BE29322F1796F18B001502D7 /* NSString+StringSanitizer.m in Sources */ = {isa = PBXBuildFile; fileRef = BE29322E1796F18B001502D7 /* NSString+StringSanitizer.m */; };
 		BE29325617972994001502D7 /* file-service.entitlements in Resources */ = {isa = PBXBuildFile; fileRef = BE29325517972994001502D7 /* file-service.entitlements */; };
-		BE293258179729C9001502D7 /* network-service.entitlements in Resources */ = {isa = PBXBuildFile; fileRef = BE293257179729C9001502D7 /* network-service.entitlements */; };
 		BE2D96B417D220540076258A /* ODUserError.m in Sources */ = {isa = PBXBuildFile; fileRef = BE2D96B317D220540076258A /* ODUserError.m */; };
-		BE2D96B517D220540076258A /* ODUserError.m in Sources */ = {isa = PBXBuildFile; fileRef = BE2D96B317D220540076258A /* ODUserError.m */; };
 		BE2D96B617D220540076258A /* ODUserError.m in Sources */ = {isa = PBXBuildFile; fileRef = BE2D96B317D220540076258A /* ODUserError.m */; };
 		BE2D96B717D220540076258A /* ODUserError.m in Sources */ = {isa = PBXBuildFile; fileRef = BE2D96B317D220540076258A /* ODUserError.m */; };
 		BE94E3CB1798E6830024C9E5 /* ODUserMaker.icns in Resources */ = {isa = PBXBuildFile; fileRef = BE94E3CA1798E6830024C9E5 /* ODUserMaker.icns */; };
 		BE9625E51795A55800839C80 /* SSKeychain.m in Sources */ = {isa = PBXBuildFile; fileRef = BE9625E41795A55800839C80 /* SSKeychain.m */; };
-		BE9625E71795A74100839C80 /* SSKeychain.m in Sources */ = {isa = PBXBuildFile; fileRef = BE9625E41795A55800839C80 /* SSKeychain.m */; };
-		BE9625E91795A74A00839C80 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BE9625E81795A74A00839C80 /* Security.framework */; };
 		BE9625EA1795A75100839C80 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BE9625E81795A74A00839C80 /* Security.framework */; };
 		BEC424F61791A7FF00CA45A5 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BEC424F51791A7FF00CA45A5 /* Cocoa.framework */; };
 		BEC425001791A80000CA45A5 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = BEC424FE1791A80000CA45A5 /* InfoPlist.strings */; };
@@ -32,17 +28,11 @@
 		BEC425061791A80000CA45A5 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = BEC425041791A80000CA45A5 /* Credits.rtf */; };
 		BEC425091791A80000CA45A5 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = BEC425081791A80000CA45A5 /* AppDelegate.m */; };
 		BEC4250C1791A80000CA45A5 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = BEC4250A1791A80000CA45A5 /* MainMenu.xib */; };
-		BEC425181791A85900CA45A5 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BEC425171791A85900CA45A5 /* Foundation.framework */; };
-		BEC4251E1791A85900CA45A5 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = BEC4251C1791A85900CA45A5 /* InfoPlist.strings */; };
-		BEC425211791A85900CA45A5 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = BEC425201791A85900CA45A5 /* main.m */; };
-		BEC425261791A8AE00CA45A5 /* com.aapps.ODUserMaker.network-service.xpc in CopyFiles */ = {isa = PBXBuildFile; fileRef = BEC425161791A85900CA45A5 /* com.aapps.ODUserMaker.network-service.xpc */; };
-		BEC425291791A9B500CA45A5 /* NetworkService.m in Sources */ = {isa = PBXBuildFile; fileRef = BEC425281791A9B500CA45A5 /* NetworkService.m */; };
 		BEC4252E1791AE3500CA45A5 /* AppController.m in Sources */ = {isa = PBXBuildFile; fileRef = BEC4252D1791AE3500CA45A5 /* AppController.m */; };
 		BEC425351792302A00CA45A5 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BEC425171791A85900CA45A5 /* Foundation.framework */; };
 		BEC4253B1792302A00CA45A5 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = BEC425391792302A00CA45A5 /* InfoPlist.strings */; };
 		BEC4253E1792302A00CA45A5 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = BEC4253D1792302A00CA45A5 /* main.m */; };
 		BEC425471792451E00CA45A5 /* SecuredObjects.m in Sources */ = {isa = PBXBuildFile; fileRef = BEC425461792451E00CA45A5 /* SecuredObjects.m */; };
-		BEC425481792451E00CA45A5 /* SecuredObjects.m in Sources */ = {isa = PBXBuildFile; fileRef = BEC425461792451E00CA45A5 /* SecuredObjects.m */; };
 		BEFBDC5F179C161F00AB0960 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BEC425171791A85900CA45A5 /* Foundation.framework */; };
 		BEFBDC65179C161F00AB0960 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = BEFBDC63179C161F00AB0960 /* InfoPlist.strings */; };
 		BEFBDC68179C161F00AB0960 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = BEFBDC67179C161F00AB0960 /* main.m */; };
@@ -63,23 +53,21 @@
 			files = (
 				BEFBDC6C179C163D00AB0960 /* com.aapps.ODUserMaker.opendirectory-service.xpc in CopyFiles */,
 				BE085A62179326DE0079DFE9 /* com.aapps.ODUserMaker.file-service.xpc in CopyFiles */,
-				BEC425261791A8AE00CA45A5 /* com.aapps.ODUserMaker.network-service.xpc in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		BE085A671794F53F0079DFE9 /* ODUserMaker.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = ODUserMaker.entitlements; sourceTree = "<group>"; };
+		BE085A671794F53F0079DFE9 /* ODUserMaker.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = ODUserMaker.entitlements; path = ODUserMaker/ODUserMaker.entitlements; sourceTree = "<group>"; };
 		BE18C1C217D3BFDF00C92AF3 /* TBXML.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TBXML.h; sourceTree = "<group>"; };
 		BE18C1C317D3BFDF00C92AF3 /* TBXML.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TBXML.m; sourceTree = "<group>"; };
-		BE18C1C517D3BFEC00C92AF3 /* libTBXML.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libTBXML.a; sourceTree = "<group>"; };
-		BE18C1C917D40CAE00C92AF3 /* NSString+uuidFromString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+uuidFromString.h"; sourceTree = "<group>"; };
-		BE18C1CA17D40CAE00C92AF3 /* NSString+uuidFromString.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+uuidFromString.m"; sourceTree = "<group>"; };
-		BE29322D1796F18B001502D7 /* NSString+StringSanitizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+StringSanitizer.h"; sourceTree = "<group>"; };
-		BE29322E1796F18B001502D7 /* NSString+StringSanitizer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+StringSanitizer.m"; sourceTree = "<group>"; };
-		BE29325517972994001502D7 /* file-service.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = "file-service.entitlements"; sourceTree = "<group>"; };
-		BE293257179729C9001502D7 /* network-service.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = "network-service.entitlements"; sourceTree = "<group>"; };
+		BE18C1C517D3BFEC00C92AF3 /* libTBXML.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libTBXML.a; path = "opendirectory-service/libTBXML.a"; sourceTree = "<group>"; };
+		BE18C1C917D40CAE00C92AF3 /* NSString+uuidFromString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSString+uuidFromString.h"; path = "ODUserMaker/NSString+uuidFromString.h"; sourceTree = "<group>"; };
+		BE18C1CA17D40CAE00C92AF3 /* NSString+uuidFromString.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSString+uuidFromString.m"; path = "ODUserMaker/NSString+uuidFromString.m"; sourceTree = "<group>"; };
+		BE29322D1796F18B001502D7 /* NSString+StringSanitizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSString+StringSanitizer.h"; path = "file-service/NSString+StringSanitizer.h"; sourceTree = "<group>"; };
+		BE29322E1796F18B001502D7 /* NSString+StringSanitizer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSString+StringSanitizer.m"; path = "file-service/NSString+StringSanitizer.m"; sourceTree = "<group>"; };
+		BE29325517972994001502D7 /* file-service.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "file-service.entitlements"; path = "file-service/file-service.entitlements"; sourceTree = "<group>"; };
 		BE2D96B217D220540076258A /* ODUserError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ODUserError.h; sourceTree = "<group>"; };
 		BE2D96B317D220540076258A /* ODUserError.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ODUserError.m; sourceTree = "<group>"; };
 		BE2D96B817D222880076258A /* ODUserBridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ODUserBridge.h; path = ODUserMaker/ODUserBridge.h; sourceTree = SOURCE_ROOT; };
@@ -100,14 +88,7 @@
 		BEC425071791A80000CA45A5 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		BEC425081791A80000CA45A5 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = AppDelegate.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		BEC4250B1791A80000CA45A5 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
-		BEC425161791A85900CA45A5 /* com.aapps.ODUserMaker.network-service.xpc */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "com.aapps.ODUserMaker.network-service.xpc"; sourceTree = BUILT_PRODUCTS_DIR; };
 		BEC425171791A85900CA45A5 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
-		BEC4251B1791A85900CA45A5 /* network-service-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "network-service-Info.plist"; sourceTree = "<group>"; };
-		BEC4251D1791A85900CA45A5 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		BEC4251F1791A85900CA45A5 /* network-service-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "network-service-Prefix.pch"; sourceTree = "<group>"; };
-		BEC425201791A85900CA45A5 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		BEC425271791A9B500CA45A5 /* NetworkService.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = NetworkService.h; path = "network-service/NetworkService.h"; sourceTree = "<group>"; };
-		BEC425281791A9B500CA45A5 /* NetworkService.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NetworkService.m; sourceTree = "<group>"; };
 		BEC4252C1791AE3500CA45A5 /* AppController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppController.h; sourceTree = "<group>"; };
 		BEC4252D1791AE3500CA45A5 /* AppController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AppController.m; path = ODUserMaker/AppController.m; sourceTree = SOURCE_ROOT; };
 		BEC4252F1792005000CA45A5 /* AppProgress.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AppProgress.h; path = ODUserMaker/AppProgress.h; sourceTree = SOURCE_ROOT; };
@@ -128,7 +109,7 @@
 		BEFBDC6E179C16E200AB0960 /* OpenDirectoryService.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OpenDirectoryService.m; sourceTree = "<group>"; };
 		BEFBDC70179C173E00AB0960 /* OpenDirectoryService.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = OpenDirectoryService.h; path = "opendirectory-service/OpenDirectoryService.h"; sourceTree = SOURCE_ROOT; };
 		BEFBDC71179C311100AB0960 /* OpenDirectory.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenDirectory.framework; path = System/Library/Frameworks/OpenDirectory.framework; sourceTree = SDKROOT; };
-		BEFBDC75179C967800AB0960 /* opendirectory-service.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "opendirectory-service.entitlements"; sourceTree = "<group>"; };
+		BEFBDC75179C967800AB0960 /* opendirectory-service.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = "opendirectory-service.entitlements"; path = "opendirectory-service/opendirectory-service.entitlements"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -138,15 +119,6 @@
 			files = (
 				BE9625EA1795A75100839C80 /* Security.framework in Frameworks */,
 				BEC424F61791A7FF00CA45A5 /* Cocoa.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		BEC425131791A85900CA45A5 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				BE9625E91795A74A00839C80 /* Security.framework in Frameworks */,
-				BEC425181791A85900CA45A5 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -171,17 +143,37 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		BE2FD6D717D53F7E00B3D28D /* NSStringHelpers */ = {
+			isa = PBXGroup;
+			children = (
+				BE29322D1796F18B001502D7 /* NSString+StringSanitizer.h */,
+				BE29322E1796F18B001502D7 /* NSString+StringSanitizer.m */,
+				BE18C1C917D40CAE00C92AF3 /* NSString+uuidFromString.h */,
+				BE18C1CA17D40CAE00C92AF3 /* NSString+uuidFromString.m */,
+			);
+			name = NSStringHelpers;
+			sourceTree = "<group>";
+		};
+		BE2FD6D817D53FA900B3D28D /* Entitlements */ = {
+			isa = PBXGroup;
+			children = (
+				BE085A671794F53F0079DFE9 /* ODUserMaker.entitlements */,
+				BE29325517972994001502D7 /* file-service.entitlements */,
+				BEFBDC75179C967800AB0960 /* opendirectory-service.entitlements */,
+			);
+			name = Entitlements;
+			sourceTree = "<group>";
+		};
 		BEC424E91791A7FF00CA45A5 = {
 			isa = PBXGroup;
 			children = (
-				BE18C1C917D40CAE00C92AF3 /* NSString+uuidFromString.h */,
-				BE18C1CA17D40CAE00C92AF3 /* NSString+uuidFromString.m */,
-				BEC4252B1791AA1C00CA45A5 /* Interfaces */,
 				BEC424FB1791A7FF00CA45A5 /* ODUserMaker */,
+				BE2FD6D717D53F7E00B3D28D /* NSStringHelpers */,
+				BEC4252B1791AA1C00CA45A5 /* Interfaces */,
 				BEC425491792452A00CA45A5 /* Secure Objects */,
 				BEFBDC60179C161F00AB0960 /* opendirectory-service */,
-				BEC425191791A85900CA45A5 /* network-service */,
 				BEC425361792302A00CA45A5 /* file-service */,
+				BE2FD6D817D53FA900B3D28D /* Entitlements */,
 				BEC424F41791A7FF00CA45A5 /* Frameworks */,
 				BEC424F31791A7FF00CA45A5 /* Products */,
 			);
@@ -191,7 +183,6 @@
 			isa = PBXGroup;
 			children = (
 				BEC424F21791A7FF00CA45A5 /* ODUserMaker.app */,
-				BEC425161791A85900CA45A5 /* com.aapps.ODUserMaker.network-service.xpc */,
 				BEC425341792302A00CA45A5 /* com.aapps.ODUserMaker.file-service.xpc */,
 				BEFBDC5E179C161E00AB0960 /* com.aapps.ODUserMaker.opendirectory-service.xpc */,
 			);
@@ -201,6 +192,7 @@
 		BEC424F41791A7FF00CA45A5 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				BE18C1C517D3BFEC00C92AF3 /* libTBXML.a */,
 				BE9625E81795A74A00839C80 /* Security.framework */,
 				BEFBDC71179C311100AB0960 /* OpenDirectory.framework */,
 				BEC424F51791A7FF00CA45A5 /* Cocoa.framework */,
@@ -225,6 +217,8 @@
 			children = (
 				BEC4252C1791AE3500CA45A5 /* AppController.h */,
 				BEC4252D1791AE3500CA45A5 /* AppController.m */,
+				BEC425071791A80000CA45A5 /* AppDelegate.h */,
+				BEC425081791A80000CA45A5 /* AppDelegate.m */,
 				BEC4250A1791A80000CA45A5 /* MainMenu.xib */,
 				BEFBDC74179C95B000AB0960 /* Supporting Classes */,
 				BEC424FC1791A80000CA45A5 /* Supporting Files */,
@@ -238,31 +232,9 @@
 				BEC425011791A80000CA45A5 /* main.m */,
 				BEC424FD1791A80000CA45A5 /* ODUserMaker-Info.plist */,
 				BEC424FE1791A80000CA45A5 /* InfoPlist.strings */,
-				BE085A671794F53F0079DFE9 /* ODUserMaker.entitlements */,
 				BE94E3CA1798E6830024C9E5 /* ODUserMaker.icns */,
 				BEC425031791A80000CA45A5 /* ODUserMaker-Prefix.pch */,
 				BEC425041791A80000CA45A5 /* Credits.rtf */,
-			);
-			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
-		BEC425191791A85900CA45A5 /* network-service */ = {
-			isa = PBXGroup;
-			children = (
-				BEC425281791A9B500CA45A5 /* NetworkService.m */,
-				BEC4251A1791A85900CA45A5 /* Supporting Files */,
-			);
-			path = "network-service";
-			sourceTree = "<group>";
-		};
-		BEC4251A1791A85900CA45A5 /* Supporting Files */ = {
-			isa = PBXGroup;
-			children = (
-				BE293257179729C9001502D7 /* network-service.entitlements */,
-				BEC425201791A85900CA45A5 /* main.m */,
-				BEC4251B1791A85900CA45A5 /* network-service-Info.plist */,
-				BEC4251C1791A85900CA45A5 /* InfoPlist.strings */,
-				BEC4251F1791A85900CA45A5 /* network-service-Prefix.pch */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -272,7 +244,6 @@
 			children = (
 				BEFBDC70179C173E00AB0960 /* OpenDirectoryService.h */,
 				BEC425421792309D00CA45A5 /* FileService.h */,
-				BEC425271791A9B500CA45A5 /* NetworkService.h */,
 				BEC4252F1792005000CA45A5 /* AppProgress.h */,
 				BE2D96B817D222880076258A /* ODUserBridge.h */,
 			);
@@ -292,9 +263,6 @@
 		BEC425371792302A00CA45A5 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				BE29325517972994001502D7 /* file-service.entitlements */,
-				BE29322D1796F18B001502D7 /* NSString+StringSanitizer.h */,
-				BE29322E1796F18B001502D7 /* NSString+StringSanitizer.m */,
 				BEC4253D1792302A00CA45A5 /* main.m */,
 				BEC425381792302A00CA45A5 /* file-service-Info.plist */,
 				BEC425391792302A00CA45A5 /* InfoPlist.strings */,
@@ -324,13 +292,11 @@
 		BEFBDC61179C161F00AB0960 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				BE18C1C517D3BFEC00C92AF3 /* libTBXML.a */,
 				BE18C1C217D3BFDF00C92AF3 /* TBXML.h */,
 				BE18C1C317D3BFDF00C92AF3 /* TBXML.m */,
 				BEFBDC67179C161F00AB0960 /* main.m */,
 				BEFBDC62179C161F00AB0960 /* opendirectory-service-Info.plist */,
 				BEFBDC63179C161F00AB0960 /* InfoPlist.strings */,
-				BEFBDC75179C967800AB0960 /* opendirectory-service.entitlements */,
 				BEFBDC66179C161F00AB0960 /* opendirectory-service-Prefix.pch */,
 			);
 			name = "Supporting Files";
@@ -339,8 +305,6 @@
 		BEFBDC74179C95B000AB0960 /* Supporting Classes */ = {
 			isa = PBXGroup;
 			children = (
-				BEC425071791A80000CA45A5 /* AppDelegate.h */,
-				BEC425081791A80000CA45A5 /* AppDelegate.m */,
 				BE2D96B217D220540076258A /* ODUserError.h */,
 				BE2D96B317D220540076258A /* ODUserError.m */,
 				BE9625E31795A55800839C80 /* SSKeychain.h */,
@@ -369,23 +333,6 @@
 			productName = ODUserMaker;
 			productReference = BEC424F21791A7FF00CA45A5 /* ODUserMaker.app */;
 			productType = "com.apple.product-type.application";
-		};
-		BEC425151791A85900CA45A5 /* network-service */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = BEC425221791A85900CA45A5 /* Build configuration list for PBXNativeTarget "network-service" */;
-			buildPhases = (
-				BEC425121791A85900CA45A5 /* Sources */,
-				BEC425131791A85900CA45A5 /* Frameworks */,
-				BEC425141791A85900CA45A5 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = "network-service";
-			productName = "uploader-service";
-			productReference = BEC425161791A85900CA45A5 /* com.aapps.ODUserMaker.network-service.xpc */;
-			productType = "com.apple.product-type.bundle";
 		};
 		BEC425331792302A00CA45A5 /* file-service */ = {
 			isa = PBXNativeTarget;
@@ -443,7 +390,6 @@
 			projectRoot = "";
 			targets = (
 				BEC424F11791A7FF00CA45A5 /* ODUserMaker */,
-				BEC425151791A85900CA45A5 /* network-service */,
 				BEC425331792302A00CA45A5 /* file-service */,
 				BEFBDC5D179C161E00AB0960 /* opendirectory-service */,
 			);
@@ -460,15 +406,6 @@
 				BEC425061791A80000CA45A5 /* Credits.rtf in Resources */,
 				BEC4250C1791A80000CA45A5 /* MainMenu.xib in Resources */,
 				BE94E3CB1798E6830024C9E5 /* ODUserMaker.icns in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		BEC425141791A85900CA45A5 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				BEC4251E1791A85900CA45A5 /* InfoPlist.strings in Resources */,
-				BE293258179729C9001502D7 /* network-service.entitlements in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -503,18 +440,6 @@
 				BEC425471792451E00CA45A5 /* SecuredObjects.m in Sources */,
 				BE9625E51795A55800839C80 /* SSKeychain.m in Sources */,
 				BE2D96B417D220540076258A /* ODUserError.m in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		BEC425121791A85900CA45A5 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				BE9625E71795A74100839C80 /* SSKeychain.m in Sources */,
-				BEC425211791A85900CA45A5 /* main.m in Sources */,
-				BEC425291791A9B500CA45A5 /* NetworkService.m in Sources */,
-				BEC425481792451E00CA45A5 /* SecuredObjects.m in Sources */,
-				BE2D96B517D220540076258A /* ODUserError.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -569,14 +494,6 @@
 				BEC4250B1791A80000CA45A5 /* en */,
 			);
 			name = MainMenu.xib;
-			sourceTree = "<group>";
-		};
-		BEC4251C1791A85900CA45A5 /* InfoPlist.strings */ = {
-			isa = PBXVariantGroup;
-			children = (
-				BEC4251D1791A85900CA45A5 /* en */,
-			);
-			name = InfoPlist.strings;
 			sourceTree = "<group>";
 		};
 		BEC425391792302A00CA45A5 /* InfoPlist.strings */ = {
@@ -693,40 +610,6 @@
 			};
 			name = Release;
 		};
-		BEC425231791A85900CA45A5 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ENABLE_OBJC_ARC = YES;
-				CODE_SIGN_ENTITLEMENTS = "network-service/network-service.entitlements";
-				CODE_SIGN_IDENTITY = "Developer ID Application: Loyola University New Orleans School of Mass Comm (BUN87F4W87)";
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "network-service/network-service-Prefix.pch";
-				INFOPLIST_FILE = "network-service/network-service-Info.plist";
-				MACH_O_TYPE = mh_execute;
-				PRODUCT_NAME = "com.aapps.ODUserMaker.$(TARGET_NAME:rfc1034identifier)";
-				PROVISIONING_PROFILE = "";
-				WRAPPER_EXTENSION = xpc;
-			};
-			name = Debug;
-		};
-		BEC425241791A85900CA45A5 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ENABLE_OBJC_ARC = YES;
-				CODE_SIGN_ENTITLEMENTS = "network-service/network-service.entitlements";
-				CODE_SIGN_IDENTITY = "Developer ID Application: Loyola University New Orleans School of Mass Comm (BUN87F4W87)";
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "network-service/network-service-Prefix.pch";
-				INFOPLIST_FILE = "network-service/network-service-Info.plist";
-				MACH_O_TYPE = mh_execute;
-				PRODUCT_NAME = "com.aapps.ODUserMaker.$(TARGET_NAME:rfc1034identifier)";
-				PROVISIONING_PROFILE = "";
-				WRAPPER_EXTENSION = xpc;
-			};
-			name = Release;
-		};
 		BEC425401792302A00CA45A5 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -822,15 +705,6 @@
 			buildConfigurations = (
 				BEC425101791A80000CA45A5 /* Debug */,
 				BEC425111791A80000CA45A5 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		BEC425221791A85900CA45A5 /* Build configuration list for PBXNativeTarget "network-service" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				BEC425231791A85900CA45A5 /* Debug */,
-				BEC425241791A85900CA45A5 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

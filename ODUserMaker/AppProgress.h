@@ -9,8 +9,6 @@
 #import <Foundation/Foundation.h>
 #import "ODUserBridge.h"
 
-#define doSleep(fmt, ...)  [NSThread sleepUntilDate:[NSDate dateWithTimeIntervalSinceNow: fmt, ##__VA_ARGS__]];
-
 //Used by NSXPC services to send progress updates back to the main app
 
 @protocol Progress
