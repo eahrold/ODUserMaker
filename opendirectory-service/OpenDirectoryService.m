@@ -468,11 +468,11 @@ nsxpc_return:
 -(BOOL)getNode:(ODNode**)node forServer:(Server*)server withError:(NSError**)error{
     *node = [self getLocalServerNode:server.serverName];
     
-    if(!node){
+    if(!*node){
         *node = [self getRemServerNode:server];
     }
     
-    if(!node){
+    if(!*node){
         *error = [ODUserError errorWithCode:1 message:ODUMCantConnectToNodeMsg];
         return NO;
     }
@@ -550,10 +550,11 @@ nsxpc_return:
 //---------------------------------------------
 
 
--(void)checkServerStatus:(NSString*)server withReply:(void (^)(BOOL connected))reply{
-    BOOL connected = YES;
-    if(![self getLocalServerNode:server])
-        connected = NO;
+-(void)checkServerStatus:(NSString*)server withReply:(void (^)(OSStatus connected))reply{
+    OSStatus connected = 1;
+    if([self getLocalServerNode:server]){
+        connected = 0;        
+    }
     reply(connected);
 }
 

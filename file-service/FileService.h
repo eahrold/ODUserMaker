@@ -8,9 +8,7 @@
 
 #import <Cocoa/Cocoa.h>
 #import <Foundation/Foundation.h>
-
 #import "ODUserBridge.h"
-#import "NSString+StringSanitizer.h"
 
 
 @protocol FileService

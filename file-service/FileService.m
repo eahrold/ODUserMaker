@@ -7,6 +7,7 @@
 //
 
 #import "FileService.h"
+#import "NSString+StringSanitizer.h"
 
 @implementation FileService
 
@@ -218,18 +219,19 @@ nsxpc_return:
 //  Save Panel
 //------------------------------------------------
 
--(NSURL*)getURLFromSavePanel{
-    NSURL* url;
-    NSSavePanel *savePanel = [NSSavePanel savePanel];
-    [savePanel setAllowedFileTypes:[NSArray arrayWithObject:@"txt"]];
-    [savePanel setNameFieldStringValue:@"dsimport.txt"];
-    
-    if([savePanel runModal] == NSOKButton){
-        url = [savePanel URL];
-    }
-    
-    return url;
-}
+//-(NSURL*)getURLFromSavePanel{
+//    NSURL* url;
+//    NSSavePanel *savePanel = [NSSavePanel savePanel];
+//    [savePanel setAllowedFileTypes:[NSArray arrayWithObject:@"txt"]];
+//    [savePanel setNameFieldStringValue:@"dsimport.txt"];
+//    
+//    if([savePanel runModal] == NSOKButton){
+//        url = [savePanel URL];
+//    }
+//    
+//    return url;
+//}
+
 //------------------------------------------------
 //  Common Items
 //------------------------------------------------

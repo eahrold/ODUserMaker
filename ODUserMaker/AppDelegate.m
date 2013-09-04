@@ -9,20 +9,12 @@
 #import "AppDelegate.h"
 #import "SSKeychain.h"
 #import "OpenDirectoryService.h"
-#import "AppProgress.h"
+#import "ODUserBridge.h"
 
 static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check whether to quit
 
 @implementation AppDelegate
 
-
--(void)bgRunner:(void*)method withTimer:(int)timer{
-    [NSTimer scheduledTimerWithTimeInterval:timer
-                                     target:self
-                                   selector:@selector(method)
-                                   userInfo:nil
-                                    repeats:YES];
-}
 
 //-------------------------------
 //  Directory Sever 
@@ -46,20 +38,22 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
 
 
 -(void)getDSStatus{
-    self.dsStatus = @"Checking for Directory Server...";
-
     NSXPCConnection* connection = [[NSXPCConnection alloc] initWithServiceName:kDirectoryServiceName];
     connection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(OpenDirectoryService)];
     connection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
     connection.exportedObject = self;
     [connection resume];
-    [[connection remoteObjectProxy] checkServerStatus:_serverName.stringValue withReply:^(BOOL connected) {
+    [[connection remoteObjectProxy] checkServerStatus:_serverName.stringValue withReply:^(OSStatus connected) {
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-            if(connected){
-              self.dsStatus = [NSString stringWithFormat:@"Connected to %@",self.serverName.stringValue];
+            NSColor* tc;
+            if(connected == 0){
+                tc = [NSColor colorWithCalibratedRed:0.0 green:0.7 blue:0.0 alpha:1.0];
+            }else if (connected == 1){
+                tc = [NSColor colorWithCalibratedRed:0.7 green:0.6 blue:0.0 alpha:1.0];
             }else{
-                self.dsStatus = @"Not Connected to server";
+                tc = [NSColor redColor];
             }
+         [_dsStatusTF setTextColor:tc];
         }];
         [connection invalidate];
     }];
@@ -273,7 +267,10 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
 {
     // Insert code here to initialize your application
     [self getUserPreferences];
+    [self getDSStatus];
     [self checkCredentials];
+
+
 }
 
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication* )theApplication{

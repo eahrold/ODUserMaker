@@ -8,12 +8,13 @@
 
 #import "ODUserError.h"
 
+
 @implementation ODUserError
 
 + (NSError*) errorWithCode:(NSInteger)code message:(NSString*)msg
 {
     NSDictionary* info = [NSDictionary dictionaryWithObjectsAndKeys:msg, NSLocalizedDescriptionKey, nil];
-    return [self errorWithDomain:@"ODUserError" code:code userInfo:info];
+    return [self errorWithDomain:ODUMDomain code:code userInfo:info];
 }
 
 @end

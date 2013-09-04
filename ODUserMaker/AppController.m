@@ -9,8 +9,7 @@
 #import "AppController.h"
 #import "FileService.h"
 #import "OpenDirectoryService.h"
-#import "AppProgress.h"
-#import "SSKeychain.h"
+#import "ODUserBridge.h"
 
 @implementation AppController
 
@@ -47,6 +46,9 @@
     
     //do get other groups...
     
+    for (NSString* i in _groupEntries.itemTitles){
+        [ug addObject:i];
+    }
     //then...
     NSArray* userGroups = [NSArray arrayWithArray:ug];
     
@@ -335,6 +337,16 @@
     }
 }
 
+-(IBAction)addGroupForUser:(id)sender{
+    [_groupEntries insertItemWithTitle:[_serverGroupListSingleUser titleOfSelectedItem] atIndex:0];
+    [_groupEntries selectItemAtIndex:0];
+}
+
+-(IBAction)removeGroupForUser:(id)sender{
+    if( _groupEntries.indexOfSelectedItem > -1){
+        [_groupEntries removeItemAtIndex:[_groupEntries indexOfSelectedItem]];
+    }
+}
 
 -(IBAction)addGroupMatchEntry:(id)sender{
     NSString* match = [_fileClassList stringValue];
@@ -347,7 +359,7 @@
         return;
 
     NSDictionary * dict = [NSDictionary dictionaryWithObjectsAndKeys:[NSString stringWithFormat:@"%@:%@",group,match],@"description",group, @"group", match, @"match", nil];
-    
+
     [groups addObject:dict];
     [groups sortUsingDescriptors:[NSArray arrayWithObjects:[NSSortDescriptor sortDescriptorWithKey:@"group" ascending:YES], nil]];
     
@@ -356,8 +368,10 @@
 
 
 -(IBAction)removeGroupMatchEntry:(id)sender{
-    [groups removeObjectAtIndex:[_groupMatchEntries indexOfSelectedItem]];
-    [arrayController setContent:groups];
+    if(_groupMatchEntries.indexOfSelectedItem > -1){
+        [groups removeObjectAtIndex:[_groupMatchEntries indexOfSelectedItem]];
+        [arrayController setContent:groups];
+    }
 }
 
 //-------------------------------------------

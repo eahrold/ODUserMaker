@@ -39,6 +39,7 @@
 @property (assign) IBOutlet NSTextField *diradminName;
 @property (assign) IBOutlet NSTextField *diradminPass;
 
+@property (assign) IBOutlet NSTextField *dsStatusTF;
 @property (assign) NSString *dsStatus;  // <----     this is bound
 
 

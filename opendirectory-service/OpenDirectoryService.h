@@ -9,7 +9,6 @@
 #import <Cocoa/Cocoa.h>
 #import <Foundation/Foundation.h>
 #import <OpenDirectory/OpenDirectory.h>
-
 #import "ODUserBridge.h"
 
 
@@ -41,7 +40,7 @@
 -(void)checkCredentials:(Server*)server withReply:(void (^)(BOOL authenticated))reply;
 
 -(void)checkServerStatus:(NSString*)server
-               withReply:(void (^)(BOOL connected))reply;
+               withReply:(void (^)(OSStatus connected))reply;
 
 
 @end

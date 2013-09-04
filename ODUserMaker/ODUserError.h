@@ -7,10 +7,11 @@
 //
 #import <Foundation/Foundation.h>
 
+/* set up domain */
+#define ODUMDomain @"com.aapps.ODUserMaker"
 
 @interface ODUserError : NSError
 + (NSError*) errorWithCode:(NSInteger)rc message:(NSString*)msg;
-
 @end
 
 #define SET_ERROR(rc, msg...)\

@@ -7,7 +7,6 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "ODUserBridge.h"
 
 //Used by NSXPC services to send progress updates back to the main app
 

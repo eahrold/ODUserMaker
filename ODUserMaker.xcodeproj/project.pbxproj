@@ -447,11 +447,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BE085A63179346020079DFE9 /* SecuredObjects.m in Sources */,
 				BEC4253E1792302A00CA45A5 /* main.m in Sources */,
 				BE29322C17965D99001502D7 /* FileService.m in Sources */,
 				BE29322F1796F18B001502D7 /* NSString+StringSanitizer.m in Sources */,
 				BE2D96B617D220540076258A /* ODUserError.m in Sources */,
+				BE085A63179346020079DFE9 /* SecuredObjects.m in Sources */,
 				BE18C1CB17D40CAE00C92AF3 /* NSString+uuidFromString.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -460,8 +460,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BEFBDC73179C5D1600AB0960 /* SecuredObjects.m in Sources */,
 				BEFBDC68179C161F00AB0960 /* main.m in Sources */,
+				BEFBDC73179C5D1600AB0960 /* SecuredObjects.m in Sources */,
 				BEFBDC6F179C16E200AB0960 /* OpenDirectoryService.m in Sources */,
 				BE2D96B717D220540076258A /* ODUserError.m in Sources */,
 				BE18C1C417D3BFDF00C92AF3 /* TBXML.m in Sources */,

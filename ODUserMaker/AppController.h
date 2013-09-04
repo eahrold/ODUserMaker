@@ -97,6 +97,8 @@
 - (IBAction)addGroupMatchEntry:(id)sender;
 - (IBAction)removeGroupMatchEntry:(id)sender;
 
+- (IBAction)addGroupForUser:(id)sender;
+- (IBAction)removeGroupForUser:(id)sender;
 
 
 @end
