@@ -366,21 +366,35 @@ nsxpc_return:
     reply(userList,error);
 }
 
--(void)checkCredentials:(Server*)server withReply:(void (^)(BOOL authenticated))reply{
-    BOOL authenticated = NO;
-    NSError *error = nil;
+-(void)checkCredentials:(Server*)server withReply:(void (^)(OSStatus authenticated))reply{
+    // here are the status returns
+    // -1 No Node
+    // -2 locally connected, but wrong password
+    // -3 proxy but wrong auth password
+    // 0 Authenticated locally
+    // 1 Authenticated over proxy
+    
+    OSStatus status = -1;
     ODNode *node;
     
-    [self getNode:&node forServer:server withError:&error];
-    
-    if(!node){
-        goto nsxpc_return;        
+    node = [self getLocalServerNode:server.serverName];
+
+    if(node){
+        if([node setCredentialsWithRecordType:nil recordName:server.diradminName password:server.diradminPass error:nil]){
+            status = 0;
+        }else{
+            status = -2;
+        }
+    }else{
+        node = [self getRemServerNode:server];
+        if(node){
+            status = 1;
+        }else{
+            status = -3;
+        }
     }
-    
-    authenticated = [node setCredentialsWithRecordType:nil recordName:server.diradminName password:server.diradminPass error:nil];
-    
-nsxpc_return:
-    reply(authenticated);
+   
+reply(status);
 }
 
 //---------------------------------------------
@@ -496,8 +510,13 @@ nsxpc_return:
 
 
 -(ODNode*)getRemServerNode:(Server*)server{
-    
     NSError* error = nil;
+    
+    if(!server.serverName || !server.diradminName || !server.diradminPass){
+        return nil;
+        NSLog(@"We were lacking some bit of information need for the proxy connection");
+    }
+    
     NSDictionary* settings = [NSDictionary dictionaryWithObjectsAndKeys:server.serverName,ODSessionProxyAddress,@"0",ODSessionProxyPort,server.diradminName,ODSessionProxyUsername,server.diradminPass,ODSessionProxyPassword, nil];
     
     ODSession *session = [ODSession sessionWithOptions:settings error:&error];

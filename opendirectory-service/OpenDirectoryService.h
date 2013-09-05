@@ -37,7 +37,7 @@
 
 
 /* methods for status checking */
--(void)checkCredentials:(Server*)server withReply:(void (^)(BOOL authenticated))reply;
+-(void)checkCredentials:(Server*)server withReply:(void (^)(OSStatus authenticated))reply;
 
 -(void)checkServerStatus:(NSString*)server
                withReply:(void (^)(OSStatus connected))reply;

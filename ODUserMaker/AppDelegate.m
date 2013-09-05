@@ -172,15 +172,30 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
     connection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
     connection.exportedObject = self;
     [connection resume];
-    [[connection remoteObjectProxy] checkCredentials:server withReply:^(BOOL authenticated) {
+    [[connection remoteObjectProxy] checkCredentials:server withReply:^(OSStatus status) {
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-            if(authenticated){
-                self.dsStatus = @"The the username and password are correct";
+            // here are the status returns
+            // -1 No Node
+            // -2 locally connected, but wrong password
+            // -3 proxy but wrong auth password
+            // 0 Authenticated locally
+            // 1 Authenticated over proxy
+           
+            if(status == -1){
+            }else if (status == -2){
+                self.dsStatus = @"Locally connected, but username or password are incorrect";
+            }else if (status == -3){
+                self.dsStatus = @"Can reach proxy server, but username or password are incorrect";
+            }else if (status == 0){
+                self.dsStatus = @"The the username and password are correct, connected locally";
                 [self getDSUserPresets];
                 [self getDSGroupList];
                 [self getDSUserList];
-            }else{
-               self.dsStatus = @"The the username and password are not correct";
+            }else if (status == 1){
+                self.dsStatus = @"The the username and password are correct, connected over proxy";
+                [self getDSUserPresets];
+                [self getDSGroupList];
+                [self getDSUserList];
             }
         }];
         [connection invalidate];
@@ -226,7 +241,7 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
     
 }
 
--(void)getUserPreferences{
+-(BOOL)getUserPreferences{
     NSUserDefaults* getDefaults = [NSUserDefaults standardUserDefaults];
     
     [self tryToSetIBOutlet:_serverName withSetting:[getDefaults stringForKey:@"serverName"]];
@@ -239,7 +254,8 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
         [self getKeychainPass];
     }
     if([_defaultGroup.stringValue isEqualToString:@""])
-        self.defaultGroup.stringValue = @"20";        
+        self.defaultGroup.stringValue = @"20";
+    return YES;
 }
 
 -(void)getKeychainPass{
@@ -266,9 +282,9 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
 - (void)applicationDidFinishLaunching:(NSNotification* )aNotification
 {
     // Insert code here to initialize your application
-    [self getUserPreferences];
-    [self getDSStatus];
-    [self checkCredentials];
+    if([self getUserPreferences]){
+        [self checkCredentials];
+    }
 
 
 }
