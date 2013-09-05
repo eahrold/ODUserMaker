@@ -524,7 +524,7 @@ nsxpc_return:
     // get the afp home directory record and parse it out
     ODRecord* record = [self getPresetRecord:user.userPreset ForNode:node];
     if(!record){
-        [ODUserError errorWithCode:1 message:ODUMPresetNotFoundMsg];
+        *error = [ODUserError errorWithCode:1 message:ODUMPresetNotFoundMsg];
         return NO;
     }else{
         NSString *afph = [[record valuesForAttribute:kODAttributeTypeHomeDirectory error:nil]objectAtIndex:0];
