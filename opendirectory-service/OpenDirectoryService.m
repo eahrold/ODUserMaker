@@ -150,6 +150,7 @@ nsxpc_return:
     ODRecord* userRecord;
     
     [self getAuthenticatedNode:&node forServer:server withError:&error];
+    
     if(error){
         goto nsxpc_return;
     }
@@ -448,10 +449,10 @@ nsxpc_return:
         if it's not then connect via a proxy */
     *node = [self getLocalServerNode:server.serverName];
     
-    if(!node){
+    if(!*node){
         *node = [self getRemServerNode:server];
     }
-    if(!node){
+    if(!*node){
         *error = [ODUserError errorWithCode:1 message:ODUMCantConnectToNodeMsg];
         return NO;
     }
