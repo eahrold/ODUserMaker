@@ -80,7 +80,6 @@ nsxpc_return:
     NSMutableSet* problemAdding = [NSMutableSet new];
 
 
-    
     [self getAuthenticatedNode:&node forServer:server withError:&error];
     if(error){
         goto nsxpc_return;
@@ -104,11 +103,10 @@ nsxpc_return:
         user.lastName = [dict objectForKey:@"lastName"];
         user.userCWID = [dict objectForKey:@"userCWID"];
         
-        user.userUUID = nil; // <-- null this out since the UUID's not in the list
+        user.userUUID = nil; // <-- null this out since the UUID's not used when importing a list of uses...
         
         progress = [NSString stringWithFormat:@"Adding %ld/%ld: %@...",(long)pgcount,(long)count,user.userName];
-        [[self.xpcConnection remoteObjectProxy] setProgressMsg:progress];
-        [[self.xpcConnection remoteObjectProxy] setProgress:pgdouble];
+        [[self.xpcConnection remoteObjectProxy] setProgress:pgdouble withMessage:progress];
 
         userRecord = [self getUserRecord:user.userName withNode:node];
         if(userRecord){
@@ -376,20 +374,23 @@ nsxpc_return:
     
     OSStatus status = -1;
     ODNode *node;
+    NSError* error = nil;
     
-    node = [self getLocalServerNode:server.serverName];
-
+    node = [self getLocalServerNode:server.serverName error:&error];
     if(node){
         if([node setCredentialsWithRecordType:nil recordName:server.diradminName password:server.diradminPass error:nil]){
             status = 0;
         }else{
             status = -2;
+            NSLog(@"Local Node error: %@",error.localizedDescription);
+
         }
     }else{
-        node = [self getRemServerNode:server];
+        node = [self getRemServerNode:server error:&error];
         if(node){
             status = 1;
         }else{
+            NSLog(@"Proxy Node Error: %@",error.localizedDescription);
             status = -3;
         }
     }
@@ -461,10 +462,10 @@ reply(status);
 -(BOOL)getAuthenticatedNode:(ODNode**)node forServer:(Server*)server withError:(NSError**)error{
     /* first try to get node if this computer is bound to directory
         if it's not then connect via a proxy */
-    *node = [self getLocalServerNode:server.serverName];
+    *node = [self getLocalServerNode:server.serverName error:&*error];
     
     if(!*node){
-        *node = [self getRemServerNode:server];
+        *node = [self getRemServerNode:server error:&*error];
     }
     if(!*node){
         *error = [ODUserError errorWithCode:1 message:ODUMCantConnectToNodeMsg];
@@ -481,10 +482,10 @@ reply(status);
 
 
 -(BOOL)getNode:(ODNode**)node forServer:(Server*)server withError:(NSError**)error{
-    *node = [self getLocalServerNode:server.serverName];
+    *node = [self getLocalServerNode:server.serverName error:&*error];
     
     if(!*node){
-        *node = [self getRemServerNode:server];
+        *node = [self getRemServerNode:server error:&*error];
     }
     
     if(!*node){
@@ -495,13 +496,10 @@ reply(status);
 }
 
 
--(ODNode*)getLocalServerNode:(NSString*) serverName{
+-(ODNode*)getLocalServerNode:(NSString*)serverName error:(NSError**)error{
     ODSession *session = [ODSession defaultSession];
-    
-    NSError *error;
     NSString *ldap = [NSString stringWithFormat:@"/LDAPv3/%@",serverName];
-    ODNode *node = [ODNode nodeWithSession:session name:ldap error:&error];
-        
+    ODNode *node = [ODNode nodeWithSession:session name:ldap error:&*error];
     if(!node){
         return nil;
     }
@@ -509,8 +507,7 @@ reply(status);
 }
 
 
--(ODNode*)getRemServerNode:(Server*)server{
-    NSError* error = nil;
+-(ODNode*)getRemServerNode:(Server*)server error:(NSError**)error{
     
     if(!server.serverName || !server.diradminName || !server.diradminPass){
         return nil;
@@ -519,15 +516,15 @@ reply(status);
     
     NSDictionary* settings = [NSDictionary dictionaryWithObjectsAndKeys:server.serverName,ODSessionProxyAddress,@"0",ODSessionProxyPort,server.diradminName,ODSessionProxyUsername,server.diradminPass,ODSessionProxyPassword, nil];
     
-    ODSession *session = [ODSession sessionWithOptions:settings error:&error];
+    ODSession *session = [ODSession sessionWithOptions:settings error:&*error];
     
-    if(error){
-        NSLog(@"%@",[error localizedDescription]);
+    if(*error){
+        NSLog(@"%@",[*error localizedDescription]);
         return nil;
     }
     
     NSString *ldap = [NSString stringWithFormat:@"/LDAPv3/127.0.0.1"];
-    ODNode *node = [ODNode nodeWithSession:session name:ldap error:&error];
+    ODNode *node = [ODNode nodeWithSession:session name:ldap error:&*error];
     
     if(!node){
         return nil;
@@ -572,12 +569,13 @@ reply(status);
 
 -(void)checkServerStatus:(NSString*)server withReply:(void (^)(OSStatus connected))reply{
     OSStatus connected = 1;
-    if([self getLocalServerNode:server]){
+    NSError* error = nil;
+    
+    if([self getLocalServerNode:server error:&error]){
         connected = 0;        
     }
     reply(connected);
 }
-
 
 
 //---------------------------------

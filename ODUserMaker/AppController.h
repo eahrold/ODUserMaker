@@ -38,9 +38,8 @@
 //---------------------------------------------------
 @property (assign) IBOutlet NSPopUpButton *serverUserList;
 @property (assign) IBOutlet NSComboBox *userList;
-
-@property (assign) IBOutlet NSTextField   *passWord;
 @property (assign) IBOutlet NSTextField   *statusUpdate;
+@property (assign) IBOutlet NSTextField   *passWord;
 
 
 //---------------------------------------------------

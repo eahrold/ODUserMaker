@@ -24,7 +24,8 @@
 //---------------------------------------------------
 // Password Reset
 //---------------------------------------------------
-@property (assign) IBOutlet NSPopUpButton *serverUserList;
+@property (assign) IBOutlet NSComboBox *userList;
+@property (assign) IBOutlet NSTextField   *statusUpdate;
 
 //---------------------------------------------------
 //  Server items
@@ -33,6 +34,8 @@
 @property (assign) IBOutlet NSButton *dsServerStatus;
 @property (assign) IBOutlet NSButton *refreshPreset;
 @property (assign) IBOutlet NSProgressIndicator *presetStatus;
+@property (assign) IBOutlet NSProgressIndicator *userListStatus;
+
 
 
 @property (assign) IBOutlet NSTextField *serverName;
@@ -58,8 +61,7 @@
 //  delegate items
 //---------------------------------------------------
 
-@property (nonatomic, assign) BOOL quitThread;
 @property (assign) IBOutlet NSWindow *window;
-
+@property (assign) BOOL authenticated;
 
 @end

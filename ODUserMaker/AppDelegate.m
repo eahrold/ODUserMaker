@@ -33,7 +33,7 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
 }
 
 - (IBAction)refreshUserPreferences:(id)sender{
-    [self getDSUserPresets];
+    [self checkCredentials];
 }
 
 
@@ -62,12 +62,6 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
 
 
 -(void)getDSUserPresets{
-    [_refreshPreset setHidden:YES];
-    [_presetStatus startAnimation:self];
-
-    [_userPreset removeAllItems];
-    [_userPreset addItemWithTitle:@"Getting Presets..."];
-
     Server* server = [Server new];
     server.serverName = _serverName.stringValue;
     server.diradminPass = _diradminPass.stringValue;
@@ -85,8 +79,6 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
                 NSSortDescriptor* sortOrder = [NSSortDescriptor sortDescriptorWithKey: @"self" ascending: NO];
                 [_userPreset addItemsWithTitles:[pArray sortedArrayUsingDescriptors: [NSArray arrayWithObject: sortOrder]]];
             }
-            [_refreshPreset setHidden:NO];
-            [_presetStatus stopAnimation:self];
         }];
         [connection invalidate];
     }];
@@ -122,9 +114,11 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
 }
 
 -(void)getDSUserList{
-    [_serverUserList removeAllItems];
-    [_serverUserList addItemWithTitle:@"Getting List of Users..."];
+    [_userListStatus setHidden:NO];
+    [_userListStatus startAnimation:self];
     
+    [_statusUpdate setStringValue:@"Getting user List..."];
+        
     Server* server = [Server new];
     server.serverName = _serverName.stringValue;
     server.diradminPass = _diradminPass.stringValue;
@@ -137,11 +131,15 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
     [connection resume];
     [[connection remoteObjectProxy] getUserListFromServer:server withReply:^(NSArray *uArray, NSError *error) {
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-            [_serverUserList removeAllItems];
+            [_statusUpdate setStringValue:@""];
+            [_userListStatus setHidden:YES];
+            [_userListStatus stopAnimation:self];
             if(!error){
-                NSSortDescriptor* sortOrder = [NSSortDescriptor sortDescriptorWithKey: @"self" ascending: NO];
-                [_serverUserList addItemsWithTitles:[uArray sortedArrayUsingDescriptors: [NSArray arrayWithObject: sortOrder]]];
-                [dsUserArrayController setContent:uArray];
+                NSSortDescriptor* sortOrder = [NSSortDescriptor sortDescriptorWithKey: @"self" ascending: YES];
+                NSArray* a = [uArray sortedArrayUsingDescriptors:[NSArray arrayWithObject:sortOrder]];
+                [_userList addItemsWithObjectValues:a];
+                [_userList setStringValue:[a objectAtIndex:0]];
+
             }
         }];
         [connection invalidate];
@@ -159,6 +157,12 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
         return;
     }
     
+    [_refreshPreset setHidden:YES];
+    [_presetStatus startAnimation:self];
+    
+    [_userPreset removeAllItems];
+    [_userPreset addItemWithTitle:@"Getting Presets..."];
+
     
     self.dsStatus = @"Checking user credentials";
 
@@ -174,25 +178,36 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
     [connection resume];
     [[connection remoteObjectProxy] checkCredentials:server withReply:^(OSStatus status) {
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            [_refreshPreset setHidden:NO];
+            [_presetStatus stopAnimation:self];
             // here are the status returns
             // -1 No Node
             // -2 locally connected, but wrong password
             // -3 proxy but wrong auth password
             // 0 Authenticated locally
             // 1 Authenticated over proxy
-           
+            if(status < 0 ){
+                [_dsServerStatus setImage:[NSImage imageNamed:@"connected-offline.tiff"]];
+                
+            }
             if(status == -1){
             }else if (status == -2){
+                _authenticated = NO;
                 self.dsStatus = @"Locally connected, but username or password are incorrect";
             }else if (status == -3){
-                self.dsStatus = @"Can reach proxy server, but username or password are incorrect";
+                _authenticated = NO;
+                self.dsStatus = @"We could not connect to the server.";
             }else if (status == 0){
-                self.dsStatus = @"The the username and password are correct, connected locally";
+                _authenticated = YES;
+                self.dsStatus = @"The the username and password are correct, connected locally.";
+                [_dsServerStatus setImage:[NSImage imageNamed:@"connected-local.tiff"]];
                 [self getDSUserPresets];
                 [self getDSGroupList];
                 [self getDSUserList];
             }else if (status == 1){
+                _authenticated = YES;
                 self.dsStatus = @"The the username and password are correct, connected over proxy";
+                [_dsServerStatus setImage:[NSImage imageNamed:@"connected-proxy.tiff"]];
                 [self getDSUserPresets];
                 [self getDSGroupList];
                 [self getDSUserList];
@@ -243,7 +258,6 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
 
 -(BOOL)getUserPreferences{
     NSUserDefaults* getDefaults = [NSUserDefaults standardUserDefaults];
-    
     [self tryToSetIBOutlet:_serverName withSetting:[getDefaults stringForKey:@"serverName"]];
     [self tryToSetIBOutlet:_defaultGroup withSetting:[getDefaults stringForKey:@"defaultGroup"]];
     [self tryToSetIBOutlet:_diradminName withSetting:[getDefaults stringForKey:@"diradminName"]];
@@ -282,12 +296,14 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
 - (void)applicationDidFinishLaunching:(NSNotification* )aNotification
 {
     // Insert code here to initialize your application
+    _authenticated = NO;
     if([self getUserPreferences]){
         [self checkCredentials];
     }
 
 
 }
+
 
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication* )theApplication{
     return YES;

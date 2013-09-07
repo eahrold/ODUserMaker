@@ -33,6 +33,9 @@
 		BEC4253B1792302A00CA45A5 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = BEC425391792302A00CA45A5 /* InfoPlist.strings */; };
 		BEC4253E1792302A00CA45A5 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = BEC4253D1792302A00CA45A5 /* main.m */; };
 		BEC425471792451E00CA45A5 /* SecuredObjects.m in Sources */ = {isa = PBXBuildFile; fileRef = BEC425461792451E00CA45A5 /* SecuredObjects.m */; };
+		BEEC31A617DAC74400209514 /* connected-local.tiff in Resources */ = {isa = PBXBuildFile; fileRef = BEEC31A317DAC74400209514 /* connected-local.tiff */; };
+		BEEC31A717DAC74400209514 /* connected-offline.tiff in Resources */ = {isa = PBXBuildFile; fileRef = BEEC31A417DAC74400209514 /* connected-offline.tiff */; };
+		BEEC31A817DAC74400209514 /* connected-proxy.tiff in Resources */ = {isa = PBXBuildFile; fileRef = BEEC31A517DAC74400209514 /* connected-proxy.tiff */; };
 		BEFBDC5F179C161F00AB0960 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BEC425171791A85900CA45A5 /* Foundation.framework */; };
 		BEFBDC65179C161F00AB0960 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = BEFBDC63179C161F00AB0960 /* InfoPlist.strings */; };
 		BEFBDC68179C161F00AB0960 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = BEFBDC67179C161F00AB0960 /* main.m */; };
@@ -101,6 +104,9 @@
 		BEC425431792309D00CA45A5 /* FileService.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FileService.m; sourceTree = "<group>"; };
 		BEC425451792451E00CA45A5 /* SecuredObjects.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SecuredObjects.h; path = ODUserMaker/SecuredObjects.h; sourceTree = "<group>"; };
 		BEC425461792451E00CA45A5 /* SecuredObjects.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SecuredObjects.m; path = ODUserMaker/SecuredObjects.m; sourceTree = "<group>"; };
+		BEEC31A317DAC74400209514 /* connected-local.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = "connected-local.tiff"; sourceTree = "<group>"; };
+		BEEC31A417DAC74400209514 /* connected-offline.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = "connected-offline.tiff"; sourceTree = "<group>"; };
+		BEEC31A517DAC74400209514 /* connected-proxy.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = "connected-proxy.tiff"; sourceTree = "<group>"; };
 		BEFBDC5E179C161E00AB0960 /* com.aapps.ODUserMaker.opendirectory-service.xpc */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "com.aapps.ODUserMaker.opendirectory-service.xpc"; sourceTree = BUILT_PRODUCTS_DIR; };
 		BEFBDC62179C161F00AB0960 /* opendirectory-service-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "opendirectory-service-Info.plist"; sourceTree = "<group>"; };
 		BEFBDC64179C161F00AB0960 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -229,6 +235,9 @@
 		BEC424FC1791A80000CA45A5 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				BEEC31A317DAC74400209514 /* connected-local.tiff */,
+				BEEC31A417DAC74400209514 /* connected-offline.tiff */,
+				BEEC31A517DAC74400209514 /* connected-proxy.tiff */,
 				BEC425011791A80000CA45A5 /* main.m */,
 				BEC424FD1791A80000CA45A5 /* ODUserMaker-Info.plist */,
 				BEC424FE1791A80000CA45A5 /* InfoPlist.strings */,
@@ -406,6 +415,9 @@
 				BEC425061791A80000CA45A5 /* Credits.rtf in Resources */,
 				BEC4250C1791A80000CA45A5 /* MainMenu.xib in Resources */,
 				BE94E3CB1798E6830024C9E5 /* ODUserMaker.icns in Resources */,
+				BEEC31A617DAC74400209514 /* connected-local.tiff in Resources */,
+				BEEC31A717DAC74400209514 /* connected-offline.tiff in Resources */,
+				BEEC31A817DAC74400209514 /* connected-proxy.tiff in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -579,7 +591,7 @@
 			buildSettings = {
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CODE_SIGN_ENTITLEMENTS = ODUserMaker/ODUserMaker.entitlements;
-				CODE_SIGN_IDENTITY = "Developer ID Application: Loyola University New Orleans School of Mass Comm (BUN87F4W87)";
+				CODE_SIGN_IDENTITY = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "ODUserMaker/ODUserMaker-Prefix.pch";
@@ -615,7 +627,7 @@
 			buildSettings = {
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CODE_SIGN_ENTITLEMENTS = "file-service/file-service.entitlements";
-				CODE_SIGN_IDENTITY = "Developer ID Application: Loyola University New Orleans School of Mass Comm (BUN87F4W87)";
+				CODE_SIGN_IDENTITY = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "file-service/file-service-Prefix.pch";
@@ -649,7 +661,7 @@
 			buildSettings = {
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CODE_SIGN_ENTITLEMENTS = "opendirectory-service/opendirectory-service.entitlements";
-				CODE_SIGN_IDENTITY = "Developer ID Application: Loyola University New Orleans School of Mass Comm (BUN87F4W87)";
+				CODE_SIGN_IDENTITY = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "opendirectory-service/opendirectory-service-Prefix.pch";
