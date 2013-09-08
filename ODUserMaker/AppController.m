@@ -18,6 +18,14 @@
 //-----------------------------------------------------------
 
 - (IBAction)makeSingleUserPressed:(id)sender{
+    NSError* error = nil;
+    
+    if(!_dsServerStatus.state){
+        error = [ODUserError errorWithCode:ODUMNotAuthenticated];
+        [self showErrorAlert:error];
+        return;
+    }
+    
     NSArray* requiredFields = [NSArray arrayWithObjects:_firstName,_lastName,_userName,_userCWID,_emailDomain,_defaultGroup, nil];
     
     for (NSTextField* i in requiredFields){
@@ -113,6 +121,12 @@
 //-----------------------------------------------------------
 - (IBAction)makeMultiUserPressed:(id)sender{
     NSError* error = nil;
+    if(!_dsServerStatus.state){
+        error = [ODUserError errorWithCode:ODUMNotAuthenticated];
+        [self showErrorAlert:error];
+        return;
+    }
+    
     [self startProgressPanelWithMessage:@"Adding List of Users..." indeterminate:YES];
 
     /*set up the user object*/
@@ -176,11 +190,12 @@
 -(void)addListOfUsers:(NSArray*)list usingPresetsIn:(User*)user toServer:(Server*)server andGroups:(NSArray*)userGroups{
     NSString* progress = [NSString stringWithFormat:@"adding %lu users to %@...", (unsigned long)[list count], server.serverName];
     [self startProgressPanelWithMessage:progress indeterminate:NO];
-    
+
     NSXPCConnection* connection = [[NSXPCConnection alloc] initWithServiceName:kDirectoryServiceName];
     connection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(OpenDirectoryService)];
     connection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
     connection.exportedObject = self;
+
     [connection resume];
     [[connection remoteObjectProxy] addListOfUsers:list usingPresetsIn:user toServer:server andGroups:userGroups withReply:^(NSError *error) {
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
@@ -275,7 +290,13 @@
 //  Password Reset
 //-------------------------------------------
 - (IBAction)resetPasswordPressed:(id)sender{
+    NSError* error = nil;
     
+    if(!_dsServerStatus.state){
+        error = [ODUserError errorWithCode:ODUMNotAuthenticated];
+        [self showErrorAlert:error];
+        return;
+    }
     /* Set up the User Object */
     User* user = [User new];
     user.userName = [_userList stringValue];
@@ -303,6 +324,7 @@
 }
 
 -(void)resetUserPassword:(User*)user onServer:(Server*)server{
+    _statusUpdate.stringValue = @"";
     NSXPCConnection* connection = [[NSXPCConnection alloc] initWithServiceName:kDirectoryServiceName];
     connection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(OpenDirectoryService)];
     connection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
@@ -432,6 +454,7 @@
     }];
 }
 
+
 - (void)setProgress:(double)progress withMessage:(NSString*)message {
     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
         [self.progressIndicator incrementBy:progress];
@@ -443,7 +466,7 @@
     self.progressMessage = message;
 }
 
-- (IBAction)cancel:(id)sender {
+- (IBAction)cancel:(id)sender{
     [self.progressPanel orderOut:self];
     [NSApp endSheet:self.progressPanel returnCode:1];
 }

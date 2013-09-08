@@ -31,7 +31,7 @@
     
     userRecord = [self getUserRecord:user.userName withNode:node];
     if(userRecord){
-        SET_ERROR(1, ODUMUserAlreadyExistsMsg);
+        [ODUserError errorWithCode:ODUMUserAlreadyExists];
         goto update_group;
     }
     
@@ -52,13 +52,17 @@ update_group:
         [[self.xpcConnection remoteObjectProxy] setProgressMsg:progress];
 
         ODRecord* groupRecord = [self getGroupRecord:g withNode:node];
+        if(groupRecord){
         [groupRecord addMemberRecord:userRecord error:&gerror];
+        }else{
+            gerror = [ODUserError errorWithCode:ODUMGroupNotFound];
+        }
     }
  
     if(error && gerror){
-        SET_ERROR(1, ODUMCantAddUserToServerOrGroupMSG);
+       [ODUserError errorWithCode:ODUMCantAddUserToServerOrGroup ];
     }else if (gerror){
-        SET_ERROR(1, ODUMCantAddUserToGroupMSG);
+        [ODUserError errorWithCode:ODUMCantAddUserToGroup ];
     }
 
     
@@ -159,7 +163,7 @@ nsxpc_return:
         [userRecord changePassword:nil toPassword:user.userCWID error:&error];
         [userRecord synchronizeAndReturnError:&error];
     }else{
-        SET_ERROR(1, ODUMUserNotFoundMsg);
+        [ODUserError errorWithCode:ODUMUserNotFound];
     }
 nsxpc_return:
     reply(error);
@@ -468,13 +472,13 @@ reply(status);
         *node = [self getRemServerNode:server error:&*error];
     }
     if(!*node){
-        *error = [ODUserError errorWithCode:1 message:ODUMCantConnectToNodeMsg];
+        *error = [ODUserError errorWithCode:ODUMCantConnectToNode];
         return NO;
     }
     
     [*node setCredentialsWithRecordType:nil recordName:server.diradminName password:server.diradminPass error:&*error];
     if(*error){
-        *error = [ODUserError errorWithCode:1 message:ODUMCantAuthenicateMsg];
+        *error = [ODUserError errorWithCode:ODUMCantAuthenicate];
         return NO;
     }
     return YES;
@@ -540,7 +544,7 @@ reply(status);
     // get the afp home directory record and parse it out
     ODRecord* record = [self getPresetRecord:user.userPreset ForNode:node];
     if(!record){
-        *error = [ODUserError errorWithCode:1 message:ODUMPresetNotFoundMsg];
+        *error = [ODUserError errorWithCode:ODUMPresetNotFound];
         return NO;
     }else{
         NSString *afph = [[record valuesForAttribute:kODAttributeTypeHomeDirectory error:nil]objectAtIndex:0];

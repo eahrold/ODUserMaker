@@ -11,26 +11,6 @@
 
 @implementation FileService
 
-//------------------------------------------------
-//  Single User Creation
-//------------------------------------------------
-
--(void)makeSingelUserFile:(User*)user
-                withReply:(void (^)(NSError* error))reply{
-    BOOL success;
-    NSError* error = nil;
-    
-    [self writeHeaders:user.exportFile];
-    success = [self writeUser:user toFile:user.exportFile];
-    
-    if(!success){
-        SET_ERROR(1, ODUMWriteFileErrorMsg);
-    }
-    
-    [user.exportFile closeFile];
-    reply(error);
-    
-}
 
 //------------------------------------------------
 //  DSImport File Creation
@@ -47,7 +27,7 @@
     [self writeHeaders:user.exportFile];
     
     if(![self parseUserList:user toFile:user.exportFile gettingCount:&userCounter andArray:&ulist]){
-        SET_ERROR(1, ODUMWriteFileErrorMsg);
+        [ODUserError errorWithCode:ODUMWriteFileError];
     }
     
     reply(error);
@@ -68,7 +48,7 @@
     static int userCounter = 0;
 
     if(![self parseUserList:user toFile:user.exportFile gettingCount:&userCounter andArray:&ulist]){
-        SET_ERROR(1, ODUMWriteFileErrorMsg);
+        [ODUserError errorWithCode:ODUMReadFileError];
         goto nsxpc_return;
     }
     

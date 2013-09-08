@@ -7,13 +7,11 @@
 //
 #import <Foundation/Foundation.h>
 
-#define SET_ERROR(rc, msg...)\
-error = [ODUserError errorWithCode:rc message:[NSString stringWithFormat:@"%@",msg]];\
-
 /* set up domain */
 extern NSString* const ODUMDomain;
 
 @interface ODUserError : NSError
++ (NSError*) errorWithCode:(int)code;
 + (NSError*) errorWithCode:(NSInteger)rc message:(NSString*)msg;
 @end
 
@@ -35,26 +33,7 @@ enum ODUMErrorCodes {
     
     ODUMCantConnectToNode = 4001,
     ODUMCantAuthenicate = 4002,
+    ODUMNotAuthenticated = 4003,
 };
-
-
-
-
-/* define some error messages */
-extern NSString* const ODUMReadFileErrorMsg;
-extern NSString* const ODUMWriteFileErrorMsg;
-
-extern NSString* const ODUMUserNotFoundMsg;
-extern NSString* const ODUMUserAlreadyExistsMsg;
-
-extern NSString* const ODUMCantAddUserToServerMSG;
-extern NSString* const ODUMCantAddUserToGroupMSG;
-extern NSString* const ODUMCantAddUserToServerOrGroupMSG;
-
-extern NSString* const ODUMGroupNotFoundMsg;
-extern NSString* const ODUMPresetNotFoundMsg;
-
-extern NSString* const ODUMCantConnectToNodeMsg;
-extern NSString* const ODUMCantAuthenicateMsg;
 
 
