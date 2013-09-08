@@ -86,6 +86,33 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
    
 }
 
+-(void)getSettingsForPreset:(NSString*)preset{
+    Server* server = [Server new];
+    server.serverName = _serverName.stringValue;
+    server.diradminPass = _diradminPass.stringValue;
+    server.diradminName = _diradminName.stringValue;
+    
+    NSXPCConnection* connection = [[NSXPCConnection alloc] initWithServiceName:kDirectoryServiceName];
+    connection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(OpenDirectoryService)];
+    connection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
+    connection.exportedObject = self;
+    [connection resume];
+    [[connection remoteObjectProxy] getSettingsForPreset:preset withServer:server withReply:^(NSDictionary *settings, NSError *error) {
+        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            if(!error){
+                _sharePoint.stringValue = [settings valueForKey:@"sharePoint"];
+                _sharePath.stringValue = [settings valueForKey:@"sharePath"];
+                _userShell.stringValue = [settings valueForKey:@"userShell"];
+                _NFSPath.stringValue = [settings valueForKey:@"NFSHome"];
+            }
+        }];
+        [connection invalidate];
+    }];
+    
+    
+}
+
+
 -(void)getDSGroupList{
 
     [dsGroupArrayController setContent:[NSArray arrayWithObject:@"Getting List of Groups..."]];
@@ -192,20 +219,20 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
             }
             if(status == -1){
             }else if (status == -2){
-                _authenticated = NO;
+                [_dsServerStatus setState:NO];
                 self.dsStatus = @"Locally connected, but username or password are incorrect";
             }else if (status == -3){
-                _authenticated = NO;
+                [_dsServerStatus setState:NO];
                 self.dsStatus = @"We could not connect to the server.";
             }else if (status == 0){
-                _authenticated = YES;
+                [_dsServerStatus setState:YES];
                 self.dsStatus = @"The the username and password are correct, connected locally.";
                 [_dsServerStatus setImage:[NSImage imageNamed:@"connected-local.tiff"]];
                 [self getDSUserPresets];
                 [self getDSGroupList];
                 [self getDSUserList];
             }else if (status == 1){
-                _authenticated = YES;
+                [_dsServerStatus setState:YES];
                 self.dsStatus = @"The the username and password are correct, connected over proxy";
                 [_dsServerStatus setImage:[NSImage imageNamed:@"connected-proxy.tiff"]];
                 [self getDSUserPresets];
@@ -289,19 +316,37 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
     }
 }
 
+-(IBAction)showSettingsWindow:(id)sender{
+    [NSApp beginSheet:_settings
+       modalForWindow:_window
+        modalDelegate:self
+       didEndSelector:nil
+          contextInfo:NULL];
+}
+
+//-----------------------------
+//  Settings Panel
+//-----------------------------
+- (IBAction)settingsDone:(id)sender{
+    [self.settings orderOut:self];
+    [NSApp endSheet:self.settings returnCode:0];
+}
+
+
 //-------------------------------------------------------------------
 //  App Delegate
 //-------------------------------------------------------------------
 
 - (void)applicationDidFinishLaunching:(NSNotification* )aNotification
 {
+    [self showSettingsWindow:nil];
     // Insert code here to initialize your application
-    _authenticated = NO;
+    [_dsServerStatus setState:NO];
     if([self getUserPreferences]){
         [self checkCredentials];
     }
-
-
+    
+    [self getSettingsForPreset:@"test"];
 }
 
 

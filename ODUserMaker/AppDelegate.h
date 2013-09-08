@@ -20,6 +20,15 @@
 @property (assign) IBOutlet NSTextField *emailDomain;
 @property (assign) IBOutlet NSTextField *defaultGroup;
 
+//---------------------------------------------------
+// User Settings Reset
+//---------------------------------------------------
+@property (assign) IBOutlet NSWindow *settings;
+@property (assign) IBOutlet NSTextField *sharePoint;
+@property (assign) IBOutlet NSTextField *sharePath;
+@property (assign) IBOutlet NSTextField *NFSPath;
+@property (assign) IBOutlet NSTextField *userShell;
+
 
 //---------------------------------------------------
 // Password Reset
@@ -62,6 +71,5 @@
 //---------------------------------------------------
 
 @property (assign) IBOutlet NSWindow *window;
-@property (assign) BOOL authenticated;
 
 @end

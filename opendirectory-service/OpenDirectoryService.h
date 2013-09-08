@@ -29,6 +29,10 @@
 -(void)getUserPresets:(Server*)server
             withReply:(void (^)(NSArray *userPreset,NSError *error))reply;
 
+-(void)getSettingsForPreset:(NSString*)preset
+                 withServer:(Server*)server
+            withReply:(void (^)(NSDictionary *settings,NSError *error))reply;
+
 -(void)getGroupListFromServer:(Server*)server
                     withReply:(void (^)(NSArray *groupList,NSError *error))reply;
 

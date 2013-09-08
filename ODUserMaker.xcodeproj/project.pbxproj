@@ -221,10 +221,10 @@
 		BEC424FB1791A7FF00CA45A5 /* ODUserMaker */ = {
 			isa = PBXGroup;
 			children = (
-				BEC4252C1791AE3500CA45A5 /* AppController.h */,
-				BEC4252D1791AE3500CA45A5 /* AppController.m */,
 				BEC425071791A80000CA45A5 /* AppDelegate.h */,
 				BEC425081791A80000CA45A5 /* AppDelegate.m */,
+				BEC4252C1791AE3500CA45A5 /* AppController.h */,
+				BEC4252D1791AE3500CA45A5 /* AppController.m */,
 				BEC4250A1791A80000CA45A5 /* MainMenu.xib */,
 				BEFBDC74179C95B000AB0960 /* Supporting Classes */,
 				BEC424FC1791A80000CA45A5 /* Supporting Files */,

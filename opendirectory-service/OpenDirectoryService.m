@@ -53,7 +53,7 @@ update_group:
 
         ODRecord* groupRecord = [self getGroupRecord:g withNode:node];
         if(groupRecord){
-        [groupRecord addMemberRecord:userRecord error:&gerror];
+            [groupRecord addMemberRecord:userRecord error:&gerror];
         }else{
             gerror = [ODUserError errorWithCode:ODUMGroupNotFound];
         }
@@ -150,7 +150,7 @@ nsxpc_return:
     NSError *error = nil;
     ODNode *node;
     ODRecord* userRecord;
-    
+
     [self getAuthenticatedNode:&node forServer:server withError:&error];
     
     if(error){
@@ -288,6 +288,76 @@ nsxpc_return:
     reply(userPresets,error);
 }
 
+-(void)getSettingsForPreset:(NSString*)preset
+                 withServer:(Server*)server
+                  withReply:(void (^)(NSDictionary *settings,NSError *error))reply{
+    
+    NSMutableDictionary* dict = [NSMutableDictionary new];
+    NSDictionary *settings;
+    NSError* error = nil;
+    ODNode *node;
+    NSArray *odArray;
+    ODRecord *record;
+    ODQuery * query;
+
+    NSString* shareFull;
+    NSString* sharePoint;
+    NSString* sharePath;
+    NSString* NFSHome;
+    NSString* userShell;
+    NSArray* arr;
+    
+    [self getNode:&node forServer:server withError:&error];
+    
+    if(!node){
+        goto nsxpc_return;
+    }
+    
+    
+    query = [ODQuery  queryWithNode: node
+                     forRecordTypes: kODRecordTypePresetUsers
+                          attribute: kODAttributeTypeRecordName
+                          matchType: kODMatchEqualTo
+                        queryValues: preset
+                   returnAttributes: kODAttributeTypeStandardOnly
+                     maximumResults: 0
+                              error: &error];
+    
+    odArray = [query resultsAllowingPartial:NO error:&error];
+    
+    if([odArray count]){
+        record = [odArray objectAtIndex:0];
+    }
+    
+    arr = [record valuesForAttribute:kODAttributeTypeHomeDirectory error:nil];
+    if([arr count]){
+        shareFull = [arr objectAtIndex:0];
+    }
+    
+    arr = [record valuesForAttribute:kODAttributeTypeNFSHomeDirectory error:nil];
+    if([arr count]){
+        NFSHome = [arr objectAtIndex:0];
+    }
+    
+    arr = [record valuesForAttribute:kODAttributeTypeUserShell error:nil];
+    if([arr count]){
+        userShell = [arr objectAtIndex:0];
+    }
+    
+    
+    sharePoint = [self getValueForKey:@"url" fromXMLString:shareFull];
+    sharePath = [self getValueForKey:@"path" fromXMLString:shareFull];
+    
+    [dict setObject:sharePoint forKey:@"sharePoint"];
+    [dict setObject:sharePath forKey:@"sharePath"];
+    [dict setObject:NFSHome forKey:@"NFSHome"];
+    [dict setObject:userShell forKey:@"userShell"];
+    
+    
+nsxpc_return:
+    settings = [NSDictionary dictionaryWithDictionary:dict];
+    reply(settings,error);
+}
 
 -(void)getGroupListFromServer:(Server*)server withReply:(void (^)(NSArray *groupList,NSError *error))reply{
     NSError *error = nil;
@@ -407,7 +477,7 @@ reply(status);
 //---------------------------------------------
 
 -(ODRecord*)getGroupRecord:(NSString*)group withNode:(ODNode*)node{
-    ODRecord* record;
+    ODRecord* record = nil;
     ODQuery *query = [ODQuery  queryWithNode: node
                               forRecordTypes: kODRecordTypeGroups
                                    attribute: kODAttributeTypeRecordName
@@ -419,7 +489,9 @@ reply(status);
     
     NSArray * odArray = [query resultsAllowingPartial:NO error:nil];
     
-    record = [odArray objectAtIndex:0];
+    if([odArray count]){
+        record = [odArray objectAtIndex:0];
+    }
     
     return record;
     
@@ -427,6 +499,7 @@ reply(status);
 
 -(ODRecord*)getPresetRecord:(NSString*)preset
                          ForNode:(ODNode*)node{
+    ODRecord* record = nil;
     ODQuery *upQuery = [ODQuery  queryWithNode: node
                                 forRecordTypes: kODRecordTypePresetUsers
                                      attribute: kODAttributeTypeRecordName
@@ -437,7 +510,10 @@ reply(status);
                                          error: nil];
     
     NSArray *odArray = [upQuery resultsAllowingPartial:NO error:nil];
-    ODRecord* record = [odArray objectAtIndex:0];
+    
+    if([odArray count]){
+        record = [odArray objectAtIndex:0];
+    }
     
     return record;
 }
@@ -455,7 +531,7 @@ reply(status);
     
     NSArray *odArray = [query resultsAllowingPartial:NO error:nil];
     
-    if(odArray.count > 0){
+    if([odArray count]){
         record = [odArray objectAtIndex:0];
     }
     
@@ -493,7 +569,7 @@ reply(status);
     }
     
     if(!*node){
-        *error = [ODUserError errorWithCode:1 message:ODUMCantConnectToNodeMsg];
+        *error = [ODUserError errorWithCode:ODUMCantConnectToNode];
         return NO;
     }
     return YES;
@@ -548,23 +624,35 @@ reply(status);
         return NO;
     }else{
         NSString *afph = [[record valuesForAttribute:kODAttributeTypeHomeDirectory error:nil]objectAtIndex:0];
-        NSData *data = [afph dataUsingEncoding:NSUTF8StringEncoding];
-        
-        TBXML *xml = [[TBXML alloc]initWithXMLData:data error:nil];
-        TBXMLElement *rootElement = [xml rootXMLElement];
-        TBXMLElement *path = [TBXML childElementNamed:@"path" parentElement:rootElement];
-        TBXMLElement *url = [TBXML childElementNamed:@"url" parentElement:rootElement];
-        
-        user.afpURL = [NSString stringWithUTF8String:url->text];
-        user.afpPath = [NSString stringWithUTF8String:path->text];
+        user.afpURL =[self getValueForKey:@"url" fromXMLString:afph];
+        user.afpPath =[self getValueForKey:@"path" fromXMLString:afph];
         
         // get set nfsHome attr
-        user.nfsPath = [[record valuesForAttribute:kODAttributeTypeNFSHomeDirectory error:nil]objectAtIndex:0];
-        user.userShell = [[record valuesForAttribute:kODAttributeTypeUserShell error:nil]objectAtIndex:0];
+        NSArray* nfsArr = [record valuesForAttribute:kODAttributeTypeNFSHomeDirectory error:nil];
+        NSArray* shellArr = [record valuesForAttribute:kODAttributeTypeUserShell error:nil];
+        
+        if(nfsArr){
+            user.nfsPath = [nfsArr objectAtIndex:0];
+        }
+        if(shellArr){
+            user.userShell = [shellArr objectAtIndex:0];
+        }
     }
     return YES;
 }
 
+-(NSString*)getValueForKey:(NSString*)key fromXMLString:(NSString*)xml{
+    NSString* reply = nil;
+    NSData *data = [xml dataUsingEncoding:NSUTF8StringEncoding];
+    
+    if(data){
+        TBXML *xml = [[TBXML alloc]initWithXMLData:data error:nil];
+        TBXMLElement *rootElement = [xml rootXMLElement];
+        TBXMLElement *tableVal = [TBXML childElementNamed:key parentElement:rootElement];
+        reply = [NSString stringWithUTF8String:tableVal->text];
+    }
+    return reply;
+}
 
 //---------------------------------------------
 //  Open Directory Node Status Checks

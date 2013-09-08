@@ -18,9 +18,6 @@
             andGroupList:(NSArray*)groups
                withReply:(void (^)(NSArray* dsgroups,NSArray* userlist,NSError *error))reply;
 
--(void)makeSingelUserFile:(User*)user
-                withReply:(void (^)(NSError *error))reply;
-
 @end
 
 
