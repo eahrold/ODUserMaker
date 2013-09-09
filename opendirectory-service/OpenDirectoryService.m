@@ -17,7 +17,8 @@
 
 -(void)addSingleUser:(User*)user toServer:(Server*)server andGroups:(NSArray*)groups withReply:(void (^)(NSError *error))reply{
     NSError* error = nil;
-    NSError* gerror = nil;
+    BOOL userError = NO;
+    BOOL groupError = NO;
 
     ODNode *node;
     ODRecord* userRecord;
@@ -31,13 +32,9 @@
     
     userRecord = [self getUserRecord:user.userName withNode:node];
     if(userRecord){
-        [ODUserError errorWithCode:ODUMUserAlreadyExists];
+        error = [ODUserError errorWithCode:ODUMUserAlreadyExists];
+        userError = YES;
         goto update_group;
-    }
-    
-    [self configurPreset:user usingNode:node error:&error];
-    if(error){
-        goto nsxpc_return;
     }
     
     userRecord = [self createNewUser:user withNode:node error:&error];
@@ -53,18 +50,17 @@ update_group:
 
         ODRecord* groupRecord = [self getGroupRecord:g withNode:node];
         if(groupRecord){
-            [groupRecord addMemberRecord:userRecord error:&gerror];
+            [groupRecord addMemberRecord:userRecord error:nil];
         }else{
-            gerror = [ODUserError errorWithCode:ODUMGroupNotFound];
+            groupError = YES;
         }
     }
  
-    if(error && gerror){
-       [ODUserError errorWithCode:ODUMCantAddUserToServerOrGroup ];
-    }else if (gerror){
-        [ODUserError errorWithCode:ODUMCantAddUserToGroup ];
+    if(userError && groupError){
+        error = [ODUserError errorWithCode:ODUMCantAddUserToServerOrGroup ];
+    }else if (groupError){
+        error = [ODUserError errorWithCode:ODUMCantAddUserToGroup ];
     }
-
     
 nsxpc_return:
     reply(error);
@@ -85,11 +81,6 @@ nsxpc_return:
 
 
     [self getAuthenticatedNode:&node forServer:server withError:&error];
-    if(error){
-        goto nsxpc_return;
-    }
-    
-    [self configurPreset:user usingNode:node error:&error];
     if(error){
         goto nsxpc_return;
     }
@@ -163,7 +154,7 @@ nsxpc_return:
         [userRecord changePassword:nil toPassword:user.userCWID error:&error];
         [userRecord synchronizeAndReturnError:&error];
     }else{
-        [ODUserError errorWithCode:ODUMUserNotFound];
+        error = [ODUserError errorWithCode:ODUMUserNotFound];
     }
 nsxpc_return:
     reply(error);
@@ -176,9 +167,13 @@ nsxpc_return:
 -(ODRecord*)createNewUser:(User*)user withNode:(ODNode*)node error:(NSError**)error{
     NSMutableDictionary *settings = [[NSMutableDictionary alloc]init];
     
-    if(user.afpPath && user.afpURL){
-        NSString* afpHome = [NSString stringWithFormat:@"<home_dir><url>%@</url><path>%@%@</path></home_dir>",user.afpURL,user.afpPath,user.userName];
-        [settings setObject:[NSArray arrayWithObject:afpHome] forKey:kODAttributeTypeHomeDirectory];
+    if(user.sharePoint){
+        if(!user.sharePath){
+            user.sharePath = @"";
+        }
+        
+        NSString* homeDirectory = [NSString stringWithFormat:@"<home_dir><url>%@</url><path>%@%@</path></home_dir>",user.sharePoint,user.sharePath,user.userName];
+        [settings setObject:[NSArray arrayWithObject:homeDirectory] forKey:kODAttributeTypeHomeDirectory];
     }
     
     if(user.nfsPath){
@@ -197,14 +192,15 @@ nsxpc_return:
     
     if(!user.userShell){
         user.userShell = @"/dev/null";
-        [settings setObject:[NSArray arrayWithObject:user.userShell] forKey:kODAttributeTypeUserShell];
     }
+
     
     [settings setObject:[NSArray arrayWithObject:user.primaryGroup] forKey:kODAttributeTypePrimaryGroupID];
     [settings setObject:[NSArray arrayWithObject:user.firstName] forKey:kODAttributeTypeFirstName];
     [settings setObject:[NSArray arrayWithObject:user.lastName] forKey:kODAttributeTypeLastName];
     [settings setObject:[NSArray arrayWithObject:user.userUUID] forKey:kODAttributeTypeUniqueID];
     [settings setObject:[NSArray arrayWithObject:[NSString stringWithFormat:@"%@ %@",user.firstName,user.lastName]] forKey:kODAttributeTypeFullName];
+    [settings setObject:[NSArray arrayWithObject:user.userShell] forKey:kODAttributeTypeUserShell];
     
     ODRecord* userRecord = [node createRecordWithRecordType:kODRecordTypeUsers name:user.userName attributes:settings error:&*error];
     [userRecord changePassword:nil toPassword:user.userCWID error:&*error];
@@ -277,12 +273,33 @@ nsxpc_return:
     userPresets = [NSMutableArray arrayWithCapacity:[odArray count]];
     
     for (record in odArray) {
+        NSMutableDictionary* dict = [NSMutableDictionary new];
         NSError *err;
-        NSArray *recordName = [record valuesForAttribute:kODAttributeTypeRecordName error:&err];
+        NSArray *arr;
         
-        if ([recordName count]) {
-            [userPresets addObject:[recordName objectAtIndex:0]];
+        arr = [record valuesForAttribute:kODAttributeTypeRecordName error:&err];
+        if ([arr count]) {
+            [dict setObject:[arr objectAtIndex:0] forKey:@"presetName"];
         }
+        
+        arr = [record valuesForAttribute:kODAttributeTypeNFSHomeDirectory error:nil];
+        if([arr count]){
+            [dict setObject:[arr objectAtIndex:0] forKey:@"NFSHome"];
+        }
+        
+        arr = [record valuesForAttribute:kODAttributeTypeUserShell error:nil];
+        if([arr count]){
+            [dict setObject:[arr objectAtIndex:0]forKey:@"userShell"];
+        }
+
+        arr = [record valuesForAttribute:kODAttributeTypeHomeDirectory error:nil];
+        if([arr count]){
+            NSString* url = [self getValueForKey:@"url" fromXMLString:[arr objectAtIndex:0]];
+            NSString* path = [self getValueForKey:@"path" fromXMLString:[arr objectAtIndex:0]];
+            [dict setObject:path forKey:@"sharePath"];
+            [dict setObject:url forKey:@"sharePoint"];
+        }
+        [userPresets addObject:dict];
     }
 nsxpc_return:
     reply(userPresets,error);
@@ -324,7 +341,6 @@ nsxpc_return:
                               error: &error];
     
     odArray = [query resultsAllowingPartial:NO error:&error];
-    
     if([odArray count]){
         record = [odArray objectAtIndex:0];
     }
@@ -615,31 +631,6 @@ reply(status);
 //---------------------------------------------
 //  Utility Methods
 //---------------------------------------------
-
--(BOOL)configurPreset:(User*)user usingNode:(ODNode*)node error:(NSError**)error{
-    // get the afp home directory record and parse it out
-    ODRecord* record = [self getPresetRecord:user.userPreset ForNode:node];
-    if(!record){
-        *error = [ODUserError errorWithCode:ODUMPresetNotFound];
-        return NO;
-    }else{
-        NSString *afph = [[record valuesForAttribute:kODAttributeTypeHomeDirectory error:nil]objectAtIndex:0];
-        user.afpURL =[self getValueForKey:@"url" fromXMLString:afph];
-        user.afpPath =[self getValueForKey:@"path" fromXMLString:afph];
-        
-        // get set nfsHome attr
-        NSArray* nfsArr = [record valuesForAttribute:kODAttributeTypeNFSHomeDirectory error:nil];
-        NSArray* shellArr = [record valuesForAttribute:kODAttributeTypeUserShell error:nil];
-        
-        if(nfsArr){
-            user.nfsPath = [nfsArr objectAtIndex:0];
-        }
-        if(shellArr){
-            user.userShell = [shellArr objectAtIndex:0];
-        }
-    }
-    return YES;
-}
 
 -(NSString*)getValueForKey:(NSString*)key fromXMLString:(NSString*)xml{
     NSString* reply = nil;

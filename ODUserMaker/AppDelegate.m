@@ -27,7 +27,7 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
 
 - (IBAction)editServerName:(id)sender{
     if([_diradminPass.stringValue isEqualToString:@""]){
-        [self getKeychainPass];
+        [self getKeychainPass:nil];
     }
     [self checkCredentials];
 }
@@ -36,6 +36,38 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
     [self checkCredentials];
 }
 
+-(IBAction)chooseUserPreset:(id)sender{
+    NSDictionary*dict = [[dsUserPresetController content] objectAtIndex:[_userPreset indexOfSelectedItem]];
+    NSString* us = [dict objectForKey:@"userShell"];
+    NSString* spo = [dict objectForKey:@"sharePoint"];
+    NSString* spa = [dict objectForKey:@"sharePath"];
+    NSString* nhp = [dict objectForKey:@"NFSHome"];
+    
+    if(us){
+        _userShell.stringValue = us;
+    }else{
+        _userShell.stringValue = @"";
+    }
+    
+    if(spo){
+        _sharePoint.stringValue = spo;
+    }else{
+         _sharePoint.stringValue = @"";
+    }
+    
+    if(spa){
+        _sharePath.stringValue = spa;
+    }else{
+        _sharePath.stringValue = @"";
+    }
+    
+    if(nhp){
+        _NFSPath.stringValue = nhp;
+    }else{
+        _NFSPath.stringValue = @"";
+    }
+    
+}
 
 -(void)getDSStatus{
     NSXPCConnection* connection = [[NSXPCConnection alloc] initWithServiceName:kDirectoryServiceName];
@@ -74,10 +106,8 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
     [connection resume];
     [[connection remoteObjectProxy] getUserPresets:server withReply:^(NSArray *pArray, NSError *error) {
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-            [_userPreset removeAllItems];
             if(!error){
-                NSSortDescriptor* sortOrder = [NSSortDescriptor sortDescriptorWithKey: @"self" ascending: NO];
-                [_userPreset addItemsWithTitles:[pArray sortedArrayUsingDescriptors: [NSArray arrayWithObject: sortOrder]]];
+                [dsUserPresetController setContent:pArray];
             }
         }];
         [connection invalidate];
@@ -257,14 +287,12 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
         [setDefaults setObject:_serverName.stringValue forKey:@"serverName"];
         [setDefaults setObject:_diradminName.stringValue forKey:@"diradminName"];
         [setDefaults setObject:_importFilePath.stringValue forKey:@"lastFile"];
-
         
-        NSMutableArray *presetList = [[NSMutableArray alloc] init];
-        for(NSMenuItem* item in [_userPreset itemArray]){
-            [presetList addObject:item.title];
-        }
+        [setDefaults setObject:_sharePoint.stringValue forKey:@"presetSharePoint"];
+        [setDefaults setObject:_sharePath.stringValue forKey:@"presetSharePath"];
+        [setDefaults setObject:_NFSPath.stringValue forKey:@"presetNFSPath"];
+        [setDefaults setObject:_userShell.stringValue forKey:@"presetUserShell"];
         
-        [setDefaults setObject:presetList forKey:@"userPreset"];
         
         NSString* kcacct =[NSString stringWithFormat:@"%@:%@",_diradminName.stringValue,_serverName.stringValue];
         [SSKeychain setPassword:_diradminPass.stringValue forService:[[NSBundle mainBundle] bundleIdentifier] account:kcacct];
@@ -275,31 +303,34 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
 }
 
 -(void)tryToSetIBOutlet:(NSTextField*)field withSetting:(NSString*)string{
-    @try {
+    if(string){
         field.stringValue = string;
-    }@catch (NSException* exception){
-        /* just ignore errors*/
     }
-    
 }
 
 -(BOOL)getUserPreferences{
     NSUserDefaults* getDefaults = [NSUserDefaults standardUserDefaults];
+    NSLog(@"%@",[getDefaults stringArrayForKey:@"serverName"]);
     [self tryToSetIBOutlet:_serverName withSetting:[getDefaults stringForKey:@"serverName"]];
     [self tryToSetIBOutlet:_defaultGroup withSetting:[getDefaults stringForKey:@"defaultGroup"]];
     [self tryToSetIBOutlet:_diradminName withSetting:[getDefaults stringForKey:@"diradminName"]];
     [self tryToSetIBOutlet:_emailDomain withSetting:[getDefaults stringForKey:@"emailDomain"]];
 
-    
+    [self tryToSetIBOutlet:_userShell withSetting:[getDefaults stringForKey:@"userShell"]];
+    [self tryToSetIBOutlet:_sharePoint withSetting:[getDefaults stringForKey:@"presetSharePoint"]];
+    [self tryToSetIBOutlet:_sharePath withSetting:[getDefaults stringForKey:@"presetSharePath"]];
+    [self tryToSetIBOutlet:_NFSPath withSetting:[getDefaults stringForKey:@"presetNFSPath"]];
+
+
     if([getDefaults stringForKey:@"diradminName"]){
-        [self getKeychainPass];
+        [self getKeychainPass:nil];
     }
     if([_defaultGroup.stringValue isEqualToString:@""])
         self.defaultGroup.stringValue = @"20";
     return YES;
 }
 
--(void)getKeychainPass{
+-(IBAction)getKeychainPass:(id)sender {
     NSString* dan = _diradminName.stringValue;
     NSString* sn = _serverName.stringValue;
     
@@ -339,14 +370,14 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
 
 - (void)applicationDidFinishLaunching:(NSNotification* )aNotification
 {
-    [self showSettingsWindow:nil];
     // Insert code here to initialize your application
+ 
     [_dsServerStatus setState:NO];
     if([self getUserPreferences]){
         [self checkCredentials];
     }
     
-    [self getSettingsForPreset:@"test"];
+    //[self getSettingsForPreset:@"test"];
 }
 
 

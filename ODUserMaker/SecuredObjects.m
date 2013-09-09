@@ -23,7 +23,12 @@
         _primaryGroup = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"primaryGroup"];
         _emailDomain = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"emailDomain"];
         _keyWord = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"keyWord"];
+        
         _userPreset = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"userPreset"];
+        _userShell = [aDecoder decodeObjectOfClass: [NSString class] forKey:@"userShell"];
+        _sharePoint = [aDecoder decodeObjectOfClass: [NSString class] forKey:@"sharePoint"];
+        _sharePath = [aDecoder decodeObjectOfClass: [NSString class] forKey:@"sharePath"];
+        _nfsPath = [aDecoder decodeObjectOfClass: [NSString class] forKey:@"nfsPath"];
         
         _userFilter = [aDecoder decodeObjectOfClass: [NSString class] forKey:@"userFilter"];
         
@@ -36,7 +41,6 @@
        
         _importFilePath = [aDecoder decodeObjectOfClass: [NSString class] forKey:@"importFilePath"];
         _importFileURL = [aDecoder decodeObjectOfClass: [NSURL class] forKey:@"importFileURL"];
-
     }
     return self;
 }
@@ -54,6 +58,12 @@
     [aEncoder encodeObject:_primaryGroup forKey:@"primaryGroup"];
     [aEncoder encodeObject:_emailDomain forKey:@"emailDomain"];
     
+    [aEncoder encodeObject:_userShell forKey:@"userShell"];
+    [aEncoder encodeObject:_sharePoint forKey:@"sharePoint"];
+    [aEncoder encodeObject:_sharePath forKey:@"sharePath"];
+    [aEncoder encodeObject:_nfsPath forKey:@"nfsPath"];
+
+
     [aEncoder encodeObject:_keyWord forKey:@"keyWord"];
     [aEncoder encodeObject:_userPreset forKey:@"userPreset"];
     

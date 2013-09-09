@@ -11,6 +11,8 @@
 @interface AppDelegate : NSObject <NSApplicationDelegate>{
     IBOutlet NSArrayController *dsGroupArrayController;
     IBOutlet NSArrayController *dsUserArrayController;
+    IBOutlet NSArrayController *dsUserPresetController;
+
 }
 
 //---------------------------------------------------
@@ -21,7 +23,7 @@
 @property (assign) IBOutlet NSTextField *defaultGroup;
 
 //---------------------------------------------------
-// User Settings Reset
+// User Settings Preset
 //---------------------------------------------------
 @property (assign) IBOutlet NSWindow *settings;
 @property (assign) IBOutlet NSTextField *sharePoint;

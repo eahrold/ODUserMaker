@@ -23,8 +23,8 @@
 @property (copy) NSString *keyWord;
 @property (copy) NSString *userPreset;
 
-@property (copy) NSString *afpURL;
-@property (copy) NSString *afpPath;
+@property (copy) NSString *sharePoint;
+@property (copy) NSString *sharePath;
 @property (copy) NSString *nfsPath;
 @property (copy) NSString *userShell;
 

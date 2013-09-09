@@ -46,6 +46,10 @@
     user.primaryGroup = _defaultGroup.stringValue;
     user.userPreset = [ _userPreset titleOfSelectedItem];
     user.userCount = [NSNumber numberWithInt:1];
+    user.userShell = _userShell.stringValue;
+    user.sharePath = _sharePath.stringValue;
+    user.sharePoint = _sharePoint.stringValue;
+    user.nfsPath = _NFSPath.stringValue;
     
     NSMutableArray* ug = [NSMutableArray new];
     if(_commStudent){
@@ -384,7 +388,6 @@
 
     [groups addObject:dict];
     [groups sortUsingDescriptors:[NSArray arrayWithObjects:[NSSortDescriptor sortDescriptorWithKey:@"group" ascending:YES], nil]];
-    
     [arrayController setContent:groups];
 }
 

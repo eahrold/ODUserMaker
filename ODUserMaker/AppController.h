@@ -29,9 +29,17 @@
 @property (assign) IBOutlet NSButton *overrideUID;
 @property (assign) IBOutlet NSTextField *uuid;
 
-
-
 @property (assign,nonatomic) BOOL isSingleUser;
+@property (assign) IBOutlet NSTextField   *statusUpdateUser;
+
+
+//---------------------------------------------------
+// User Settings Preset
+//---------------------------------------------------
+@property (assign) IBOutlet NSTextField *sharePoint;
+@property (assign) IBOutlet NSTextField *sharePath;
+@property (assign) IBOutlet NSTextField *NFSPath;
+@property (assign) IBOutlet NSTextField *userShell;
 
 //---------------------------------------------------
 // Password Reset
