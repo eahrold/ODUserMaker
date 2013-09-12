@@ -11,5 +11,3 @@
 #import "SecuredObjects.h"
 #import "NSString+uuidFromString.h"
 
-#define kFileServiceName @"com.aapps.ODUserMaker.file-service"
-#define kDirectoryServiceName @"com.aapps.ODUserMaker.opendirectory-service"

@@ -52,27 +52,30 @@
     user.nfsPath = _NFSPath.stringValue;
     
     NSMutableArray* ug = [NSMutableArray new];
-    if(_commStudent){
-        [ug addObject:@"smc"];
+    
+    if(_extraGroup.state){
+        [ug addObject:_extraGroupShortName.stringValue];
     }
     
     //do get other groups...
-    
     for (NSString* i in _groupEntries.itemTitles){
         [ug addObject:i];
     }
     //then...
     NSArray* userGroups = [NSArray arrayWithArray:ug];
     
-    if(![_uuid.stringValue isEqualToString:@""]){
-        user.userUUID = _uuid.stringValue;
+    if(_overrideUID.state){
+        NSNumberFormatter* f = [NSNumberFormatter new];
+        if([f numberFromString:_uuid.stringValue]){
+            user.userUUID = _uuid.stringValue;
+        }else{
+            [self showAlert:@"The UID Is not Usable" withDescription:@"The UID you specifiied is not a number.  Please check it and try again"];
+            return;
+        }
     }
     
-    if([_commStudent state]){
-        user.keyWord = @"CommStudent";
-    }
-    else{
-        user.keyWord = @"NonComm";
+    if(_extraGroup.state){
+        user.keyWord = _extraGroupDescription.stringValue;
     }
     
     /* Set up the Serve Object */
@@ -103,7 +106,7 @@
                 NSLog(@"Error: %@",[error localizedDescription]);
                 [self showErrorAlert:error];
             }else{
-                //[self uploadUserList:user toServer:server];
+                _statusUpdateUser.stringValue = [NSString stringWithFormat:@"Added/Updated %@",user.userName];
             }
         }];
         [connection invalidate];
@@ -284,11 +287,6 @@
     }];
 }
 
-
-
-
-
-//
 
 //-------------------------------------------
 //  Password Reset

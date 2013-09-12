@@ -26,10 +26,18 @@
 // User Settings Preset
 //---------------------------------------------------
 @property (assign) IBOutlet NSWindow *settings;
+@property (assign) IBOutlet NSTextField *usingPreset;
 @property (assign) IBOutlet NSTextField *sharePoint;
 @property (assign) IBOutlet NSTextField *sharePath;
 @property (assign) IBOutlet NSTextField *NFSPath;
 @property (assign) IBOutlet NSTextField *userShell;
+
+@property (assign) IBOutlet NSButton *extraGroup;
+@property (assign) IBOutlet NSComboBox *extraGroupShortName;
+@property (assign) IBOutlet NSTextField *extraGroupDescription;
+
+@property (assign) IBOutlet NSButton *choosePresetButton;
+
 
 
 //---------------------------------------------------
@@ -64,8 +72,6 @@
 
 @property (assign) IBOutlet NSPopUpButton *serverGroupList;
 @property (assign) IBOutlet NSPopUpButton *serverGroupListSingleUser;
-
-@property (assign) IBOutlet NSPopUpButton *fileClassList;
 
 
 //---------------------------------------------------

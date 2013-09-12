@@ -11,63 +11,12 @@
 #import "OpenDirectoryService.h"
 #import "ODUserBridge.h"
 
-static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check whether to quit
-
 @implementation AppDelegate
 
 
 //-------------------------------
 //  Directory Sever 
 //-------------------------------
-
-
-- (IBAction)editPassword:(id)sender{
-    [self checkCredentials];
-}
-
-- (IBAction)editServerName:(id)sender{
-    if([_diradminPass.stringValue isEqualToString:@""]){
-        [self getKeychainPass:nil];
-    }
-    [self checkCredentials];
-}
-
-- (IBAction)refreshUserPreferences:(id)sender{
-    [self checkCredentials];
-}
-
--(IBAction)chooseUserPreset:(id)sender{
-    NSDictionary*dict = [[dsUserPresetController content] objectAtIndex:[_userPreset indexOfSelectedItem]];
-    NSString* us = [dict objectForKey:@"userShell"];
-    NSString* spo = [dict objectForKey:@"sharePoint"];
-    NSString* spa = [dict objectForKey:@"sharePath"];
-    NSString* nhp = [dict objectForKey:@"NFSHome"];
-    
-    if(us){
-        _userShell.stringValue = us;
-    }else{
-        _userShell.stringValue = @"";
-    }
-    
-    if(spo){
-        _sharePoint.stringValue = spo;
-    }else{
-         _sharePoint.stringValue = @"";
-    }
-    
-    if(spa){
-        _sharePath.stringValue = spa;
-    }else{
-        _sharePath.stringValue = @"";
-    }
-    
-    if(nhp){
-        _NFSPath.stringValue = nhp;
-    }else{
-        _NFSPath.stringValue = @"";
-    }
-    
-}
 
 -(void)getDSStatus{
     NSXPCConnection* connection = [[NSXPCConnection alloc] initWithServiceName:kDirectoryServiceName];
@@ -188,6 +137,7 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
     [connection resume];
     [[connection remoteObjectProxy] getUserListFromServer:server withReply:^(NSArray *uArray, NSError *error) {
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            [_userList removeAllItems];
             [_statusUpdate setStringValue:@""];
             [_userListStatus setHidden:YES];
             [_userListStatus stopAnimation:self];
@@ -279,54 +229,76 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
 //--------------------------------------------------------------------------
 //  User Preferences/Defaults 
 //--------------------------------------------------------------------------
--(void)setUserPreferences{
-    NSUserDefaults* setDefaults = [NSUserDefaults standardUserDefaults];
-    @try {
-        [setDefaults setObject:_defaultGroup.stringValue forKey:@"defaultGroup"];
-        [setDefaults setObject:_emailDomain.stringValue forKey:@"emailDomain"];
-        [setDefaults setObject:_serverName.stringValue forKey:@"serverName"];
-        [setDefaults setObject:_diradminName.stringValue forKey:@"diradminName"];
-        [setDefaults setObject:_importFilePath.stringValue forKey:@"lastFile"];
-        
-        [setDefaults setObject:_sharePoint.stringValue forKey:@"presetSharePoint"];
-        [setDefaults setObject:_sharePath.stringValue forKey:@"presetSharePath"];
-        [setDefaults setObject:_NFSPath.stringValue forKey:@"presetNFSPath"];
-        [setDefaults setObject:_userShell.stringValue forKey:@"presetUserShell"];
-        
-        
-        NSString* kcacct =[NSString stringWithFormat:@"%@:%@",_diradminName.stringValue,_serverName.stringValue];
-        [SSKeychain setPassword:_diradminPass.stringValue forService:[[NSBundle mainBundle] bundleIdentifier] account:kcacct];
+-(void)setDefaults:(NSUserDefaults**)defaults withString:(NSString*)string forKey:(NSString*)key{
+    
+    if(string && ![string isEqualToString:@""]){
+        [*defaults setObject:string forKey:key];
+    }else{
+        [*defaults removeObjectForKey:key];
     }
-    @catch (NSException* exception) {
-    }
-    [setDefaults synchronize];
 }
 
--(void)tryToSetIBOutlet:(NSTextField*)field withSetting:(NSString*)string{
+-(void)setUserPreferences{
+    NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
+
+    [self setDefaults:&defaults withString:_serverName.stringValue forKey:@"serverName"];
+    [self setDefaults:&defaults withString:_diradminName.stringValue forKey:@"diradminName"];
+
+    [self setDefaults:&defaults withString:_choosePresetButton.title forKey:@"lastSelectedPreset"];
+    [self setDefaults:&defaults withString:_emailDomain.stringValue forKey:@"emailDomain"];
+    [self setDefaults:&defaults withString:_defaultGroup.stringValue forKey:@"defaultGroup"];
+    
+    [self setDefaults:&defaults withString:_sharePoint.stringValue forKey:@"presetSharePoint"];
+    [self setDefaults:&defaults withString:_sharePath.stringValue forKey:@"presetSharePath"];
+    [self setDefaults:&defaults withString:_NFSPath.stringValue forKey:@"presetNFSPath"];
+    [self setDefaults:&defaults withString:_userShell.stringValue forKey:@"presetUserShell"];
+    
+    [self setDefaults:&defaults withString:_extraGroupDescription.stringValue forKey:@"extraGroupDescription"];
+    [self setDefaults:&defaults withString:_extraGroupShortName.stringValue forKey:@"extraGroupShortName"];
+    
+    NSString* kcacct =[NSString stringWithFormat:@"%@:%@",_diradminName.stringValue,_serverName.stringValue];
+    [SSKeychain setPassword:_diradminPass.stringValue forService:[[NSBundle mainBundle] bundleIdentifier] account:kcacct];
+   
+    [defaults synchronize];
+}
+
+-(void)setTextField:(NSTextField*)field withString:(NSString*)string{
     if(string){
         field.stringValue = string;
     }
 }
 
 -(BOOL)getUserPreferences{
-    NSUserDefaults* getDefaults = [NSUserDefaults standardUserDefaults];
-    NSLog(@"%@",[getDefaults stringArrayForKey:@"serverName"]);
-    [self tryToSetIBOutlet:_serverName withSetting:[getDefaults stringForKey:@"serverName"]];
-    [self tryToSetIBOutlet:_defaultGroup withSetting:[getDefaults stringForKey:@"defaultGroup"]];
-    [self tryToSetIBOutlet:_diradminName withSetting:[getDefaults stringForKey:@"diradminName"]];
-    [self tryToSetIBOutlet:_emailDomain withSetting:[getDefaults stringForKey:@"emailDomain"]];
+    NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
+    [self setTextField:_serverName withString:[defaults stringForKey:@"serverName"]];
 
-    [self tryToSetIBOutlet:_userShell withSetting:[getDefaults stringForKey:@"userShell"]];
-    [self tryToSetIBOutlet:_sharePoint withSetting:[getDefaults stringForKey:@"presetSharePoint"]];
-    [self tryToSetIBOutlet:_sharePath withSetting:[getDefaults stringForKey:@"presetSharePath"]];
-    [self tryToSetIBOutlet:_NFSPath withSetting:[getDefaults stringForKey:@"presetNFSPath"]];
+    [self setTextField:_defaultGroup withString:[defaults stringForKey:@"defaultGroup"]];
+    [self setTextField:_diradminName withString:[defaults stringForKey:@"diradminName"]];
+    [self setTextField:_emailDomain withString:[defaults stringForKey:@"emailDomain"]];
 
+    [self setTextField:_userShell withString:[defaults stringForKey:@"userShell"]];
+    [self setTextField:_sharePoint withString:[defaults stringForKey:@"presetSharePoint"]];
+    [self setTextField:_sharePath withString:[defaults stringForKey:@"presetSharePath"]];
+    [self setTextField:_NFSPath withString:[defaults stringForKey:@"presetNFSPath"]];
+    
+    if ([defaults stringForKey:@"lastSelectedPreset"]){
+        _choosePresetButton.title = [defaults stringForKey:@"lastSelectedPreset"];
+    }
+    
+    [_extraGroupShortName removeAllItems];
+    if([defaults stringForKey:@"extraGroupShortName"]){
+        _extraGroupShortName.stringValue = [defaults stringForKey:@"extraGroupShortName"];
+        NSLog(@"setting group name as %@",[defaults stringForKey:@"extraGroupShortName"]);
+    }
+    
+    [self setTextField:_extraGroupDescription withString:[defaults stringForKey:@"extraGroupDescription"]];
 
-    if([getDefaults stringForKey:@"diradminName"]){
+    if([defaults stringForKey:@"diradminName"]){
         [self getKeychainPass:nil];
     }
+    
     if([_defaultGroup.stringValue isEqualToString:@""])
-        self.defaultGroup.stringValue = @"20";
+        _defaultGroup.stringValue = @"20";
     return YES;
 }
 
@@ -356,11 +328,74 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
 }
 
 //-----------------------------
-//  Settings Panel
+//  IBActions
 //-----------------------------
+#pragma mark --IBActions
+
 - (IBAction)settingsDone:(id)sender{
     [self.settings orderOut:self];
     [NSApp endSheet:self.settings returnCode:0];
+    
+    if(![_extraGroupDescription.stringValue isEqualToString:@""]){
+        _extraGroup.title = _extraGroupDescription.stringValue;
+    }
+}
+
+
+- (IBAction)editPassword:(id)sender{
+    [self checkCredentials];
+}
+
+- (IBAction)editServerName:(id)sender{
+    if([_diradminPass.stringValue isEqualToString:@""]){
+        [self getKeychainPass:nil];
+    }
+    [self checkCredentials];
+}
+
+- (IBAction)refreshUserPreferences:(id)sender{
+    [self checkCredentials];
+}
+
+-(IBAction)customPreset:(id)sender{
+    _usingPreset.stringValue = @"Custom";
+    _choosePresetButton.title = @"Custom";
+
+}
+-(IBAction)chooseUserPreset:(id)sender{
+    NSDictionary*dict = [[dsUserPresetController content] objectAtIndex:[_userPreset indexOfSelectedItem]];
+    NSString* us = [dict objectForKey:@"userShell"];
+    NSString* spo = [dict objectForKey:@"sharePoint"];
+    NSString* spa = [dict objectForKey:@"sharePath"];
+    NSString* nhp = [dict objectForKey:@"NFSHome"];
+    _usingPreset.stringValue = [_userPreset titleOfSelectedItem];
+    _choosePresetButton.title = [_userPreset titleOfSelectedItem];
+
+    
+    if(us){
+        _userShell.stringValue = us;
+    }else{
+        _userShell.stringValue = @"";
+    }
+    
+    if(spo){
+        _sharePoint.stringValue = spo;
+    }else{
+        _sharePoint.stringValue = @"";
+    }
+    
+    if(spa){
+        _sharePath.stringValue = spa;
+    }else{
+        _sharePath.stringValue = @"";
+    }
+    
+    if(nhp){
+        _NFSPath.stringValue = nhp;
+    }else{
+        _NFSPath.stringValue = @"";
+    }
+    
 }
 
 
@@ -371,13 +406,16 @@ static const NSTimeInterval kHelperCheckInterval = 5.0; // how often to check wh
 - (void)applicationDidFinishLaunching:(NSNotification* )aNotification
 {
     // Insert code here to initialize your application
- 
     [_dsServerStatus setState:NO];
+
     if([self getUserPreferences]){
         [self checkCredentials];
+        if(![_extraGroupDescription.stringValue isEqualToString:@""]){
+            _extraGroup.title = _extraGroupDescription.stringValue;
+        }else{
+            [_extraGroup setHidden:YES];
+        }
     }
-    
-    //[self getSettingsForPreset:@"test"];
 }
 
 

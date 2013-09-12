@@ -8,6 +8,9 @@
 
 #import <Cocoa/Cocoa.h>
 
+extern NSString *const kFileServiceName;
+extern NSString *const kDirectoryServiceName;
+
 @interface User : NSObject <NSSecureCoding>
 
 +(NSDictionary*)makeDictFromUser:(User*)user;

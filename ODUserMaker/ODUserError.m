@@ -45,7 +45,7 @@ NSString* const ODUMDomain = @"com.aapps.ODUserMaker";
         case ODUMCantAuthenicate:codeText = @"Authentication failed to Directory Server";break;
         
         case ODUMNotAuthenticated:codeText = @"You are currently Not authenticated to the Directory Server, please check the supplied information";break;
-            
+    
         default: codeText = @"There was a unknown problem, sorry!"; break;
     }
     

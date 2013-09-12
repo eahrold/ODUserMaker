@@ -25,11 +25,13 @@
 @property (assign) IBOutlet NSTextField *userCWID;
 @property (assign) IBOutlet NSPopUpButton *userPreset;
 
-@property (assign) IBOutlet NSButton *commStudent;
+@property (assign) IBOutlet NSButton *extraGroup;
+@property (assign) IBOutlet NSComboBox *extraGroupShortName;
+@property (assign) IBOutlet NSTextField *extraGroupDescription;
+
 @property (assign) IBOutlet NSButton *overrideUID;
 @property (assign) IBOutlet NSTextField *uuid;
 
-@property (assign,nonatomic) BOOL isSingleUser;
 @property (assign) IBOutlet NSTextField   *statusUpdateUser;
 
 
@@ -44,7 +46,6 @@
 //---------------------------------------------------
 // Password Reset
 //---------------------------------------------------
-@property (assign) IBOutlet NSPopUpButton *serverUserList;
 @property (assign) IBOutlet NSComboBox *userList;
 @property (assign) IBOutlet NSTextField   *statusUpdate;
 @property (assign) IBOutlet NSTextField   *passWord;
@@ -54,7 +55,6 @@
 // File Settings
 //---------------------------------------------------
 @property (assign) IBOutlet NSTextField *importFilePath;
-@property (assign) IBOutlet NSButton *chooseImportFile;
 @property (assign) IBOutlet NSTextField *userFilter;
 
 

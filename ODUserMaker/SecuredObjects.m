@@ -8,6 +8,9 @@
 
 #import "SecuredObjects.h"
 
+NSString *const kFileServiceName = @"com.aapps.ODUserMaker.file-service";
+NSString *const kDirectoryServiceName = @"com.aapps.ODUserMaker.opendirectory-service";
+
 @implementation User
 
 - (id)initWithCoder:(NSCoder*)aDecoder {
