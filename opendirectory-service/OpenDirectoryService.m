@@ -165,6 +165,8 @@ nsxpc_return:
 //--------------------------------------------------------------
 
 -(ODRecord*)createNewUser:(User*)user withNode:(ODNode*)node error:(NSError**)error{
+    NSError* localError = nil;
+    
     NSMutableDictionary *settings = [[NSMutableDictionary alloc]init];
     
     if(user.sharePoint){
@@ -202,16 +204,17 @@ nsxpc_return:
     [settings setObject:[NSArray arrayWithObject:[NSString stringWithFormat:@"%@ %@",user.firstName,user.lastName]] forKey:kODAttributeTypeFullName];
     [settings setObject:[NSArray arrayWithObject:user.userShell] forKey:kODAttributeTypeUserShell];
     
-    ODRecord* userRecord = [node createRecordWithRecordType:kODRecordTypeUsers name:user.userName attributes:settings error:&*error];
-    [userRecord changePassword:nil toPassword:user.userCWID error:&*error];
+    ODRecord* userRecord = [node createRecordWithRecordType:kODRecordTypeUsers name:user.userName attributes:settings error:&localError];
+    [userRecord changePassword:nil toPassword:user.userCWID error:&localError];
     
+    if (error) *error = localError;
     return userRecord;
 }
 
 
 -(BOOL)addGroups:(NSArray*)groups toNode:(ODNode*)node error:(NSError**)error{
     BOOL rc = YES;
-    
+    NSError* localError =nil;
     ODRecord* userRecord;
     ODRecord* groupRecord;
     NSArray* userNames;
@@ -228,10 +231,10 @@ nsxpc_return:
             userRecord = [self getUserRecord:u withNode:node];
             
             if(userRecord){
-                [groupRecord addMemberRecord:userRecord error:&*error];
-                if(*error){
-                    NSLog(@"Couldn't add %@ to %@: %@",u,g,[*error localizedDescription]);
-                    *error = nil;
+                [groupRecord addMemberRecord:userRecord error:&localError];
+                if(localError){
+                    NSLog(@"Couldn't add %@ to %@: %@",u,g,[localError localizedDescription]);
+                    localError = nil;
                 }
             }
         }
@@ -558,52 +561,72 @@ reply(status);
 -(BOOL)getAuthenticatedNode:(ODNode**)node forServer:(Server*)server withError:(NSError**)error{
     /* first try to get node if this computer is bound to directory
         if it's not then connect via a proxy */
-    *node = [self getLocalServerNode:server.serverName error:&*error];
+    ODNode *localNode;
+    NSError *localError;
     
-    if(!*node){
-        *node = [self getRemServerNode:server error:&*error];
+    localNode = [self getLocalServerNode:server.serverName error:&*error];
+    
+    if(!localNode){
+        localNode = [self getRemServerNode:server error:&*error];
     }
-    if(!*node){
-        *error = [ODUserError errorWithCode:ODUMCantConnectToNode];
+    if(!localNode){
+        localError = [ODUserError errorWithCode:ODUMCantConnectToNode];
         return NO;
     }
     
-    [*node setCredentialsWithRecordType:nil recordName:server.diradminName password:server.diradminPass error:&*error];
-    if(*error){
-        *error = [ODUserError errorWithCode:ODUMCantAuthenicate];
+    [localNode setCredentialsWithRecordType:nil recordName:server.diradminName password:server.diradminPass error:&*error];
+    
+    if(localError){
+        localError = [ODUserError errorWithCode:ODUMCantAuthenicate];
+        if (error) *error = localError;
         return NO;
     }
+    
+    if (node) *node = localNode;
+    
     return YES;
 }
 
 
 -(BOOL)getNode:(ODNode**)node forServer:(Server*)server withError:(NSError**)error{
-    *node = [self getLocalServerNode:server.serverName error:&*error];
+    ODNode *localNode;
+    NSError *localError;
+
+    localNode = [self getLocalServerNode:server.serverName error:&localError];
     
-    if(!*node){
-        *node = [self getRemServerNode:server error:&*error];
+    if(!localNode){
+        localNode = [self getRemServerNode:server error:&localError];
     }
     
-    if(!*node){
-        *error = [ODUserError errorWithCode:ODUMCantConnectToNode];
+    if(!localNode){
+        localError = [ODUserError errorWithCode:ODUMCantConnectToNode];
+        if (error) *error = localError;
         return NO;
     }
+    if (node) *node = localNode;
     return YES;
 }
 
 
 -(ODNode*)getLocalServerNode:(NSString*)serverName error:(NSError**)error{
+    NSError* localError = nil;
+    
     ODSession *session = [ODSession defaultSession];
     NSString *ldap = [NSString stringWithFormat:@"/LDAPv3/%@",serverName];
-    ODNode *node = [ODNode nodeWithSession:session name:ldap error:&*error];
+    ODNode *node = [ODNode nodeWithSession:session name:ldap error:&localError];
     if(!node){
         return nil;
     }
+    
+    // assign local error to pointer
+    if (error) *error = localError;
+    
     return node;
 }
 
 
 -(ODNode*)getRemServerNode:(Server*)server error:(NSError**)error{
+    NSError* localError = nil;
     
     if(!server.serverName || !server.diradminName || !server.diradminPass){
         return nil;
@@ -612,17 +635,20 @@ reply(status);
     
     NSDictionary* settings = [NSDictionary dictionaryWithObjectsAndKeys:server.serverName,ODSessionProxyAddress,@"0",ODSessionProxyPort,server.diradminName,ODSessionProxyUsername,server.diradminPass,ODSessionProxyPassword, nil];
     
-    ODSession *session = [ODSession sessionWithOptions:settings error:&*error];
+    ODSession *session = [ODSession sessionWithOptions:settings error:&localError];
     
-    if(*error){
-        NSLog(@"%@",[*error localizedDescription]);
+    if(localError){
+        NSLog(@"%@",[localError localizedDescription]);
+        if (error) *error = localError;
         return nil;
     }
     
     NSString *ldap = [NSString stringWithFormat:@"/LDAPv3/127.0.0.1"];
-    ODNode *node = [ODNode nodeWithSession:session name:ldap error:&*error];
+    ODNode *node = [ODNode nodeWithSession:session name:ldap error:&localError];
     
-    if(!node){
+    if(localError){
+        NSLog(@"%@",[localError localizedDescription]);
+        if (error) *error = localError;
         return nil;
     }
     return node;
