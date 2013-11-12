@@ -18,30 +18,6 @@
 //  Directory Sever 
 //-------------------------------
 
--(void)getDSStatus{
-    NSXPCConnection* connection = [[NSXPCConnection alloc] initWithServiceName:kDirectoryServiceName];
-    connection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(OpenDirectoryService)];
-    connection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
-    connection.exportedObject = self;
-    [connection resume];
-    [[connection remoteObjectProxy] checkServerStatus:_serverName.stringValue withReply:^(OSStatus connected) {
-        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-            NSColor* tc;
-            if(connected == 0){
-                tc = [NSColor colorWithCalibratedRed:0.0 green:0.7 blue:0.0 alpha:1.0];
-            }else if (connected == 1){
-                tc = [NSColor colorWithCalibratedRed:0.7 green:0.6 blue:0.0 alpha:1.0];
-            }else{
-                tc = [NSColor redColor];
-            }
-         [_dsStatusTF setTextColor:tc];
-        }];
-        [connection invalidate];
-    }];
-
-}
-
-
 -(void)getDSUserPresets{
     Server* server = [Server new];
     server.serverName = _serverName.stringValue;
@@ -183,27 +159,30 @@
     connection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
     connection.exportedObject = self;
     [connection resume];
-    [[connection remoteObjectProxy] checkCredentials:server withReply:^(OSStatus status) {
+    [[connection remoteObjectProxy] checkServerStatus:server withReply:^(OSStatus status)  {
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
             [_refreshPreset setHidden:NO];
             [_presetStatus stopAnimation:self];
+            NSLog(@"ODUM Node Status: %d",status);
             // here are the status returns
             // -1 No Node
             // -2 locally connected, but wrong password
             // -3 proxy but wrong auth password
             // 0 Authenticated locally
             // 1 Authenticated over proxy
-            if(status < 0 ){
+            if(status < 0){
                 [_dsServerStatus setImage:[NSImage imageNamed:@"connected-offline.tiff"]];
-                
             }
+            
             if(status == -1){
+                [_dsServerStatus setState:NO];
+                self.dsStatus = @"Could Not Connect to Remote Node";
             }else if (status == -2){
                 [_dsServerStatus setState:NO];
                 self.dsStatus = @"Locally connected, but username or password are incorrect";
             }else if (status == -3){
                 [_dsServerStatus setState:NO];
-                self.dsStatus = @"We could not connect to the server.";
+                self.dsStatus = @"Could Not Connect to proxy server.";
             }else if (status == 0){
                 [_dsServerStatus setState:YES];
                 self.dsStatus = @"The the username and password are correct, connected locally.";

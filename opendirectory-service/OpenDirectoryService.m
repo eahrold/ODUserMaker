@@ -9,7 +9,9 @@
 #import "OpenDirectoryService.h"
 #import "TBXML.h"
 
-@implementation OpenDirectoryService
+@implementation OpenDirectoryService{
+    ODNode* node;
+}
 //------------------------------------------------------------
 //  NSXPC methods for App Controller
 //------------------------------------------------------------
@@ -20,24 +22,17 @@
     BOOL userError = NO;
     BOOL groupError = NO;
 
-    ODNode *node;
     ODRecord* userRecord;
     NSString* progress;
     
-    [self getAuthenticatedNode:&node forServer:server withError:&error];
-    
-    if(error){
-        goto nsxpc_return;
-    }
-    
-    userRecord = [self getUserRecord:user.userName withNode:node];
+    userRecord = [self getUserRecord:user.userName];
     if(userRecord){
         error = [ODUserError errorWithCode:ODUMUserAlreadyExists];
         userError = YES;
         goto update_group;
     }
     
-    userRecord = [self createNewUser:user withNode:node error:&error];
+    userRecord = [self createNewUser:user error:&error];
 
     if(!userRecord){
         goto nsxpc_return;
@@ -48,7 +43,7 @@ update_group:
         progress = [NSString stringWithFormat:@"Adding %@ to group %@...",user.userName,g];
         [[self.xpcConnection remoteObjectProxy] setProgressMsg:progress];
 
-        ODRecord* groupRecord = [self getGroupRecord:g withNode:node];
+        ODRecord* groupRecord = [self getGroupRecord:g];
         if(groupRecord){
             [groupRecord addMemberRecord:userRecord error:nil];
         }else{
@@ -69,7 +64,6 @@ nsxpc_return:
 
 -(void)addListOfUsers:(NSArray*)list usingPresetsIn:(User*)user toServer:(Server*)server andGroups:(NSArray*)userGroups withReply:(void (^)(NSError *error))reply{
     NSError* error = nil;
-    ODNode *node;
     ODRecord* userRecord;
     NSString* progress;
     
@@ -80,11 +74,6 @@ nsxpc_return:
     NSMutableSet* problemAdding = [NSMutableSet new];
 
 
-    [self getAuthenticatedNode:&node forServer:server withError:&error];
-    if(error){
-        goto nsxpc_return;
-    }
-    
     NSInteger count = [list count];
     NSInteger pgcount = 1;
     double pgdouble = 100.00/count;
@@ -103,11 +92,11 @@ nsxpc_return:
         progress = [NSString stringWithFormat:@"Adding %ld/%ld: %@...",(long)pgcount,(long)count,user.userName];
         [[self.xpcConnection remoteObjectProxy] setProgress:pgdouble withMessage:progress];
 
-        userRecord = [self getUserRecord:user.userName withNode:node];
+        userRecord = [self getUserRecord:user.userName];
         if(userRecord){
             [notAdded addObject:user.userName];
         }else{
-            [self createNewUser:user withNode:node error:&error];
+            [self createNewUser:user error:&error];
             if(error){
                 [problemAdding addObject:user.userName];
                 NSLog(@"There was a problem creating %@: %@",user.userName,error.localizedDescription);
@@ -130,25 +119,18 @@ nsxpc_return:
     
     if(userGroups.count > 0){
         error = nil;
-        [self addGroups:userGroups toNode:node error:&error];
+        [self addGroups:userGroups error:&error];
     }
-nsxpc_return:
+    
     reply(error);
 }
 
 
 -(void)resetUserPassword:(User*)user onServer:(Server*)server withReply:(void (^)(NSError *error))reply{
     NSError *error = nil;
-    ODNode *node;
     ODRecord* userRecord;
 
-    [self getAuthenticatedNode:&node forServer:server withError:&error];
-    
-    if(error){
-        goto nsxpc_return;
-    }
-    
-    userRecord = [self getUserRecord:user.userName withNode:node];
+    userRecord = [self getUserRecord:user.userName];
     
     if(userRecord){
         [userRecord changePassword:nil toPassword:user.userCWID error:&error];
@@ -156,7 +138,7 @@ nsxpc_return:
     }else{
         error = [ODUserError errorWithCode:ODUMUserNotFound];
     }
-nsxpc_return:
+    
     reply(error);
 }
 
@@ -164,7 +146,7 @@ nsxpc_return:
 //  Private Methods for Editing Users and Groups
 //--------------------------------------------------------------
 
--(ODRecord*)createNewUser:(User*)user withNode:(ODNode*)node error:(NSError**)error{
+-(ODRecord*)createNewUser:(User*)user error:(NSError**)error{
     NSError* localError = nil;
     
     NSMutableDictionary *settings = [[NSMutableDictionary alloc]init];
@@ -196,7 +178,6 @@ nsxpc_return:
         user.userShell = @"/dev/null";
     }
 
-    
     [settings setObject:[NSArray arrayWithObject:user.primaryGroup] forKey:kODAttributeTypePrimaryGroupID];
     [settings setObject:[NSArray arrayWithObject:user.firstName] forKey:kODAttributeTypeFirstName];
     [settings setObject:[NSArray arrayWithObject:user.lastName] forKey:kODAttributeTypeLastName];
@@ -212,7 +193,7 @@ nsxpc_return:
 }
 
 
--(BOOL)addGroups:(NSArray*)groups toNode:(ODNode*)node error:(NSError**)error{
+-(BOOL)addGroups:(NSArray*)groups error:(NSError**)error{
     BOOL rc = YES;
     NSError* localError =nil;
     ODRecord* userRecord;
@@ -223,12 +204,12 @@ nsxpc_return:
     for(NSDictionary* g in groups){
         groupName = [ g objectForKey:@"group"];
         userNames = [ g objectForKey:@"users"];
-        groupRecord = [self getGroupRecord:groupName withNode:node];
+        groupRecord = [self getGroupRecord:groupName];
         
         for(NSString* u in userNames){
             [[self.xpcConnection remoteObjectProxy] setProgressMsg:[NSString stringWithFormat:@"Updating %@ membership, adding %@",groupName,u]];
             
-            userRecord = [self getUserRecord:u withNode:node];
+            userRecord = [self getUserRecord:u];
             
             if(userRecord){
                 [groupRecord addMemberRecord:userRecord error:&localError];
@@ -239,30 +220,22 @@ nsxpc_return:
             }
         }
     }
-nsxpc_return:
+
     return rc;
 }
 
-
+#pragma mark -- NSXPC Listener methods
 //------------------------------------------------------------
-//  NSXPC methods for For App Delegate
+//  NSXPC methods
 //------------------------------------------------------------
 
 -(void)getUserPresets:(Server*)server withReply:(void (^)(NSArray *userPreset,NSError *error))reply{
     NSError *error = nil;
-    ODNode *node;
     ODRecord *record;
     NSArray *odArray;
     NSMutableArray *userPresets;
     ODQuery *query;
-
-    [self getNode:&node forServer:server withError:&error];
-
-    if(!node){
-        goto nsxpc_return;        
-    }
-
-    
+  
     query = [ODQuery  queryWithNode: node
                                 forRecordTypes: kODRecordTypePresetUsers
                                      attribute: kODAttributeTypeRecordName
@@ -315,7 +288,6 @@ nsxpc_return:
     NSMutableDictionary* dict = [NSMutableDictionary new];
     NSDictionary *settings;
     NSError* error = nil;
-    ODNode *node;
     NSArray *odArray;
     ODRecord *record;
     ODQuery * query;
@@ -327,11 +299,7 @@ nsxpc_return:
     NSString* userShell;
     NSArray* arr;
     
-    [self getNode:&node forServer:server withError:&error];
-    
-    if(!node){
-        goto nsxpc_return;
-    }
+   
     
     
     query = [ODQuery  queryWithNode: node
@@ -380,17 +348,10 @@ nsxpc_return:
 
 -(void)getGroupListFromServer:(Server*)server withReply:(void (^)(NSArray *groupList,NSError *error))reply{
     NSError *error = nil;
-    ODNode *node;
     NSArray * odArray;
     ODQuery *query;
     NSMutableArray *groupList;
     ODRecord *record;
-
-    
-    [self getNode:&node forServer:server withError:&error];
-    if(!node){
-        goto nsxpc_return;        
-    }
     
     query = [ODQuery  queryWithNode: node
                               forRecordTypes: kODRecordTypeGroups
@@ -419,17 +380,11 @@ nsxpc_return:
 
 -(void)getUserListFromServer:(Server*)server withReply:(void (^)(NSArray *userList,NSError *error))reply{
     NSError *error = nil;
-    ODNode *node;
     ODRecord *record;
     ODQuery *query;
     NSArray *odArray;
     NSMutableArray *userList;
     
-    [self getNode:&node forServer:server withError:&error];
-    
-    if(!node){
-        goto nsxpc_return;        
-    }
     
     query = [ODQuery  queryWithNode: node
                               forRecordTypes: kODRecordTypeUsers
@@ -466,21 +421,18 @@ nsxpc_return:
     // 1 Authenticated over proxy
     
     OSStatus status = -1;
-    ODNode *node;
     NSError* error = nil;
     
-    node = [self getLocalServerNode:server.serverName error:&error];
-    if(node){
+    [self getLocalServerNode:server.serverName error:&error];
+    if([self getLocalServerNode:server.serverName error:&error]){
         if([node setCredentialsWithRecordType:nil recordName:server.diradminName password:server.diradminPass error:nil]){
             status = 0;
         }else{
             status = -2;
             NSLog(@"Local Node error: %@",error.localizedDescription);
-
         }
     }else{
-        node = [self getRemServerNode:server error:&error];
-        if(node){
+        if([self getRemServerNode:server error:&error]){
             status = 1;
         }else{
             NSLog(@"Proxy Node Error: %@",error.localizedDescription);
@@ -495,7 +447,7 @@ reply(status);
 //  Record Retrevial methods
 //---------------------------------------------
 
--(ODRecord*)getGroupRecord:(NSString*)group withNode:(ODNode*)node{
+-(ODRecord*)getGroupRecord:(NSString*)group{
     ODRecord* record = nil;
     ODQuery *query = [ODQuery  queryWithNode: node
                               forRecordTypes: kODRecordTypeGroups
@@ -516,8 +468,7 @@ reply(status);
     
 }
 
--(ODRecord*)getPresetRecord:(NSString*)preset
-                         ForNode:(ODNode*)node{
+-(ODRecord*)getPresetRecord:(NSString*)preset{
     ODRecord* record = nil;
     ODQuery *upQuery = [ODQuery  queryWithNode: node
                                 forRecordTypes: kODRecordTypePresetUsers
@@ -537,7 +488,7 @@ reply(status);
     return record;
 }
 
--(ODRecord*)getUserRecord:(NSString*)user withNode:(ODNode*)node{
+-(ODRecord*)getUserRecord:(NSString*)user{
     ODRecord* record = nil;
     ODQuery *query = [ODQuery  queryWithNode: node
                               forRecordTypes: kODRecordTypeUsers
@@ -557,80 +508,28 @@ reply(status);
     return record;
 }
 
-/*Node Retrevial Methods*/
--(BOOL)getAuthenticatedNode:(ODNode**)node forServer:(Server*)server withError:(NSError**)error{
-    /* first try to get node if this computer is bound to directory
-        if it's not then connect via a proxy */
-    ODNode *localNode;
-    NSError *localError;
-    
-    localNode = [self getLocalServerNode:server.serverName error:&*error];
-    
-    if(!localNode){
-        localNode = [self getRemServerNode:server error:&*error];
-    }
-    if(!localNode){
-        localError = [ODUserError errorWithCode:ODUMCantConnectToNode];
-        return NO;
-    }
-    
-    [localNode setCredentialsWithRecordType:nil recordName:server.diradminName password:server.diradminPass error:&*error];
-    
-    if(localError){
-        localError = [ODUserError errorWithCode:ODUMCantAuthenicate];
-        if (error) *error = localError;
-        return NO;
-    }
-    
-    if (node) *node = localNode;
-    
-    return YES;
-}
 
-
--(BOOL)getNode:(ODNode**)node forServer:(Server*)server withError:(NSError**)error{
-    ODNode *localNode;
-    NSError *localError;
-
-    localNode = [self getLocalServerNode:server.serverName error:&localError];
-    
-    if(!localNode){
-        localNode = [self getRemServerNode:server error:&localError];
-    }
-    
-    if(!localNode){
-        localError = [ODUserError errorWithCode:ODUMCantConnectToNode];
-        if (error) *error = localError;
-        return NO;
-    }
-    if (node) *node = localNode;
-    return YES;
-}
-
-
--(ODNode*)getLocalServerNode:(NSString*)serverName error:(NSError**)error{
+-(BOOL)getLocalServerNode:(NSString*)serverName error:(NSError**)error{
     NSError* localError = nil;
     
     ODSession *session = [ODSession defaultSession];
     NSString *ldap = [NSString stringWithFormat:@"/LDAPv3/%@",serverName];
-    ODNode *node = [ODNode nodeWithSession:session name:ldap error:&localError];
+    node = [ODNode nodeWithSession:session name:ldap error:&localError];
     if(!node){
-        return nil;
+        if (error)*error = localError;
+        return NO;
     }
     
-    // assign local error to pointer
-    if (error) *error = localError;
-    
-    return node;
+    return YES;
 }
 
 
--(ODNode*)getRemServerNode:(Server*)server error:(NSError**)error{
+-(BOOL)getRemServerNode:(Server*)server error:(NSError**)error{
     NSError* localError = nil;
     
     if(!server.serverName || !server.diradminName || !server.diradminPass){
-        return nil;
         NSLog(@"We were lacking some bit of information need for the proxy connection");
+        return NO;
     }
     
     NSDictionary* settings = [NSDictionary dictionaryWithObjectsAndKeys:server.serverName,ODSessionProxyAddress,@"0",ODSessionProxyPort,server.diradminName,ODSessionProxyUsername,server.diradminPass,ODSessionProxyPassword, nil];
@@ -640,18 +539,18 @@ reply(status);
     if(localError){
         NSLog(@"%@",[localError localizedDescription]);
         if (error) *error = localError;
-        return nil;
+        return NO;
     }
     
     NSString *ldap = [NSString stringWithFormat:@"/LDAPv3/127.0.0.1"];
-    ODNode *node = [ODNode nodeWithSession:session name:ldap error:&localError];
+    node = [ODNode nodeWithSession:session name:ldap error:&localError];
     
     if(localError){
         NSLog(@"%@",[localError localizedDescription]);
         if (error) *error = localError;
-        return nil;
+        return NO;
     }
-    return node;
+    return YES;
 }
 
 //---------------------------------------------
@@ -676,15 +575,45 @@ reply(status);
 //---------------------------------------------
 
 
--(void)checkServerStatus:(NSString*)server withReply:(void (^)(OSStatus connected))reply{
-    OSStatus connected = 1;
-    NSError* error = nil;
+-(void)checkServerStatus:(Server*)server withReply:(void (^)(OSStatus connected))reply{
+    // here are the status returns
+    // -1 No Node
+    // -2 locally connected, but wrong password
+    // -3 proxy but wrong auth password
+    // 0 Authenticated locally
+    // 1 Authenticated over proxy
     
-    if([self getLocalServerNode:server error:&error]){
-        connected = 0;        
+    OSStatus status = -1;
+    NSError* nodeError = nil;
+    NSError* authError = nil;
+
+    
+    if([self getLocalServerNode:server.serverName error:&nodeError]){
+        [node setCredentialsWithRecordType:nil recordName:server.diradminName password:server.diradminPass error:&authError];
+        if(!authError){
+            status = 0;
+        }else{
+            status = -2;
+            NSLog(@"Local Node error: %@",authError.localizedDescription);
+        }
+        
+    }else if([self getRemServerNode:server error:&nodeError]){
+        [node setCredentialsWithRecordType:nil recordName:server.diradminName password:server.diradminPass error:&authError];
+        if(!authError){
+            status = 1;
+        }else{
+            NSLog(@"Proxy Node Error: %@",authError.localizedDescription);
+            status = -3;
+        }
+    }else{
+        status = -3;
     }
-    reply(connected);
+    reply(status);
 }
+
+//---------------------------------------------
+//  Open Directory Delegate Methods
+//---------------------------------------------
 
 
 //---------------------------------

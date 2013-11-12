@@ -41,9 +41,8 @@
 
 
 /* methods for status checking */
--(void)checkCredentials:(Server*)server withReply:(void (^)(OSStatus authenticated))reply;
 
--(void)checkServerStatus:(NSString*)server
+-(void)checkServerStatus:(Server*)server
                withReply:(void (^)(OSStatus connected))reply;
 
 
@@ -52,7 +51,6 @@
 
 @interface OpenDirectoryService : NSObject <NSXPCListenerDelegate, OpenDirectoryService>
 + (OpenDirectoryService *)sharedDirectoryServer;
-
 @property (weak) NSXPCConnection *xpcConnection;
 
 @end
