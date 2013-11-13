@@ -255,52 +255,144 @@
 
 }
 
+-(void)setServerStatus:(OSStatus)status{
+    // here are the status returns
+    // -1 No Node
+    // -2 locally connected, but wrong password
+    // -3 proxy but wrong auth password
+    // 0 Authenticated locally
+    // 1 Authenticated over proxy
+    [_dsServerStatusProgress stopAnimation:nil];
+    [_dsServerStatusProgress setHidden:YES];
+    [_dsServerRefreshButton setHidden:NO];
 
--(void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context{
-    if([keyPath isEqualToString:@"userList"]){
-        [dsUserArrayController setContent:[object valueForKeyPath:keyPath]];
+    if(status < 0){
+        [_dsServerStatus setImage:[NSImage imageNamed:@"connected-offline.tiff"]];
+        NSLog(@"Offline");
+    }else{
+        NSLog(@"OnLine");
+        [self setKeyChainPassword];
+        [ODUDSQuery getDSUserPresets];
+        [ODUDSQuery getDSGroupList];
+        [ODUDSQuery getDSUserList];
     }
-    else  if([keyPath isEqualToString:@"groupList"]){
-        [dsGroupArrayController setContent:[object valueForKeyPath:keyPath]];
+    
+    if(status == -1){
+        _dsStatusMessage.stringValue = @"Could Not Connect to Remote Node";
+    }else if (status == -2){
+        _dsStatusMessage.stringValue = @"Locally connected, but username or password are incorrect";
+    }else if (status == -3){
+        _dsStatusMessage.stringValue = @"Could Not Connect to proxy server.";
+    }else if (status == 0){
+        _dsStatusMessage.stringValue = @"The the username and password are correct, connected locally.";
+        [_dsServerStatus setImage:[NSImage imageNamed:@"connected-local.tiff"]];
+    }else if (status == 1){
+        [_dsServerStatus setState:YES];
+        _dsStatusMessage.stringValue = @"The the username and password are correct, connected over proxy";
+        [_dsServerStatus setImage:[NSImage imageNamed:@"connected-proxy.tiff"]];
     }
-    else if([keyPath isEqualToString:@"presetList"]){
-        [dsPresetArrayController setContent:[object valueForKeyPath:keyPath]];
 
-    }
-    else if ([keyPath isEqualToString:@"serverStatus"]){
-        // here are the status returns
-        // -1 No Node
-        // -2 locally connected, but wrong password
-        // -3 proxy but wrong auth password
-        // 0 Authenticated locally
-        // 1 Authenticated over proxy
+}
 
-        OSStatus status = [[object valueForKeyPath:keyPath]intValue];
-        
-        if(status < 0){
-            [_dsServerStatus setImage:[NSImage imageNamed:@"connected-offline.tiff"]];
-            NSLog(@"Offline");
-        }else{
-            NSLog(@"OnLine");
-            [ODUDSQuery getDSUserPresets];
-            [ODUDSQuery getDSGroupList];
-            [ODUDSQuery getDSUserList];
+-(IBAction)addGroupMatch:(id)sender{
+    
+}
+
+-(IBAction)removeGroupMatch:(id)sender{
+    
+}
+
+
+- (IBAction)editServerName:(id)sender{
+    if([_diradminPass.stringValue isEqualToString:@""]){
+        [self getKeyChainPassword];
+    }
+    
+    [self refreshServerStatus:nil];
+}
+
+
+-(IBAction)refreshServerStatus:(id)sender{
+    NSError* error;
+    Server* server = [Server new];
+    server.serverName = _serverName.stringValue;
+    server.diradminName = _diradminName.stringValue;
+    server.diradminPass = _diradminPass.stringValue;
+    
+    [_dsServerStatusProgress startAnimation:nil];
+    [_dsServerStatusProgress setHidden:NO];
+    [_dsServerRefreshButton setHidden:YES];
+    
+    [[ODUStatus sharedStatus] addObserver:self
+                               forKeyPath:@"serverStatus"
+                                  options:NSKeyValueObservingOptionNew
+                                  context:NULL];
+    
+    [ODUDSQuery getAuthenticatedDirectoryNode:server error:&error];
+    
+    if(error){
+        [_dsServerStatusProgress stopAnimation:nil];
+        [_dsServerStatusProgress setHidden:YES];
+        [_dsServerRefreshButton setHidden:NO];
+        [self showErrorAlert:error];
+    }
+}
+
+-(IBAction)configrureUserPreset:(id)sender{
+    [NSApp beginSheet:_presetConfigSheet
+       modalForWindow:[[NSApplication sharedApplication]mainWindow]
+        modalDelegate:self
+       didEndSelector:NULL
+          contextInfo:NULL];
+}
+
+- (IBAction)settingsDone:(id)sender{
+    [_presetConfigSheet orderOut:self];
+    [NSApp endSheet:_presetConfigSheet returnCode:0];
+    
+    if(![_extraGroupDescription.stringValue isEqualToString:@""]){
+        _extraGroup.title = _extraGroupDescription.stringValue;
+    }
+}
+
+-(IBAction)addGroupToUser:(id)sender{
+    
+}
+
+-(IBAction)removeGroupFromUser:(id)sender{
+    
+}
+
+-(IBAction)makeDSImportFile:(id)sender{
+    
+}
+
+
+
+-(IBAction)chooseImportFile:(id)sender{
+    NSOpenPanel* openPanel = [NSOpenPanel openPanel];
+    [openPanel setCanChooseFiles:YES];
+    [openPanel setAllowsMultipleSelection:NO];
+    [openPanel setCanChooseDirectories:NO];
+    
+    [openPanel beginSheetModalForWindow:[[NSApplication sharedApplication]mainWindow] completionHandler:^(NSInteger result) {
+        if (result == NSOKButton) {
+            _importFilePath.stringValue = [openPanel URL].path;
         }
-        
-        if(status == -1){
-            _dsStatusMessage.stringValue = @"Could Not Connect to Remote Node";
-        }else if (status == -2){
-            _dsStatusMessage.stringValue = @"Locally connected, but username or password are incorrect";
-        }else if (status == -3){
-            _dsStatusMessage.stringValue = @"Could Not Connect to proxy server.";
-        }else if (status == 0){
-            _dsStatusMessage.stringValue = @"The the username and password are correct, connected locally.";
-            [_dsServerStatus setImage:[NSImage imageNamed:@"connected-local.tiff"]];
-                   }else if (status == 1){
-            [_dsServerStatus setState:YES];
-            _dsStatusMessage.stringValue = @"The the username and password are correct, connected over proxy";
-            [_dsServerStatus setImage:[NSImage imageNamed:@"connected-proxy.tiff"]];
-        }
+    }];
+    
+}
+
+-(void)getKeyChainPassword{
+    NSString* kcAccount = [NSString stringWithFormat:@"%@:%@",_diradminName.stringValue,_serverName.stringValue];
+    _diradminPass.stringValue = [SSKeychain passwordForService:
+                           [[NSBundle mainBundle] bundleIdentifier] account:kcAccount error:nil];
+}
+
+-(void)setKeyChainPassword{
+    if(![_diradminPass.stringValue isEqualToString:@""]){
+        NSString* kcAccount = [NSString stringWithFormat:@"%@:%@",_diradminName.stringValue,_serverName.stringValue];
+        [SSKeychain setPassword:_diradminPass.stringValue forService:[[NSBundle mainBundle] bundleIdentifier] account:kcAccount];
     }
 }
 
@@ -351,6 +443,10 @@
           contextInfo:NULL];
 }
 
+- (void)setProgressMsg:(NSString*)message{
+    self.progressMessage = message;
+}
+
 - (void)stopProgressPanel {
     [self.progressPanel orderOut:self];
     [NSApp endSheet:self.progressPanel returnCode:0];
@@ -362,14 +458,33 @@
     }];
 }
 
--(void)awakeFromNib{
-    [[ODUStatus sharedStatus]addObserver:self forKeyPath:@"serverStatus" options:NSKeyValueObservingOptionNew context:NULL];
-    
-    [[ODUStatus sharedStatus]addObserver:self forKeyPath:@"userList" options:NSKeyValueObservingOptionNew context:NULL];
-    
-    [[ODUStatus sharedStatus]addObserver:self forKeyPath:@"groupList" options:NSKeyValueObservingOptionNew context:NULL];
-    
-    [[ODUStatus sharedStatus]addObserver:self forKeyPath:@"presetList" options:NSKeyValueObservingOptionNew context:NULL];
 
+#pragma mark -- Observers
+-(void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context{
+    if([keyPath isEqualToString:@"userList"]){
+        [dsUserArrayController setContent:[object valueForKeyPath:keyPath]];
+        [[ODUStatus sharedStatus] removeObserver:self forKeyPath:keyPath];
+    }
+    else  if([keyPath isEqualToString:@"groupList"]){
+        [dsGroupArrayController setContent:[object valueForKeyPath:keyPath]];
+        [[ODUStatus sharedStatus] removeObserver:self forKeyPath:keyPath];
+    }
+    else if([keyPath isEqualToString:@"presetList"]){
+        [dsPresetArrayController setContent:[object valueForKeyPath:keyPath]];
+        [[ODUStatus sharedStatus] removeObserver:self forKeyPath:keyPath];
+    }
+    else if ([keyPath isEqualToString:@"serverStatus"]){
+        [self setServerStatus:[[object valueForKeyPath:keyPath]intValue]];
+        [[ODUStatus sharedStatus] removeObserver:self forKeyPath:keyPath];
+    }
+}
+
+-(void)awakeFromNib{
+    [_dsServerStatusProgress startAnimation:nil];
+    [_dsServerRefreshButton setHidden:YES];
+    [[ODUStatus sharedStatus] addObserver:self forKeyPath:@"serverStatus" options:NSKeyValueObservingOptionNew context:NULL];
+    [[ODUStatus sharedStatus] addObserver:self forKeyPath:@"userList" options:NSKeyValueObservingOptionNew context:NULL];
+    [[ODUStatus sharedStatus] addObserver:self forKeyPath:@"groupList" options:NSKeyValueObservingOptionNew context:NULL];
+    [[ODUStatus sharedStatus] addObserver:self forKeyPath:@"presetList" options:NSKeyValueObservingOptionNew context:NULL];
 }
 @end

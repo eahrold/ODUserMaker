@@ -35,6 +35,8 @@ enum ODUMErrorCodes {
     ODUMCantConnectToNode = 4001,
     ODUMCantAuthenicate = 4002,
     ODUMNotAuthenticated = 4003,
+    
+    ODUMFieldsMissing = 5001
 };
 
 

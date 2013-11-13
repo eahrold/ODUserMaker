@@ -11,7 +11,7 @@
 
 @interface ODUDSQuery : NSObject
 
-+(void)getAuthenticatedDirectoryNode:(Server*)server;
++(BOOL)getAuthenticatedDirectoryNode:(Server*)server error:(NSError**)error;
 
 +(void)getDSUserList;
 +(void)getDSGroupList;

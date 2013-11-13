@@ -32,8 +32,10 @@
     server.diradminPass = [SSKeychain passwordForService:
                         [[NSBundle mainBundle] bundleIdentifier] account:kcAccount error:&error];
     
+    
     if(!error){
-        [ODUDSQuery getAuthenticatedDirectoryNode:server];
+        _passWord.stringValue = server.diradminPass;
+        [ODUDSQuery getAuthenticatedDirectoryNode:server error:nil];
     }else{
         NSLog(@"Error: %@",error.localizedDescription);
     }

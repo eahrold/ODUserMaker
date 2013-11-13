@@ -7,20 +7,23 @@
 //
 
 #import "ODUDSQuery.h"
+#import "ODUserError.h"
 #import "SecuredObjects.h"
 #import "OpenDirectoryService.h"
 #import "ODUStatus.h"
 
 @implementation ODUDSQuery
 
-+(void)getAuthenticatedDirectoryNode:(Server*)server{
++(BOOL)getAuthenticatedDirectoryNode:(Server*)server error:(NSError**)error{
+    NSError* _error;
     /* don't bother checking untill everything is in place */
     
     if([server.serverName isEqualToString:@""] ||
        [server.diradminName isEqualToString:@""] ||
        [server.diradminPass isEqualToString:@""]){
-        return;
-        NSLog(@"Something is missing");
+        _error = [ODUserError errorWithCode:ODUMFieldsMissing];
+        if(error)*error = _error;
+        return NO;
     }
   
     NSXPCConnection* connection = [[NSXPCConnection alloc] initWithServiceName:kDirectoryServiceName];
@@ -35,7 +38,7 @@
         ];
         [connection invalidate];
     }];
-
+    return YES;
 }
 
 +(void)getDSUserList{

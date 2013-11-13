@@ -20,7 +20,7 @@
 
 -(IBAction)makeMultiUserPressed:(id)sender;
 -(IBAction)makeDSImportFile:(id)sender;
--(IBAction)chooseFile:(id)sender;
+-(IBAction)chooseImportFile:(id)sender;
 -(IBAction)addGroupMatch:(id)sender;
 -(IBAction)removeGroupMatch:(id)sender;
 
@@ -55,6 +55,7 @@
 //---------------------------------------------------
 // User Settings Preset
 //---------------------------------------------------
+@property (assign) IBOutlet NSWindow    *presetConfigSheet;
 @property (assign) IBOutlet NSTextField *sharePoint;
 @property (assign) IBOutlet NSTextField *sharePath;
 @property (assign) IBOutlet NSTextField *NFSPath;
@@ -102,6 +103,8 @@
 //---------------------------------------------------
 @property (assign) IBOutlet NSButton *dsServerStatus;
 @property (assign) IBOutlet NSTextField *dsStatusMessage;
+@property (assign) IBOutlet NSProgressIndicator *dsServerStatusProgress;
+@property (assign) IBOutlet NSButton *dsServerRefreshButton;
 
 //---------------------------------------------------
 // Progress Pannel
