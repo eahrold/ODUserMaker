@@ -22,13 +22,16 @@
 		BE94E3CB1798E6830024C9E5 /* ODUserMaker.icns in Resources */ = {isa = PBXBuildFile; fileRef = BE94E3CA1798E6830024C9E5 /* ODUserMaker.icns */; };
 		BE9625E51795A55800839C80 /* SSKeychain.m in Sources */ = {isa = PBXBuildFile; fileRef = BE9625E41795A55800839C80 /* SSKeychain.m */; };
 		BE9625EA1795A75100839C80 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BE9625E81795A74A00839C80 /* Security.framework */; };
+		BEAA9EF71832CF8A00E0BEA8 /* ODUAlerts.m in Sources */ = {isa = PBXBuildFile; fileRef = BEAA9EF61832CF8A00E0BEA8 /* ODUAlerts.m */; };
+		BEAA9EFA1832D62200E0BEA8 /* ODUDSQuery.m in Sources */ = {isa = PBXBuildFile; fileRef = BEAA9EF91832D62200E0BEA8 /* ODUDSQuery.m */; };
+		BEAA9F431833D3F100E0BEA8 /* ODUStatus.m in Sources */ = {isa = PBXBuildFile; fileRef = BEAA9F421833D3F100E0BEA8 /* ODUStatus.m */; };
 		BEC424F61791A7FF00CA45A5 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BEC424F51791A7FF00CA45A5 /* Cocoa.framework */; };
 		BEC425001791A80000CA45A5 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = BEC424FE1791A80000CA45A5 /* InfoPlist.strings */; };
 		BEC425021791A80000CA45A5 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = BEC425011791A80000CA45A5 /* main.m */; };
 		BEC425061791A80000CA45A5 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = BEC425041791A80000CA45A5 /* Credits.rtf */; };
-		BEC425091791A80000CA45A5 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = BEC425081791A80000CA45A5 /* AppDelegate.m */; };
+		BEC425091791A80000CA45A5 /* ODUDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = BEC425081791A80000CA45A5 /* ODUDelegate.m */; };
 		BEC4250C1791A80000CA45A5 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = BEC4250A1791A80000CA45A5 /* MainMenu.xib */; };
-		BEC4252E1791AE3500CA45A5 /* AppController.m in Sources */ = {isa = PBXBuildFile; fileRef = BEC4252D1791AE3500CA45A5 /* AppController.m */; };
+		BEC4252E1791AE3500CA45A5 /* ODUController.m in Sources */ = {isa = PBXBuildFile; fileRef = BEC4252D1791AE3500CA45A5 /* ODUController.m */; };
 		BEC425351792302A00CA45A5 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BEC425171791A85900CA45A5 /* Foundation.framework */; };
 		BEC4253B1792302A00CA45A5 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = BEC425391792302A00CA45A5 /* InfoPlist.strings */; };
 		BEC4253E1792302A00CA45A5 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = BEC4253D1792302A00CA45A5 /* main.m */; };
@@ -78,6 +81,12 @@
 		BE9625E31795A55800839C80 /* SSKeychain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SSKeychain.h; sourceTree = "<group>"; };
 		BE9625E41795A55800839C80 /* SSKeychain.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SSKeychain.m; sourceTree = "<group>"; };
 		BE9625E81795A74A00839C80 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
+		BEAA9EF51832CF8A00E0BEA8 /* ODUAlerts.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ODUAlerts.h; sourceTree = "<group>"; };
+		BEAA9EF61832CF8A00E0BEA8 /* ODUAlerts.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ODUAlerts.m; sourceTree = "<group>"; };
+		BEAA9EF81832D62200E0BEA8 /* ODUDSQuery.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ODUDSQuery.h; sourceTree = "<group>"; };
+		BEAA9EF91832D62200E0BEA8 /* ODUDSQuery.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ODUDSQuery.m; sourceTree = "<group>"; };
+		BEAA9F411833D3F100E0BEA8 /* ODUStatus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ODUStatus.h; path = ../ODUStatus.h; sourceTree = "<group>"; };
+		BEAA9F421833D3F100E0BEA8 /* ODUStatus.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ODUStatus.m; path = ../ODUStatus.m; sourceTree = "<group>"; };
 		BEC424F21791A7FF00CA45A5 /* ODUserMaker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ODUserMaker.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BEC424F51791A7FF00CA45A5 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		BEC424F81791A7FF00CA45A5 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -88,13 +97,13 @@
 		BEC425011791A80000CA45A5 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		BEC425031791A80000CA45A5 /* ODUserMaker-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ODUserMaker-Prefix.pch"; sourceTree = "<group>"; };
 		BEC425051791A80000CA45A5 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = en; path = en.lproj/Credits.rtf; sourceTree = "<group>"; };
-		BEC425071791A80000CA45A5 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
-		BEC425081791A80000CA45A5 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = AppDelegate.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+		BEC425071791A80000CA45A5 /* ODUDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ODUDelegate.h; sourceTree = "<group>"; };
+		BEC425081791A80000CA45A5 /* ODUDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = ODUDelegate.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		BEC4250B1791A80000CA45A5 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		BEC425171791A85900CA45A5 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
-		BEC4252C1791AE3500CA45A5 /* AppController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppController.h; sourceTree = "<group>"; };
-		BEC4252D1791AE3500CA45A5 /* AppController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AppController.m; path = ODUserMaker/AppController.m; sourceTree = SOURCE_ROOT; };
-		BEC4252F1792005000CA45A5 /* AppProgress.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AppProgress.h; path = ODUserMaker/AppProgress.h; sourceTree = SOURCE_ROOT; };
+		BEC4252C1791AE3500CA45A5 /* ODUController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ODUController.h; sourceTree = "<group>"; };
+		BEC4252D1791AE3500CA45A5 /* ODUController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ODUController.m; path = ODUserMaker/ODUController.m; sourceTree = SOURCE_ROOT; };
+		BEC4252F1792005000CA45A5 /* ODUProgress.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ODUProgress.h; path = ODUserMaker/ODUProgress.h; sourceTree = SOURCE_ROOT; };
 		BEC425341792302A00CA45A5 /* com.aapps.ODUserMaker.file-service.xpc */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "com.aapps.ODUserMaker.file-service.xpc"; sourceTree = BUILT_PRODUCTS_DIR; };
 		BEC425381792302A00CA45A5 /* file-service-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "file-service-Info.plist"; sourceTree = "<group>"; };
 		BEC4253A1792302A00CA45A5 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -221,10 +230,14 @@
 		BEC424FB1791A7FF00CA45A5 /* ODUserMaker */ = {
 			isa = PBXGroup;
 			children = (
-				BEC425071791A80000CA45A5 /* AppDelegate.h */,
-				BEC425081791A80000CA45A5 /* AppDelegate.m */,
-				BEC4252C1791AE3500CA45A5 /* AppController.h */,
-				BEC4252D1791AE3500CA45A5 /* AppController.m */,
+				BEC425071791A80000CA45A5 /* ODUDelegate.h */,
+				BEC425081791A80000CA45A5 /* ODUDelegate.m */,
+				BEC4252C1791AE3500CA45A5 /* ODUController.h */,
+				BEC4252D1791AE3500CA45A5 /* ODUController.m */,
+				BEAA9EF81832D62200E0BEA8 /* ODUDSQuery.h */,
+				BEAA9EF91832D62200E0BEA8 /* ODUDSQuery.m */,
+				BEAA9EF51832CF8A00E0BEA8 /* ODUAlerts.h */,
+				BEAA9EF61832CF8A00E0BEA8 /* ODUAlerts.m */,
 				BEC4250A1791A80000CA45A5 /* MainMenu.xib */,
 				BEFBDC74179C95B000AB0960 /* Supporting Classes */,
 				BEC424FC1791A80000CA45A5 /* Supporting Files */,
@@ -253,7 +266,7 @@
 			children = (
 				BEFBDC70179C173E00AB0960 /* OpenDirectoryService.h */,
 				BEC425421792309D00CA45A5 /* FileService.h */,
-				BEC4252F1792005000CA45A5 /* AppProgress.h */,
+				BEC4252F1792005000CA45A5 /* ODUProgress.h */,
 				BE2D96B817D222880076258A /* ODUserBridge.h */,
 			);
 			name = Interfaces;
@@ -314,6 +327,8 @@
 		BEFBDC74179C95B000AB0960 /* Supporting Classes */ = {
 			isa = PBXGroup;
 			children = (
+				BEAA9F411833D3F100E0BEA8 /* ODUStatus.h */,
+				BEAA9F421833D3F100E0BEA8 /* ODUStatus.m */,
 				BE2D96B217D220540076258A /* ODUserError.h */,
 				BE2D96B317D220540076258A /* ODUserError.m */,
 				BE9625E31795A55800839C80 /* SSKeychain.h */,
@@ -457,9 +472,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BEAA9F431833D3F100E0BEA8 /* ODUStatus.m in Sources */,
 				BEC425021791A80000CA45A5 /* main.m in Sources */,
-				BEC425091791A80000CA45A5 /* AppDelegate.m in Sources */,
-				BEC4252E1791AE3500CA45A5 /* AppController.m in Sources */,
+				BEC425091791A80000CA45A5 /* ODUDelegate.m in Sources */,
+				BEAA9EF71832CF8A00E0BEA8 /* ODUAlerts.m in Sources */,
+				BEAA9EFA1832D62200E0BEA8 /* ODUDSQuery.m in Sources */,
+				BEC4252E1791AE3500CA45A5 /* ODUController.m in Sources */,
 				BEC425471792451E00CA45A5 /* SecuredObjects.m in Sources */,
 				BE9625E51795A55800839C80 /* SSKeychain.m in Sources */,
 				BE2D96B417D220540076258A /* ODUserError.m in Sources */,

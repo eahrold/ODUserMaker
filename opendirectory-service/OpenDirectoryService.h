@@ -15,36 +15,27 @@
 @protocol OpenDirectoryService
 
 /* methods for editing users/group*/
--(void)addSingleUser:(User*)user toServer:(Server*)server andGroups:(NSArray*)groups withReply:(void (^)(NSError *error))reply;
+-(void)addSingleUser:(User*)user andGroups:(NSArray*)groups withReply:(void (^)(NSError *error))reply;
 
--(void)addListOfUsers:(NSArray*)list usingPresetsIn:(User*)user toServer:(Server*)server andGroups:(NSArray*)userGroups withReply:(void (^)(NSError *error))reply;
+-(void)addListOfUsers:(NSArray*)list usingPresetsIn:(User*)user andGroups:(NSArray*)userGroups withReply:(void (^)(NSError *error))reply;
 
-
--(void)resetUserPassword:(User*)user onServer:(Server*)server
-               withReply:(void (^)(NSError *error))reply;
+-(void)resetUserPassword:(User*)user withReply:(void (^)(NSError *error))reply;
 
 
 /* methods for getting lists*/ 
-
--(void)getUserPresets:(Server*)server
-            withReply:(void (^)(NSArray *userPreset,NSError *error))reply;
+-(void)getUserPresets:(void (^)(NSArray *userPreset,NSError *error))reply;
 
 -(void)getSettingsForPreset:(NSString*)preset
-                 withServer:(Server*)server
-            withReply:(void (^)(NSDictionary *settings,NSError *error))reply;
+                  withReply:(void (^)(NSDictionary *settings,NSError *error))reply;
 
--(void)getGroupListFromServer:(Server*)server
-                    withReply:(void (^)(NSArray *groupList,NSError *error))reply;
+-(void)getGroupListFromServer:(void (^)(NSArray *groupList,NSError *error))reply;
 
--(void)getUserListFromServer:(Server*)server
-                   withReply:(void (^)(NSArray *userList,NSError *error))reply;
+-(void)getUserListFromServer:(void (^)(NSArray *userList,NSError *error))reply;
 
 
 /* methods for status checking */
-
 -(void)checkServerStatus:(Server*)server
                withReply:(void (^)(OSStatus connected))reply;
-
 
 @end
 

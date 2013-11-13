@@ -8,10 +8,27 @@
 
 #import <Foundation/Foundation.h>
 
-@interface AppController : NSObject{
-    IBOutlet NSArrayController *arrayController;
-    NSMutableArray *groups;
+@interface ODUController : NSObject{
+    IBOutlet NSArrayController *dsGroupArrayController;
+    IBOutlet NSArrayController *dsUserArrayController;
+    IBOutlet NSArrayController *dsPresetArrayController;
 }
+
+-(IBAction)makeSingleUserPressed:(id)sender;
+-(IBAction)addGroupToUser:(id)sender;
+-(IBAction)removeGroupFromUser:(id)sender;
+
+-(IBAction)makeMultiUserPressed:(id)sender;
+-(IBAction)makeDSImportFile:(id)sender;
+-(IBAction)chooseFile:(id)sender;
+-(IBAction)addGroupMatch:(id)sender;
+-(IBAction)removeGroupMatch:(id)sender;
+
+-(IBAction)resetPasswordPressed:(id)sender;
+
+-(IBAction)refreshServerStatus:(id)sender;
+-(IBAction)getSettingsForPreset:(id)sender;
+-(IBAction)configrureUserPreset:(id)sender;
 
 //---------------------------------------------------
 // User Settings
@@ -20,16 +37,16 @@
 @property (assign) IBOutlet NSTextField *emailDomain;
 @property (assign) IBOutlet NSTextField *defaultGroup;
 
-@property (assign) IBOutlet NSTextField *firstName;
-@property (assign) IBOutlet NSTextField *lastName;
-@property (assign) IBOutlet NSTextField *userCWID;
+@property (assign) IBOutlet NSTextField   *firstName;
+@property (assign) IBOutlet NSTextField   *lastName;
+@property (assign) IBOutlet NSTextField   *userCWID;
 @property (assign) IBOutlet NSPopUpButton *userPreset;
 
-@property (assign) IBOutlet NSButton *extraGroup;
-@property (assign) IBOutlet NSComboBox *extraGroupShortName;
+@property (assign) IBOutlet NSButton    *extraGroup;
+@property (assign) IBOutlet NSComboBox  *extraGroupShortName;
 @property (assign) IBOutlet NSTextField *extraGroupDescription;
 
-@property (assign) IBOutlet NSButton *overrideUID;
+@property (assign) IBOutlet NSButton    *overrideUID;
 @property (assign) IBOutlet NSTextField *uuid;
 
 @property (assign) IBOutlet NSTextField   *statusUpdateUser;
@@ -46,7 +63,7 @@
 //---------------------------------------------------
 // Password Reset
 //---------------------------------------------------
-@property (assign) IBOutlet NSComboBox *userList;
+@property (assign) IBOutlet NSComboBox    *userList;
 @property (assign) IBOutlet NSTextField   *statusUpdate;
 @property (assign) IBOutlet NSTextField   *passWord;
 
@@ -79,7 +96,12 @@
 @property (assign) IBOutlet NSTextField *serverName;
 @property (assign) IBOutlet NSTextField *diradminName;
 @property (assign) IBOutlet NSTextField *diradminPass;
+
+//---------------------------------------------------
+// Server Status Settings
+//---------------------------------------------------
 @property (assign) IBOutlet NSButton *dsServerStatus;
+@property (assign) IBOutlet NSTextField *dsStatusMessage;
 
 //---------------------------------------------------
 // Progress Pannel
@@ -88,24 +110,6 @@
 @property (assign) IBOutlet NSProgressIndicator *progressIndicator;
 @property (assign) IBOutlet NSButton *progressCancelButton;
 @property (copy) NSString *progressMessage;  // <-- this is bound
-
-//---------------------------------------------------
-// IBAction Buttons & Calls
-//---------------------------------------------------
-@property (assign) IBOutlet NSButton *makeSingleUser;
-@property (assign) IBOutlet NSButton *makeImportFile;
-
-
-- (IBAction)makeSingleUserPressed:(id)sender;
-- (IBAction)makeMultiUserPressed:(id)sender;
-- (IBAction)resetPasswordPressed:(id)sender;
-
-
-- (IBAction)addGroupMatchEntry:(id)sender;
-- (IBAction)removeGroupMatchEntry:(id)sender;
-
-- (IBAction)addGroupForUser:(id)sender;
-- (IBAction)removeGroupForUser:(id)sender;
 
 
 @end

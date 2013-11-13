@@ -14,5 +14,4 @@
 - (void)setProgress:(double)progress;
 - (void)setProgress:(double)progress withMessage:(NSString*)message;
 - (void)setProgressMsg:(NSString*)message;
-
 @end

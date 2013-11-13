@@ -83,12 +83,12 @@ NSString *const kDirectoryServiceName = @"com.aapps.ODUserMaker.opendirectory-se
     [aEncoder encodeObject:_importFileURL forKey:@"importFileURL"];
 }
 
-+(NSDictionary*)makeDictFromUser:(User*)user{
+-(NSDictionary*)makeDictFromUser{
     NSMutableDictionary* dict =[NSMutableDictionary dictionaryWithCapacity:4];
-    [dict setObject:user.userName forKey:@"userName" ];
-    [dict setObject:user.firstName forKey:@"firstName" ];
-    [dict setObject:user.lastName forKey:@"lastName" ];
-    [dict setObject:user.userCWID forKey:@"userCWID" ];
+    [dict setObject:self.userName forKey:@"userName" ];
+    [dict setObject:self.firstName forKey:@"firstName" ];
+    [dict setObject:self.lastName forKey:@"lastName" ];
+    [dict setObject:self.userCWID forKey:@"userCWID" ];
     
     return [NSDictionary dictionaryWithDictionary:dict];
 }
@@ -108,6 +108,7 @@ NSString *const kDirectoryServiceName = @"com.aapps.ODUserMaker.opendirectory-se
     }
     return self;
 }
+
 
 // Because this class implements initWithCoder:, it must also return YES from this method.
 + (BOOL)supportsSecureCoding { return YES; }

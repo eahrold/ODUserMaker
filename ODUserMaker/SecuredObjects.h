@@ -13,7 +13,7 @@ extern NSString *const kDirectoryServiceName;
 
 @interface User : NSObject <NSSecureCoding>
 
-+(NSDictionary*)makeDictFromUser:(User*)user;
+-(NSDictionary*)makeDictFromUser;
 
 @property (copy) NSString *userName;
 @property (copy) NSString *firstName;
@@ -45,13 +45,6 @@ extern NSString *const kDirectoryServiceName;
 @property (copy) NSArray *userList;
 @property (copy) NSArray *groupList;
 @property (copy) NSNumber *userCount;
-
-
-
-
-
-
-
 
 @end
 

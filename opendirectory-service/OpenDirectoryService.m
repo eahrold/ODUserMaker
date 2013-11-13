@@ -17,7 +17,7 @@
 //------------------------------------------------------------
 
 
--(void)addSingleUser:(User*)user toServer:(Server*)server andGroups:(NSArray*)groups withReply:(void (^)(NSError *error))reply{
+-(void)addSingleUser:(User*)user andGroups:(NSArray*)groups withReply:(void (^)(NSError *error))reply{
     NSError* error = nil;
     BOOL userError = NO;
     BOOL groupError = NO;
@@ -62,7 +62,7 @@ nsxpc_return:
 }
 
 
--(void)addListOfUsers:(NSArray*)list usingPresetsIn:(User*)user toServer:(Server*)server andGroups:(NSArray*)userGroups withReply:(void (^)(NSError *error))reply{
+-(void)addListOfUsers:(NSArray*)list usingPresetsIn:(User*)user andGroups:(NSArray*)userGroups withReply:(void (^)(NSError *error))reply{
     NSError* error = nil;
     ODRecord* userRecord;
     NSString* progress;
@@ -126,7 +126,7 @@ nsxpc_return:
 }
 
 
--(void)resetUserPassword:(User*)user onServer:(Server*)server withReply:(void (^)(NSError *error))reply{
+-(void)resetUserPassword:(User*)user withReply:(void (^)(NSError *error))reply{
     NSError *error = nil;
     ODRecord* userRecord;
 
@@ -229,7 +229,7 @@ nsxpc_return:
 //  NSXPC methods
 //------------------------------------------------------------
 
--(void)getUserPresets:(Server*)server withReply:(void (^)(NSArray *userPreset,NSError *error))reply{
+-(void)getUserPresets:(void (^)(NSArray *userPreset,NSError *error))reply{
     NSError *error = nil;
     ODRecord *record;
     NSArray *odArray;
@@ -282,7 +282,6 @@ nsxpc_return:
 }
 
 -(void)getSettingsForPreset:(NSString*)preset
-                 withServer:(Server*)server
                   withReply:(void (^)(NSDictionary *settings,NSError *error))reply{
     
     NSMutableDictionary* dict = [NSMutableDictionary new];
@@ -346,7 +345,7 @@ nsxpc_return:
     reply(settings,error);
 }
 
--(void)getGroupListFromServer:(Server*)server withReply:(void (^)(NSArray *groupList,NSError *error))reply{
+-(void)getGroupListFromServer:(void (^)(NSArray *groupList,NSError *error))reply{
     NSError *error = nil;
     NSArray * odArray;
     ODQuery *query;
@@ -378,7 +377,7 @@ nsxpc_return:
     reply(groupList,error);
 }
 
--(void)getUserListFromServer:(Server*)server withReply:(void (^)(NSArray *userList,NSError *error))reply{
+-(void)getUserListFromServer:(void (^)(NSArray *userList,NSError *error))reply{
     NSError *error = nil;
     ODRecord *record;
     ODQuery *query;
@@ -412,36 +411,6 @@ nsxpc_return:
     reply(userList,error);
 }
 
--(void)checkCredentials:(Server*)server withReply:(void (^)(OSStatus authenticated))reply{
-    // here are the status returns
-    // -1 No Node
-    // -2 locally connected, but wrong password
-    // -3 proxy but wrong auth password
-    // 0 Authenticated locally
-    // 1 Authenticated over proxy
-    
-    OSStatus status = -1;
-    NSError* error = nil;
-    
-    [self getLocalServerNode:server.serverName error:&error];
-    if([self getLocalServerNode:server.serverName error:&error]){
-        if([node setCredentialsWithRecordType:nil recordName:server.diradminName password:server.diradminPass error:nil]){
-            status = 0;
-        }else{
-            status = -2;
-            NSLog(@"Local Node error: %@",error.localizedDescription);
-        }
-    }else{
-        if([self getRemServerNode:server error:&error]){
-            status = 1;
-        }else{
-            NSLog(@"Proxy Node Error: %@",error.localizedDescription);
-            status = -3;
-        }
-    }
-   
-reply(status);
-}
 
 //---------------------------------------------
 //  Record Retrevial methods
@@ -553,22 +522,6 @@ reply(status);
     return YES;
 }
 
-//---------------------------------------------
-//  Utility Methods
-//---------------------------------------------
-
--(NSString*)getValueForKey:(NSString*)key fromXMLString:(NSString*)xml{
-    NSString* reply = nil;
-    NSData *data = [xml dataUsingEncoding:NSUTF8StringEncoding];
-    
-    if(data){
-        TBXML *xml = [[TBXML alloc]initWithXMLData:data error:nil];
-        TBXMLElement *rootElement = [xml rootXMLElement];
-        TBXMLElement *tableVal = [TBXML childElementNamed:key parentElement:rootElement];
-        reply = [NSString stringWithUTF8String:tableVal->text];
-    }
-    return reply;
-}
 
 //---------------------------------------------
 //  Open Directory Node Status Checks
@@ -586,7 +539,6 @@ reply(status);
     OSStatus status = -1;
     NSError* nodeError = nil;
     NSError* authError = nil;
-
     
     if([self getLocalServerNode:server.serverName error:&nodeError]){
         [node setCredentialsWithRecordType:nil recordName:server.diradminName password:server.diradminPass error:&authError];
@@ -643,6 +595,25 @@ reply(status);
     
     return YES;
 }
+
+
+//---------------------------------------------
+//  Utility Methods
+//---------------------------------------------
+
+-(NSString*)getValueForKey:(NSString*)key fromXMLString:(NSString*)xml{
+    NSString* reply = nil;
+    NSData *data = [xml dataUsingEncoding:NSUTF8StringEncoding];
+    
+    if(data){
+        TBXML *xml = [[TBXML alloc]initWithXMLData:data error:nil];
+        TBXMLElement *rootElement = [xml rootXMLElement];
+        TBXMLElement *tableVal = [TBXML childElementNamed:key parentElement:rootElement];
+        reply = [NSString stringWithUTF8String:tableVal->text];
+    }
+    return reply;
+}
+
 
 
 @end

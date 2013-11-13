@@ -118,7 +118,7 @@ nsxpc_return:
                     
                     /* then write it to the file */
                     [self writeUser:tmpUser toFile:fh];
-                    [returnArray addObject:[User makeDictFromUser:tmpUser]];
+                    [returnArray addObject:[user makeDictFromUser]];
                     
                     /* send updates back to the UI */
                     //[[self.xpcConnection remoteObjectProxy] setProgress:progress];

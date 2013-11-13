@@ -13,6 +13,7 @@ extern NSString* const ODUMDomain;
 @interface ODUserError : NSError
 + (NSError*) errorWithCode:(int)code;
 + (NSError*) errorWithCode:(NSInteger)rc message:(NSString*)msg;
+
 @end
 
 enum ODUMErrorCodes {
