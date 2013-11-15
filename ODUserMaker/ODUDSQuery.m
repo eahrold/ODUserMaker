@@ -10,7 +10,10 @@
 #import "ODUserError.h"
 #import "SecuredObjects.h"
 #import "OpenDirectoryService.h"
+#import "FileService.h"
 #import "ODUStatus.h"
+#import "ODUController.h"
+#import "ODUAlerts.h"
 
 @implementation ODUDSQuery
 
@@ -57,8 +60,6 @@
         }];
         [connection invalidate];
     }];
-    
-    
 }
 
 +(void)getDSGroupList{
@@ -94,5 +95,128 @@
 
 }
 
++(void)getSettingsForPreset:(NSString*)preset sender:(ODUController*)sender{
+    NSXPCConnection* connection = [[NSXPCConnection alloc] initWithServiceName:kDirectoryServiceName];
+    connection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(OpenDirectoryService)];
+    connection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
+    connection.exportedObject = sender;
+    [connection resume];
+    [[connection remoteObjectProxy] getSettingsForPreset:preset withReply:^(NSDictionary *settings, NSError *error) {
+        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            if(!error){
+                sender.sharePoint.stringValue = [settings valueForKey:@"sharePoint"];
+                sender.sharePath.stringValue = [settings valueForKey:@"sharePath"];
+                sender.userShell.stringValue = [settings valueForKey:@"userShell"];
+                sender.NFSPath.stringValue = [settings valueForKey:@"NFSHome"];
+            }
+        }];
+        [connection invalidate];
+    }];
+    
+}
 
+
++(void)addUser:(User*)user toGroups:userGroups sender:(ODUController*)sender{
+    NSString* progress = [NSString stringWithFormat:@"adding %@ to %@...",
+                          user.userName, sender.serverName.stringValue];
+    
+    [sender startProgressPanelWithMessage:progress indeterminate:YES];
+    NSXPCConnection* connection = [[NSXPCConnection alloc] initWithServiceName:kDirectoryServiceName];
+    connection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(OpenDirectoryService)];
+    connection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
+    connection.exportedObject = sender;
+    [connection resume];
+    [[connection remoteObjectProxy] addSingleUser:user andGroups:userGroups withReply:^(NSError *error){
+        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            [sender stopProgressPanel];
+            if(error){
+                NSLog(@"Error: %@",[error localizedDescription]);
+                [ODUAlerts showErrorAlert:error];
+            }else{
+                sender.statusUpdateUser.stringValue = [NSString stringWithFormat:@"Added/Updated %@",user.userName];
+            }
+        }];
+        [connection invalidate];
+    }];
+
+}
+
++(void)addUserList:(User *)user withGroups:(NSArray *)groups sender:(ODUController *)sender{
+    NSString* progress = @"Adding user list...";
+    [sender startProgressPanelWithMessage:progress indeterminate:YES];
+    NSXPCConnection* fileServiceConnection = [[NSXPCConnection alloc] initWithServiceName:kFileServiceName];
+    fileServiceConnection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(FileService)];
+    fileServiceConnection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
+    fileServiceConnection.exportedObject = sender;
+    [fileServiceConnection resume];
+    [[fileServiceConnection remoteObjectProxy] makeUserArray:user andGroupList:groups withReply:^(NSArray* dsgroups,NSArray* userlist, NSError* error){
+        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            [fileServiceConnection invalidate];
+            if(error){
+                [ODUAlerts showErrorAlert:error];
+                [sender stopProgressPanel];
+            }else if (user.exportFile){
+                [sender stopProgressPanel];
+                return;
+            }else{
+                [sender.progressIndicator setIndeterminate:NO];
+                [sender.progressIndicator setUsesThreadedAnimation:YES];
+                
+                NSXPCConnection* directoryServiceConnection = [[NSXPCConnection alloc] initWithServiceName:kDirectoryServiceName];
+                directoryServiceConnection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(OpenDirectoryService)];
+                
+                directoryServiceConnection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
+                directoryServiceConnection.exportedObject = sender;
+                
+                [directoryServiceConnection resume];
+                [[directoryServiceConnection remoteObjectProxy] addListOfUsers:userlist usingPresetsIn:user andGroups:dsgroups withReply:^(NSError *error) {
+                    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                        [sender stopProgressPanel];
+                        if(error){
+                            NSLog(@"Error: %@",[error localizedDescription]);
+                            [ODUAlerts showErrorAlert:error];
+                        }
+                    }];
+                    DLog(@"Invalidated DS Connection");
+                    [directoryServiceConnection invalidate];
+                }];
+            }
+        }];
+    }];
+}
+
+
+
++(void)cancelUserImport:(ODUController*)sender{
+    NSXPCConnection* connection = [[NSXPCConnection alloc] initWithServiceName:kDirectoryServiceName];
+    connection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(OpenDirectoryService)];
+    [connection resume];
+    [[connection remoteObjectProxy] cancelImportStatus:^(OSStatus connected) {
+        [sender stopProgressPanel];
+        [connection invalidate];
+    }];
+}
+
+
++(void)resetPassword:(User *)user sender:(ODUController *)sender{
+    NSXPCConnection* connection = [[NSXPCConnection alloc] initWithServiceName:kDirectoryServiceName];
+    connection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(OpenDirectoryService)];
+    connection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
+    connection.exportedObject = sender;
+    [connection resume];
+    [[connection remoteObjectProxy] resetUserPassword:user withReply:^(NSError *error) {
+        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            [sender stopProgressPanel];
+            if(error){
+                NSLog(@"Error: %@",[error localizedDescription]);
+                [ODUAlerts showErrorAlert:error];
+            }else{
+                sender.statusUpdate.textColor = [NSColor redColor];
+                sender.statusUpdate.stringValue = [NSString stringWithFormat:@"Password reset for %@",user.userName];
+            }
+        }];
+        [connection invalidate];
+    }];
+
+}
 @end

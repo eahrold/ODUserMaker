@@ -8,9 +8,11 @@
 
 #import "OpenDirectoryService.h"
 #import "TBXML.h"
+#import <syslog.h>
 
 @implementation OpenDirectoryService{
     ODNode* node;
+    BOOL ImportStatus;
 }
 //------------------------------------------------------------
 //  NSXPC methods for App Controller
@@ -63,48 +65,55 @@ nsxpc_return:
 
 
 -(void)addListOfUsers:(NSArray*)list usingPresetsIn:(User*)user andGroups:(NSArray*)userGroups withReply:(void (^)(NSError *error))reply{
+   ;
+    
     NSError* error = nil;
     ODRecord* userRecord;
-    NSString* progress;
+    ImportStatus = TRUE;
     
     // We want to log these issues, so we'll get a collection and log once
     // so as to keep NSLog from spinning out of control 
     NSMutableSet* notAdded = [NSMutableSet new];
     NSMutableSet* wereAdded = [NSMutableSet new];
     NSMutableSet* problemAdding = [NSMutableSet new];
-
-
+    
     NSInteger count = [list count];
     NSInteger pgcount = 1;
-    double pgdouble = 100.00/count;
+    NSString* progressMessage;
     
+    double progress = 100.0/count;
+    
+    while (ImportStatus) {
+        for(NSDictionary* dict in list){
+            error = nil;
 
-    for(NSDictionary* dict in list){
-        error = nil;
-        
-        user.userName = [dict objectForKey:@"userName"];
-        user.firstName = [dict objectForKey:@"firstName"];
-        user.lastName = [dict objectForKey:@"lastName"];
-        user.userCWID = [dict objectForKey:@"userCWID"];
-        
-        user.userUUID = nil; // <-- null this out since the UUID's not used when importing a list of uses...
-        
-        progress = [NSString stringWithFormat:@"Adding %ld/%ld: %@...",(long)pgcount,(long)count,user.userName];
-        [[self.xpcConnection remoteObjectProxy] setProgress:pgdouble withMessage:progress];
-
-        userRecord = [self getUserRecord:user.userName];
-        if(userRecord){
-            [notAdded addObject:user.userName];
-        }else{
-            [self createNewUser:user error:&error];
-            if(error){
-                [problemAdding addObject:user.userName];
-                NSLog(@"There was a problem creating %@: %@",user.userName,error.localizedDescription);
+            if(!ImportStatus)break;
+         
+            user.userName = [dict objectForKey:@"userName"];
+            user.firstName = [dict objectForKey:@"firstName"];
+            user.lastName = [dict objectForKey:@"lastName"];
+            user.userCWID = [dict objectForKey:@"userCWID"];
+            user.userUUID = nil; // <-- nil this out since the UUID's not used when importing a list of uses...
+            
+            progressMessage = [NSString stringWithFormat:@"Adding %ld/%ld: %@...",(long)pgcount,(long)count,user.userName];
+            
+            [[self.xpcConnection remoteObjectProxy]setProgress:progress withMessage:progressMessage];
+            
+            userRecord = [self getUserRecord:user.userName];
+            if(userRecord){
+                [notAdded addObject:user.userName];
             }else{
-                [wereAdded addObject:user.userName];
+                [self createNewUser:user error:&error];
+                if(error){
+                    [problemAdding addObject:user.userName];
+                    NSLog(@"There was a problem creating %@: %@",user.userName,error.localizedDescription);
+                }else{
+                    [wereAdded addObject:user.userName];
+                }
             }
+            pgcount++;
         }
-        pgcount++;
+        break;
     }
     
     if([notAdded count] > 0){
@@ -122,9 +131,19 @@ nsxpc_return:
         [self addGroups:userGroups error:&error];
     }
     
+    ImportStatus = NO;
+    
     reply(error);
 }
 
+-(void)updateProgress:(NSString*)progress{
+    [[self.xpcConnection remoteObjectProxy]setProgressMsg:progress];
+}
+
+-(void)cancelImportStatus:(void (^)(OSStatus connected))reply{
+    ImportStatus = FALSE;
+    reply(YES);
+}
 
 -(void)resetUserPassword:(User*)user withReply:(void (^)(NSError *error))reply{
     NSError *error = nil;
@@ -362,6 +381,7 @@ nsxpc_return:
                                        error: &error];
     
     odArray = [query resultsAllowingPartial:NO error:&error];
+    
     groupList = [NSMutableArray arrayWithCapacity:[odArray count]];
     
     for (record in odArray) {
@@ -384,9 +404,8 @@ nsxpc_return:
     NSArray *odArray;
     NSMutableArray *userList;
     
-    
     query = [ODQuery  queryWithNode: node
-                              forRecordTypes: kODRecordTypeUsers
+                        forRecordTypes: kODRecordTypeUsers
                                    attribute: kODAttributeTypeAllAttributes
                                    matchType: kODMatchAny
                                  queryValues: nil
@@ -394,8 +413,17 @@ nsxpc_return:
                               maximumResults: 0
                                        error: &error];
     
+    if(error){
+        reply(nil,error);
+        return;
+    }
+    
     
     odArray = [query resultsAllowingPartial:NO error:&error];
+//    replyBlock = reply;
+//    [query setDelegate:self];
+//    [query scheduleInRunLoop: [NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
+    
     userList = [NSMutableArray arrayWithCapacity:[odArray count]];
     
     for (record in odArray) {
@@ -407,8 +435,7 @@ nsxpc_return:
         }
     }
     
-nsxpc_return:
-    reply(userList,error);
+   reply(userList,error);
 }
 
 
@@ -529,36 +556,31 @@ nsxpc_return:
 
 
 -(void)checkServerStatus:(Server*)server withReply:(void (^)(OSStatus connected))reply{
-    // here are the status returns
-    // -1 No Node
-    // -2 locally connected, but wrong password
-    // -3 proxy but wrong auth password
-    // 0 Authenticated locally
-    // 1 Authenticated over proxy
-    
-    OSStatus status = -1;
+    // init the query set here since whenever we change the server,the old querys will no longer be accessible
+ 
+    OSStatus status = ODUNoNode;
     NSError* nodeError = nil;
     NSError* authError = nil;
     
     if([self getLocalServerNode:server.serverName error:&nodeError]){
         [node setCredentialsWithRecordType:nil recordName:server.diradminName password:server.diradminPass error:&authError];
         if(!authError){
-            status = 0;
+            status = ODUAuthenticatedLocal;
         }else{
-            status = -2;
+            status = ODUUnauthenticatedLocal;
             NSLog(@"Local Node error: %@",authError.localizedDescription);
         }
         
     }else if([self getRemServerNode:server error:&nodeError]){
         [node setCredentialsWithRecordType:nil recordName:server.diradminName password:server.diradminPass error:&authError];
         if(!authError){
-            status = 1;
+            status = ODUAuthenticatedProxy;
         }else{
             NSLog(@"Proxy Node Error: %@",authError.localizedDescription);
-            status = -3;
+            status = ODUUnauthenticatedProxy;
         }
     }else{
-        status = -3;
+        status = ODUUnauthenticatedProxy;
     }
     reply(status);
 }
@@ -566,8 +588,27 @@ nsxpc_return:
 //---------------------------------------------
 //  Open Directory Delegate Methods
 //---------------------------------------------
+- (void)query:(ODQuery *)inSearch foundResults:(NSArray *)inResults error:(NSError *)inError
+{
+    NSMutableArray* array = [[NSMutableArray alloc]init];
+    NSLog(@"Query Delgate Method Started");
+    if (!inResults && !inError) {
+        [inSearch removeFromRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
+        replyBlock(array,inError);
+    }
+    
+    for (ODRecord *record in inResults) {
+        NSArray *recordName = [record valuesForAttribute:kODAttributeTypeRecordName error:nil];
+        
+        if ([recordName count]) {
+            //[[self.xpcConnection remoteObjectProxy] addUserToUserList:recordName[0]];
+            [array addObject:recordName[0]];
+        }
+    }
+}
 
 
+#pragma mark -- singleton
 //---------------------------------
 //  Singleton and ListenerDelegate
 //---------------------------------

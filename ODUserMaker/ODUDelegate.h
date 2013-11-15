@@ -11,9 +11,7 @@
 @interface ODUDelegate : NSObject <NSApplicationDelegate>{
 }
 
-
 @property (assign) IBOutlet NSWindow *window;
-
 @property (assign) IBOutlet NSTextField   *passWord;
 
 @end

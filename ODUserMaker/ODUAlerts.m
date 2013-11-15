@@ -26,7 +26,7 @@
         msg = @"";
     }
     [[NSAlert alertWithMessageText:alert defaultButton:@"OK"
-                   alternateButton:nil otherButton:nil informativeTextWithFormat:msg]
+                   alternateButton:nil otherButton:nil informativeTextWithFormat:@"%@",msg]
      
      beginSheetModalForWindow:[[NSApplication sharedApplication] mainWindow]
      modalDelegate:self

@@ -117,8 +117,8 @@ nsxpc_return:
                     tmpUser.keyWord = user.keyWord;
                     
                     /* then write it to the file */
-                    [self writeUser:tmpUser toFile:fh];
-                    [returnArray addObject:[user makeDictFromUser]];
+                    if(fh)[self writeUser:tmpUser toFile:fh];
+                    [returnArray addObject:[tmpUser makeDictFromUser]];
                     
                     /* send updates back to the UI */
                     //[[self.xpcConnection remoteObjectProxy] setProgress:progress];
@@ -128,7 +128,8 @@ nsxpc_return:
             }
         }
     }
-    *ulist = [NSArray arrayWithArray:returnArray];
+    
+    if(ulist)*ulist = returnArray;
     return YES;
 }
 
@@ -195,22 +196,6 @@ nsxpc_return:
     return arr;
 }
 
-//------------------------------------------------
-//  Save Panel
-//------------------------------------------------
-
-//-(NSURL*)getURLFromSavePanel{
-//    NSURL* url;
-//    NSSavePanel *savePanel = [NSSavePanel savePanel];
-//    [savePanel setAllowedFileTypes:[NSArray arrayWithObject:@"txt"]];
-//    [savePanel setNameFieldStringValue:@"dsimport.txt"];
-//    
-//    if([savePanel runModal] == NSOKButton){
-//        url = [savePanel URL];
-//    }
-//    
-//    return url;
-//}
 
 //------------------------------------------------
 //  Common Items

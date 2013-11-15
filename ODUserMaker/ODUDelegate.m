@@ -11,6 +11,7 @@
 #import "OpenDirectoryService.h"
 #import "ODUserBridge.h"
 #import "ODUDSQuery.h"
+#import "ODUStatus.h"
 
 @implementation ODUDelegate
 
@@ -37,7 +38,7 @@
         _passWord.stringValue = server.diradminPass;
         [ODUDSQuery getAuthenticatedDirectoryNode:server error:nil];
     }else{
-        NSLog(@"Error: %@",error.localizedDescription);
+        [[ODUStatus sharedStatus] setServerStatus:-1];
     }
 }
 

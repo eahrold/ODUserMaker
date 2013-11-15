@@ -37,11 +37,26 @@
 -(void)checkServerStatus:(Server*)server
                withReply:(void (^)(OSStatus connected))reply;
 
+/* method to cancel import*/
+-(void)cancelImportStatus:(void (^)(OSStatus connected))reply;
+
 @end
 
 
-@interface OpenDirectoryService : NSObject <NSXPCListenerDelegate, OpenDirectoryService>
+@interface OpenDirectoryService : NSObject <NSXPCListenerDelegate, OpenDirectoryService, ODQueryDelegate>{
+    void (^replyBlock)(NSArray *userList,NSError *error);
+}
+
 + (OpenDirectoryService *)sharedDirectoryServer;
 @property (weak) NSXPCConnection *xpcConnection;
 
 @end
+
+enum ODServerStatusCodes {
+    // here are the status returns
+    ODUNoNode = -1, // No Node,
+    ODUUnauthenticatedLocal = -2,// -2 locally connected, but wrong password
+    ODUUnauthenticatedProxy = -3,// -3 proxy but wrong auth password
+    ODUAuthenticatedLocal = 0,// 0 Authenticated locally
+    ODUAuthenticatedProxy = 1,// 1 Authenticated over proxy
+};

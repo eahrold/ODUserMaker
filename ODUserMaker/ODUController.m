@@ -19,6 +19,7 @@
     NSMutableArray *groups;
 }
 
+#pragma mark -- Add Single User
 -(void)makeSingleUserPressed:(id)sender{
     NSError* error = nil;
     
@@ -80,38 +81,41 @@
         user.keyWord = _extraGroupDescription.stringValue;
     }
     
-    NSString* progress = [NSString stringWithFormat:@"adding %@ to %@...", user.userName, _serverName.stringValue];
-    [self startProgressPanelWithMessage:progress indeterminate:YES];
-    
-    NSXPCConnection* connection = [[NSXPCConnection alloc] initWithServiceName:kDirectoryServiceName];
-    connection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(OpenDirectoryService)];
-    connection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
-    connection.exportedObject = self;
-    [connection resume];
-    [[connection remoteObjectProxy] addSingleUser:user andGroups:userGroups withReply:^(NSError *error){
-        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-            [self stopProgressPanel];
-            if(error){
-                NSLog(@"Error: %@",[error localizedDescription]);
-                [ODUAlerts showErrorAlert:error];
-            }else{
-                _statusUpdateUser.stringValue = [NSString stringWithFormat:@"Added/Updated %@",user.userName];
-            }
-        }];
-        [connection invalidate];
-    }];
-
+    [ODUDSQuery addUser:user toGroups:userGroups sender:self];
 }
 
+-(IBAction)addGroupToUser:(id)sender{
+    [_groupEntries insertItemWithTitle:[_serverGroupListSingleUser titleOfSelectedItem] atIndex:0];
+    [_groupEntries selectItemAtIndex:0];
+}
+
+-(IBAction)removeGroupFromUser:(id)sender{
+    if( _groupEntries.indexOfSelectedItem > -1){
+        [_groupEntries removeItemAtIndex:[_groupEntries indexOfSelectedItem]];
+    }
+}
+
+-(IBAction)overrideUUID:(id)sender{
+    if([_overrideUID state]){
+        [_uuid setHidden:FALSE];
+    }else{
+        [_uuid setHidden:TRUE];
+        [_uuid setStringValue:@""];
+    }
+}
+
+
+
+#pragma mark -- Add Users using File
 - (IBAction)makeMultiUserPressed:(id)sender{
+    NSButton* button = sender;
+    
     NSError* error = nil;
     if(!_dsServerStatus.state){
         error = [ODUserError errorWithCode:ODUMNotAuthenticated];
-        [self showErrorAlert:error];
+        [ODUAlerts showErrorAlert:error];
         return;
     }
-    
-    [self startProgressPanelWithMessage:@"Adding List of Users..." indeterminate:YES];
     
     /*set up the user object*/
     User* user = [User new];
@@ -126,66 +130,74 @@
         user.userFilter = @" ";
     }
     
-    /* Set up the import and export FileHandles */
+    /* Set up the import FileHandles */
     NSURL * importFileURL = [NSURL fileURLWithPath:_importFilePath.stringValue];
     user.importFileHandle = [NSFileHandle fileHandleForReadingFromURL:importFileURL error:&error];
     
-    NSString* timeStamp = [NSString stringWithFormat:@"%f",[[NSDate date] timeIntervalSince1970]];
-    NSURL* exportFile = [NSURL fileURLWithPath:[NSString stringWithFormat:@"%@%@",NSTemporaryDirectory(),timeStamp]];
-    user.exportFile = [NSFileHandle fileHandleForWritingToURL:exportFile error:&error];
-    
-    /* we've got to touch the file befor creating the file handle */
-    if (![[NSData data] writeToURL:exportFile options:0 error:&error]) {
-        [self stopProgressPanel];
-        [self showErrorAlert:error];
+    if([button.title isEqualToString:@"Import Users"]){
+        [ODUDSQuery addUserList:user withGroups:groups sender:self];
         return;
     }
     
-    NSXPCConnection* connection = [[NSXPCConnection alloc] initWithServiceName:kFileServiceName];
-    connection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(FileService)];
-    connection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
-    connection.exportedObject = self;
-    [connection resume];
-    [[connection remoteObjectProxy] makeUserArray:user andGroupList:groups withReply:^(NSArray* dsgroups,NSArray* userlist, NSError* error){
-        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-            if(error){
-                [self stopProgressPanel];
-                [self showErrorAlert:error];
-            }else{
-                NSString* progress = [NSString stringWithFormat:@"adding %lu users to %@...", (unsigned long)[userlist count], _serverName.stringValue];
-                [self startProgressPanelWithMessage:progress indeterminate:NO];
-                
-                NSXPCConnection* connection = [[NSXPCConnection alloc] initWithServiceName:kDirectoryServiceName];
-                connection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(OpenDirectoryService)];
-                connection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
-                connection.exportedObject = self;
-                
-                [connection resume];
-                [[connection remoteObjectProxy] addListOfUsers:userlist usingPresetsIn:user andGroups:dsgroups withReply:^(NSError *error) {
-                    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-                        [self stopProgressPanel];
-                        if(error){
-                            NSLog(@"Error: %@",[error localizedDescription]);
-                            [self showErrorAlert:error];
-                        }else{
-                            //[self uploadUserList:user toServer:server];
-                        }
-                    }];
-                    [connection invalidate];
-                }];
-            }
-        }];
-        [connection invalidate];
-    }];
-;
+    if([button.title isEqualToString:@"Make DSImport File"]){
+        NSURL* exportFileURL =[self openSavePanel];
+        
+        if(!exportFileURL){
+            error = [ODUserError errorWithCode:ODUMWriteFileError];
+            [ODUAlerts showErrorAlert:error];
+            return;
+        }
+        
+        [[NSData data] writeToURL:exportFileURL options:0 error:&error];
+        if(error){
+            [ODUAlerts showErrorAlert:error];
+            return;
+        }
+
+        [self startProgressPanelWithMessage:@"Creating DSImport File..." indeterminate:YES];
+        user.exportFile = [NSFileHandle fileHandleForWritingToURL:exportFileURL error:&error];
+        [ODUDSQuery addUserList:user withGroups:groups sender:self];
+    }
 }
 
+-(IBAction)addGroupMatch:(id)sender{
+    NSString* match = [_fileClassList stringValue];
+    NSString* group = [_serverGroupList titleOfSelectedItem];
+    
+    if(!groups){
+        groups = [[NSMutableArray alloc] init];
+    }
+    
+    if([group isEqualToString:@""]||[match isEqualToString:@""])
+        return;
+    
+    NSDictionary * dict = [NSDictionary dictionaryWithObjectsAndKeys:[NSString stringWithFormat:@"%@:%@",group,match],@"description",group, @"group", match, @"match", nil];
+
+    [groups addObject:dict];
+    [groups sortUsingDescriptors:[NSArray arrayWithObjects:[NSSortDescriptor sortDescriptorWithKey:@"group" ascending:YES], nil]];
+    
+    [groupMatchArrayController setContent:groups];
+
+}
+
+-(IBAction)removeGroupMatch:(id)sender{
+    if(_groupMatchEntries.indexOfSelectedItem > -1){
+        [groups removeObjectAtIndex:[_groupMatchEntries indexOfSelectedItem]];
+        [groupMatchArrayController setContent:groups];
+    }
+}
+
+-(IBAction)cancelUserImport:(id)sender{
+    [ODUDSQuery cancelUserImport:self];
+}
+
+#pragma mark -- Reset Password
 - (IBAction)resetPasswordPressed:(id)sender{
     NSError* error = nil;
     
     if(!_dsServerStatus.state){
         error = [ODUserError errorWithCode:ODUMNotAuthenticated];
-        [self showErrorAlert:error];
+        [ODUAlerts showErrorAlert:error];
         return;
     }
     /* Set up the User Object */
@@ -194,126 +206,37 @@
     user.userCWID = [_passWord stringValue];
     
     if([user.userName isEqualToString:@""]){
-        [self showAlert:@"Name feild empty" withDescription:@"The name field can't be empty"];
+        [ODUAlerts showAlert:@"Name feild empty" withDescription:@"The name field can't be empty"];
         return;
     }
     
     if([user.userCWID isEqualToString:@""]){
-        [self showAlert:@"New Password Feild Empty" withDescription:@"The password field can't be empty"];
+        [ODUAlerts showAlert:@"New Password Feild Empty" withDescription:@"The password field can't be empty"];
         return;
     }
     
-    /* Set up the Serve Object */
-    Server* server = [Server new];
-    server.serverName = _serverName.stringValue;
-    server.diradminName = _diradminName.stringValue;
-    server.diradminPass = _diradminPass.stringValue;
-    
     [self startProgressPanelWithMessage:@"Resetting password..." indeterminate:YES];
-
     _statusUpdate.stringValue = @"";
-    NSXPCConnection* connection = [[NSXPCConnection alloc] initWithServiceName:kDirectoryServiceName];
-    connection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(OpenDirectoryService)];
-    connection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
-    connection.exportedObject = self;
-    [connection resume];
-    [[connection remoteObjectProxy] resetUserPassword:user withReply:^(NSError *error) {
-        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-            [self stopProgressPanel];
-            if(error){
-                NSLog(@"Error: %@",[error localizedDescription]);
-                [self showErrorAlert:error];
-            }else{
-                _statusUpdate.textColor = [NSColor redColor];
-                _statusUpdate.stringValue = [NSString stringWithFormat:@"Password reset for %@",user.userName];
-            }
-        }];
-        [connection invalidate];
-    }];
+    [ODUDSQuery resetPassword:user sender:self];
 }
+
 
 -(IBAction)getSettingsForPreset:(id)sender{
     NSString* preset = _userPreset.titleOfSelectedItem;
-    if([preset isEqualToString:@""])return;
-    
-    NSXPCConnection* connection = [[NSXPCConnection alloc] initWithServiceName:kDirectoryServiceName];
-    connection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(OpenDirectoryService)];
-    connection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
-    connection.exportedObject = self;
-    [connection resume];
-    [[connection remoteObjectProxy] getSettingsForPreset:preset withReply:^(NSDictionary *settings, NSError *error) {
-        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-            if(!error){
-                _sharePoint.stringValue = [settings valueForKey:@"sharePoint"];
-                _sharePath.stringValue = [settings valueForKey:@"sharePath"];
-                _userShell.stringValue = [settings valueForKey:@"userShell"];
-                _NFSPath.stringValue = [settings valueForKey:@"NFSHome"];
-            }
-        }];
-        [connection invalidate];
-    }];
-
-}
-
--(void)setServerStatus:(OSStatus)status{
-    // here are the status returns
-    // -1 No Node
-    // -2 locally connected, but wrong password
-    // -3 proxy but wrong auth password
-    // 0 Authenticated locally
-    // 1 Authenticated over proxy
-    [_dsServerStatusProgress stopAnimation:nil];
-    [_dsServerStatusProgress setHidden:YES];
-    [_dsServerRefreshButton setHidden:NO];
-
-    if(status < 0){
-        [_dsServerStatus setImage:[NSImage imageNamed:@"connected-offline.tiff"]];
-        NSLog(@"Offline");
-    }else{
-        NSLog(@"OnLine");
-        [self setKeyChainPassword];
-        [ODUDSQuery getDSUserPresets];
-        [ODUDSQuery getDSGroupList];
-        [ODUDSQuery getDSUserList];
+    if(![preset isEqualToString:@""]){
+        [ODUDSQuery getSettingsForPreset:preset sender:self];
     }
-    
-    if(status == -1){
-        _dsStatusMessage.stringValue = @"Could Not Connect to Remote Node";
-    }else if (status == -2){
-        _dsStatusMessage.stringValue = @"Locally connected, but username or password are incorrect";
-    }else if (status == -3){
-        _dsStatusMessage.stringValue = @"Could Not Connect to proxy server.";
-    }else if (status == 0){
-        _dsStatusMessage.stringValue = @"The the username and password are correct, connected locally.";
-        [_dsServerStatus setImage:[NSImage imageNamed:@"connected-local.tiff"]];
-    }else if (status == 1){
-        [_dsServerStatus setState:YES];
-        _dsStatusMessage.stringValue = @"The the username and password are correct, connected over proxy";
-        [_dsServerStatus setImage:[NSImage imageNamed:@"connected-proxy.tiff"]];
-    }
-
 }
 
--(IBAction)addGroupMatch:(id)sender{
-    
-}
-
--(IBAction)removeGroupMatch:(id)sender{
-    
-}
-
-
-- (IBAction)editServerName:(id)sender{
-    if([_diradminPass.stringValue isEqualToString:@""]){
-        [self getKeyChainPassword];
-    }
-    
-    [self refreshServerStatus:nil];
-}
-
-
+#pragma mark -- Server Status
 -(IBAction)refreshServerStatus:(id)sender{
     NSError* error;
+    if([_serverName.stringValue   isEqualToString:@""]||
+       [_diradminName.stringValue isEqualToString:@""]||
+       [_diradminPass.stringValue isEqualToString:@""]){
+        return;
+    }
+    
     Server* server = [Server new];
     server.serverName = _serverName.stringValue;
     server.diradminName = _diradminName.stringValue;
@@ -334,10 +257,110 @@
         [_dsServerStatusProgress stopAnimation:nil];
         [_dsServerStatusProgress setHidden:YES];
         [_dsServerRefreshButton setHidden:NO];
-        [self showErrorAlert:error];
+        [[ODUStatus sharedStatus]removeObserver:self forKeyPath:@"serverStatus"];
+        [ ODUAlerts showErrorAlert:error];
     }
 }
 
+
+-(void)setServerStatus:(OSStatus)status{
+    
+    [_dsServerStatusProgress stopAnimation:nil];
+    [_dsServerStatusProgress setHidden:YES];
+    [_dsServerRefreshButton setHidden:NO];
+
+    if(status < 0){
+        [_dsServerStatus setImage:[NSImage imageNamed:@"connected-offline.tiff"]];
+    }else{
+        [self setKeyChainPassword];
+        [self setAllObservers];
+        
+        [ODUDSQuery getDSUserPresets];
+        [ODUDSQuery getDSGroupList];
+        [ODUDSQuery getDSUserList];
+    }
+    
+    NSString* sv;
+    switch(status){
+        case ODUNoNode: sv = @"Could Not Contact Server";
+            break;
+        case ODUUnauthenticatedLocal: sv = @"Could Not Authenticate to Local Directory Server";
+            break;
+        case ODUUnauthenticatedProxy: sv = @"Could Not Authenticate to Directory Server Remotley";
+            break;
+        case ODUAuthenticatedLocal  : sv = @"The the username and password are correct, connected locally.";
+            [_dsServerStatus setImage:[NSImage imageNamed:@"connected-local.tiff"]];
+            break;
+        case ODUAuthenticatedProxy  : sv = @"The the username and password are correct, connected over proxy";
+            [_dsServerStatus setImage:[NSImage imageNamed:@"connected-proxy.tiff"]];
+            break;
+        default: sv = @""; [_dsServerStatus setImage:nil ];break;
+            
+    }
+
+    _dsStatusMessage.stringValue = sv;
+}
+
+
+
+- (IBAction)editServerName:(id)sender{
+        if([self getKeyChainPassword])[self refreshServerStatus:nil];
+}
+
+-(NSURL*)openSavePanel{
+    NSURL* url;
+    NSSavePanel* savePanel = [NSSavePanel savePanel];
+    [savePanel setCanCreateDirectories:YES];
+    [savePanel setAllowedFileTypes:[NSArray arrayWithObject:@"txt"]];
+    [savePanel setNameFieldStringValue:@"dsimport.txt"];
+    
+    if([savePanel runModal] == NSOKButton){
+        url = [savePanel URL];
+    }
+
+    return url;
+}
+
+-(IBAction)chooseImportFile:(id)sender{
+    NSOpenPanel* openPanel = [NSOpenPanel openPanel];
+    [openPanel setCanChooseFiles:YES];
+    [openPanel setAllowsMultipleSelection:NO];
+    [openPanel setCanChooseDirectories:NO];
+    
+    [openPanel beginSheetModalForWindow:[[NSApplication sharedApplication]mainWindow] completionHandler:^(NSInteger result) {
+        if (result == NSOKButton) {
+            _importFilePath.stringValue = [openPanel URL].path;
+        }
+    }];
+    
+}
+
+#pragma mark -- Keychains
+//-------------------------------------------
+//  Keychain Methods
+//-------------------------------------------
+-(BOOL)getKeyChainPassword{
+    NSError* error;
+    NSString* kcAccount = [NSString stringWithFormat:@"%@:%@",_diradminName.stringValue,_serverName.stringValue];
+    NSString* kcPass = [SSKeychain passwordForService:
+                           [[NSBundle mainBundle] bundleIdentifier] account:kcAccount error:&error];
+    
+    if(kcPass)_diradminPass.stringValue=kcPass;
+    if(error)return NO;
+    return YES;
+}
+
+-(void)setKeyChainPassword{
+    if(![_diradminPass.stringValue isEqualToString:@""]){
+        NSString* kcAccount = [NSString stringWithFormat:@"%@:%@",_diradminName.stringValue,_serverName.stringValue];
+        [SSKeychain setPassword:_diradminPass.stringValue forService:[[NSBundle mainBundle] bundleIdentifier] account:kcAccount];
+    }
+}
+
+#pragma mark -- Sheets and Panels
+//-------------------------------------------
+//  Preset Config Shteet
+//-------------------------------------------
 -(IBAction)configrureUserPreset:(id)sender{
     [NSApp beginSheet:_presetConfigSheet
        modalForWindow:[[NSApplication sharedApplication]mainWindow]
@@ -355,71 +378,9 @@
     }
 }
 
--(IBAction)addGroupToUser:(id)sender{
-    
-}
-
--(IBAction)removeGroupFromUser:(id)sender{
-    
-}
-
--(IBAction)makeDSImportFile:(id)sender{
-    
-}
-
-
-
--(IBAction)chooseImportFile:(id)sender{
-    NSOpenPanel* openPanel = [NSOpenPanel openPanel];
-    [openPanel setCanChooseFiles:YES];
-    [openPanel setAllowsMultipleSelection:NO];
-    [openPanel setCanChooseDirectories:NO];
-    
-    [openPanel beginSheetModalForWindow:[[NSApplication sharedApplication]mainWindow] completionHandler:^(NSInteger result) {
-        if (result == NSOKButton) {
-            _importFilePath.stringValue = [openPanel URL].path;
-        }
-    }];
-    
-}
-
--(void)getKeyChainPassword{
-    NSString* kcAccount = [NSString stringWithFormat:@"%@:%@",_diradminName.stringValue,_serverName.stringValue];
-    _diradminPass.stringValue = [SSKeychain passwordForService:
-                           [[NSBundle mainBundle] bundleIdentifier] account:kcAccount error:nil];
-}
-
--(void)setKeyChainPassword{
-    if(![_diradminPass.stringValue isEqualToString:@""]){
-        NSString* kcAccount = [NSString stringWithFormat:@"%@:%@",_diradminName.stringValue,_serverName.stringValue];
-        [SSKeychain setPassword:_diradminPass.stringValue forService:[[NSBundle mainBundle] bundleIdentifier] account:kcAccount];
-    }
-}
-
 //-------------------------------------------
-//  Progress Panel and Alert
+//  Progress Panel
 //-------------------------------------------
-
-- (void)showErrorAlert:(NSError *)error {
-    [[NSAlert alertWithError:error] beginSheetModalForWindow:[[NSApplication sharedApplication] mainWindow]
-                                               modalDelegate:self
-                                              didEndSelector:NULL
-                                                 contextInfo:NULL];
-}
-
-- (void)showAlert:(NSString *)alert withDescription:(NSString *)msg {
-    if(!msg){
-        msg = @"";
-    }
-    [[NSAlert alertWithMessageText:alert defaultButton:@"OK"
-                   alternateButton:nil otherButton:nil informativeTextWithFormat:msg]
-     
-     beginSheetModalForWindow:[[NSApplication sharedApplication] mainWindow]
-     modalDelegate:self
-     didEndSelector:NULL
-     contextInfo:NULL];
-}
-
 
 - (void)startProgressPanelWithMessage:(NSString*)message indeterminate:(BOOL)indeterminate {
     /* Display a progress panel as a sheet */
@@ -432,19 +393,16 @@
         [self.progressIndicator setUsesThreadedAnimation:YES];
         [self.progressIndicator setIndeterminate:NO];
         [self.progressIndicator setDoubleValue:0.0];
-        
+        [self.progressIndicator displayIfNeeded];
     }
+    
     [self.progressIndicator startAnimation:self];
     [self.progressCancelButton setEnabled:YES];
     [NSApp beginSheet:self.progressPanel
-       modalForWindow:[[NSApplication sharedApplication] mainWindow]
+       modalForWindow:[[NSApplication sharedApplication]mainWindow]
         modalDelegate:self
-       didEndSelector:NULL
+       didEndSelector:nil
           contextInfo:NULL];
-}
-
-- (void)setProgressMsg:(NSString*)message{
-    self.progressMessage = message;
 }
 
 - (void)stopProgressPanel {
@@ -452,10 +410,29 @@
     [NSApp endSheet:self.progressPanel returnCode:0];
 }
 
+#pragma mark -- NSXPC exported object Protocol
+- (void)setProgressMsg:(NSString*)message{
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+       self.progressMessage = message;
+    }];
+}
+
+- (void)setProgress:(double)progress withMessage:(NSString*)message {
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+        [self.progressIndicator incrementBy:progress];
+        self.progressMessage = message;
+    }];
+}
+
 - (void)setProgress:(double)progress {
     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
         [self.progressIndicator incrementBy:progress];
     }];
+}
+
+
+- (void)addUserToUserList:(NSString*)user{
+    [dsUserArrayController addObject:user];
 }
 
 
@@ -479,9 +456,16 @@
     }
 }
 
+-(void)setAllObservers{
+    [[ODUStatus sharedStatus] addObserver:self forKeyPath:@"userList" options:NSKeyValueObservingOptionNew context:NULL];
+    [[ODUStatus sharedStatus] addObserver:self forKeyPath:@"groupList" options:NSKeyValueObservingOptionNew context:NULL];
+    [[ODUStatus sharedStatus] addObserver:self forKeyPath:@"presetList" options:NSKeyValueObservingOptionNew context:NULL];
+}
+
 -(void)awakeFromNib{
     [_dsServerStatusProgress startAnimation:nil];
     [_dsServerRefreshButton setHidden:YES];
+    
     [[ODUStatus sharedStatus] addObserver:self forKeyPath:@"serverStatus" options:NSKeyValueObservingOptionNew context:NULL];
     [[ODUStatus sharedStatus] addObserver:self forKeyPath:@"userList" options:NSKeyValueObservingOptionNew context:NULL];
     [[ODUStatus sharedStatus] addObserver:self forKeyPath:@"groupList" options:NSKeyValueObservingOptionNew context:NULL];

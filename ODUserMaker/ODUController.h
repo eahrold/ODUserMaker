@@ -12,14 +12,15 @@
     IBOutlet NSArrayController *dsGroupArrayController;
     IBOutlet NSArrayController *dsUserArrayController;
     IBOutlet NSArrayController *dsPresetArrayController;
+    IBOutlet NSArrayController *groupMatchArrayController;
 }
 
 -(IBAction)makeSingleUserPressed:(id)sender;
 -(IBAction)addGroupToUser:(id)sender;
 -(IBAction)removeGroupFromUser:(id)sender;
+-(IBAction)overrideUUID:(id)sender;
 
 -(IBAction)makeMultiUserPressed:(id)sender;
--(IBAction)makeDSImportFile:(id)sender;
 -(IBAction)chooseImportFile:(id)sender;
 -(IBAction)addGroupMatch:(id)sender;
 -(IBAction)removeGroupMatch:(id)sender;
@@ -29,6 +30,9 @@
 -(IBAction)refreshServerStatus:(id)sender;
 -(IBAction)getSettingsForPreset:(id)sender;
 -(IBAction)configrureUserPreset:(id)sender;
+
+- (void)startProgressPanelWithMessage:(NSString*)message indeterminate:(BOOL)indeterminate;
+- (void)stopProgressPanel;
 
 //---------------------------------------------------
 // User Settings
@@ -75,10 +79,6 @@
 @property (assign) IBOutlet NSTextField *importFilePath;
 @property (assign) IBOutlet NSTextField *userFilter;
 
-
-@property (copy) NSURL *importFile;
-@property (copy) NSString *exportFile;
-
 //---------------------------------------------------
 // Group Settings
 //---------------------------------------------------
@@ -89,7 +89,6 @@
 
 @property (assign) IBOutlet NSPopUpButton *groupMatchEntries;
 @property (assign) IBOutlet NSPopUpButton *groupEntries;
-
 
 //---------------------------------------------------
 // Sever Settings
@@ -113,6 +112,5 @@
 @property (assign) IBOutlet NSProgressIndicator *progressIndicator;
 @property (assign) IBOutlet NSButton *progressCancelButton;
 @property (copy) NSString *progressMessage;  // <-- this is bound
-
 
 @end
