@@ -19,8 +19,9 @@ extern NSString* const ODUMDomain;
 enum ODUMErrorCodes {
     ODUMSuccess = 0,
     
-    ODUMReadFileError = 1001 ,
-    ODUMWriteFileError = 1002 ,
+    ODUMReadFileError = 1001,
+    ODUMWriteFileError = 1002,
+    ODUMNoUsersInFile = 1003,
     
     ODUMUserNotFound = 2001,
     ODUMUserAlreadyExists = 2002,

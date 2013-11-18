@@ -34,6 +34,8 @@ NSString* const ODUMDomain = @"com.aapps.ODUserMaker";
             break;
         case ODUMWriteFileError: codeText = @"There was a problem writing the DSimport file.  Please make sure you've chosen a location inside you home directory";
             break;
+        case ODUMNoUsersInFile: codeText = @"The File dose not contain any users (or is not formatted correctly)";
+            break;
         case ODUMUserNotFound:codeText = @"A user with that name was not found on the server";
             break;
         case ODUMUserAlreadyExists:codeText = @"A user with that username already exists.";

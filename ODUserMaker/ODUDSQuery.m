@@ -31,8 +31,8 @@
   
     NSXPCConnection* connection = [[NSXPCConnection alloc] initWithServiceName:kDirectoryServiceName];
     connection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(OpenDirectoryService)];
-    connection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
-    connection.exportedObject = self;
+    //connection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
+    //connection.exportedObject = self;
     [connection resume];
     [[connection remoteObjectProxy] checkServerStatus:server withReply:^(OSStatus status)  {
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
@@ -47,8 +47,8 @@
 +(void)getDSUserList{
     NSXPCConnection* connection = [[NSXPCConnection alloc] initWithServiceName:kDirectoryServiceName];
     connection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(OpenDirectoryService)];
-    connection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
-    connection.exportedObject = self;
+//    connection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
+//    connection.exportedObject = self;
     [connection resume];
     [[connection remoteObjectProxy] getUserListFromServer:^(NSArray *uArray, NSError *error) {
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
@@ -65,8 +65,8 @@
 +(void)getDSGroupList{
     NSXPCConnection* connection = [[NSXPCConnection alloc] initWithServiceName:kDirectoryServiceName];
     connection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(OpenDirectoryService)];
-    connection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
-    connection.exportedObject = self;
+    //connection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
+    //connection.exportedObject = self;
     [connection resume];
     [[connection remoteObjectProxy] getGroupListFromServer:^(NSArray *gArray, NSError *error) {
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
@@ -81,8 +81,8 @@
 +(void)getDSUserPresets{
     NSXPCConnection* connection = [[NSXPCConnection alloc] initWithServiceName:kDirectoryServiceName];
     connection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(OpenDirectoryService)];
-    connection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
-    connection.exportedObject = self;
+    //connection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
+    //connection.exportedObject = self;
     [connection resume];
     [[connection remoteObjectProxy] getUserPresets:^(NSArray *pArray, NSError *error) {
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
@@ -149,7 +149,7 @@
     fileServiceConnection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
     fileServiceConnection.exportedObject = sender;
     [fileServiceConnection resume];
-    [[fileServiceConnection remoteObjectProxy] makeUserArray:user andGroupList:groups withReply:^(NSArray* dsgroups,NSArray* userlist, NSError* error){
+    [[fileServiceConnection remoteObjectProxy] makeUserArray:user andGroupList:groups withReply:^(NSArray* groupList,NSArray* userlist, NSError* error){
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
             [fileServiceConnection invalidate];
             if(error){
@@ -162,6 +162,9 @@
                 [sender.progressIndicator setIndeterminate:NO];
                 [sender.progressIndicator setUsesThreadedAnimation:YES];
                 
+                user.userList = userlist;
+                user.groupList = groupList;
+                
                 NSXPCConnection* directoryServiceConnection = [[NSXPCConnection alloc] initWithServiceName:kDirectoryServiceName];
                 directoryServiceConnection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(OpenDirectoryService)];
                 
@@ -169,7 +172,7 @@
                 directoryServiceConnection.exportedObject = sender;
                 
                 [directoryServiceConnection resume];
-                [[directoryServiceConnection remoteObjectProxy] addListOfUsers:userlist usingPresetsIn:user andGroups:dsgroups withReply:^(NSError *error) {
+                [[directoryServiceConnection remoteObjectProxy] addListOfUsers:user withReply:^(NSError *error) {
                     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
                         [sender stopProgressPanel];
                         if(error){

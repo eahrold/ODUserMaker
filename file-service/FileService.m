@@ -8,8 +8,11 @@
 
 #import "FileService.h"
 #import "NSString+StringSanitizer.h"
+#import "NSString+uuidFromString.h"
 
-@implementation FileService
+@implementation FileService{
+    NSArray* rawUserList;
+}
 
 
 //------------------------------------------------
@@ -19,16 +22,8 @@
 -(void)makeMultiUserFile:(User*)user
                withReply:(void (^)(NSError*error))reply{
     
-    NSError* error = nil;
-    NSArray* ulist = nil;
-
-    static int userCounter = 0;
-    
-    [self writeHeaders:user.exportFile];
-    
-    if(![self parseUserList:user toFile:user.exportFile gettingCount:&userCounter andArray:&ulist]){
-        [ODUserError errorWithCode:ODUMWriteFileError];
-    }
+    NSError* error;
+    [self parseUserList:user error:&error];
     
     reply(error);
 }
@@ -39,71 +34,73 @@
 
 -(void)makeUserArray:(User*)user
                 andGroupList:(NSArray*)groups
-                   withReply:(void (^)(NSArray* dsgroups,NSArray* userlist,NSError *error))reply{
+                   withReply:(void (^)(NSArray* groupList,NSArray* userlist,NSError *error))reply{
     
-    NSError* error = nil;
-    NSArray* dsgroups = nil;
-    NSArray* ulist = nil;
+    NSError* error;
+    NSArray* groupList;
 
-    static int userCounter = 0;
-
-    if(![self parseUserList:user toFile:user.exportFile gettingCount:&userCounter andArray:&ulist]){
-        [ODUserError errorWithCode:ODUMReadFileError];
+    if(![self parseUserList:user error:&error]){
+        error = [ODUserError errorWithCode:ODUMReadFileError];
         goto nsxpc_return;
     }
     
-    dsgroups = [self makeGroups:groups withUserArray:user.userList usingFilter:user.userFilter];
-
+    groupList = [self makeGroups:groups usingFilter:user.userFilter];
 nsxpc_return:
-    reply(dsgroups,ulist,error);
+    reply(groupList,user.userList,error);
     
 }
 
--(BOOL)parseUserList:(User*)user toFile:(NSFileHandle*)fh gettingCount:(int*)uc andArray:(NSArray**)ulist{
-    *uc = 0;
+-(BOOL)parseUserList:(User*)user error:(NSError *__autoreleasing*)error{
     NSMutableArray* returnArray = [NSMutableArray new];
     
+    
     NSData* importFileData = [user.importFileHandle readDataToEndOfFile];
+    
+    if(!importFileData){
+        if(error)*error = [ODUserError errorWithCode:ODUMReadFileError];
+        return NO;
+    }
+    
+    [self writeHeaders:user.exportFile];
+
     NSString* str = [[NSString alloc] initWithData:importFileData
                                           encoding:NSUTF8StringEncoding];
     
     
     /* split up the string by new line char and though unnecissary alphabetize them.*/
-    user.userList = [str componentsSeparatedByString:@"\n"];
-    [user.userList sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
+    rawUserList = [str componentsSeparatedByString:@"\n"];
+    [rawUserList sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
     
-    if( user.userList == nil || [user.userList count] <= 1 ){
+    if( rawUserList == nil || [rawUserList count] <= 1 ){
+        if(error)*error = [ODUserError errorWithCode:ODUMNoUsersInFile];
         return NO;
     }
-    
-    /* set up the chunk of progress size for indicator upadates...*/
-    //double totalSize = [userArray count];
-    //double progress = 100 / totalSize;
     
     NSArray* tmpArray1;
     NSArray* tmpArray2;
     NSMutableSet* processed = [NSMutableSet set];
     
-    for (NSString* u in user.userList) {
+    for (NSString* u in rawUserList) {
         if ([u rangeOfString:user.userFilter].location != NSNotFound){
             @try{
                 tmpArray1 = [u componentsSeparatedByString:@"\t"];
                 if ([processed containsObject:[tmpArray1 objectAtIndex:0]] == NO) {
-                    *uc = *uc + 1;
                     
                     /* add the object to the processed array */
-                    [processed addObject:[tmpArray1 objectAtIndex:0]];
+                    [processed addObject:tmpArray1[0]];
                     
                     /* set up a new user to add */
                     User* tmpUser = [User new];
-                    tmpUser.userName = [NSString stringWithFormat:@"%@",[tmpArray1 objectAtIndex:0]];
-                    tmpUser.userCWID = [NSString stringWithFormat:@"%@",[tmpArray1 objectAtIndex:2]];
+                    tmpUser.userName = tmpArray1[0];
+                    tmpUser.userCWID = tmpArray1[2];
                     
                     /* break it up one more time. */
-                    NSString* rawName = [NSString stringWithFormat:@"%@",[tmpArray1 objectAtIndex:1]];
+                    NSString* rawName = tmpArray1[1];
+
+                    //NSString* rawName = [NSString stringWithFormat:@"%@",[tmpArray1 objectAtIndex:1]];
                     tmpArray2 = [rawName componentsSeparatedByString:@","];
-                    NSString* firstName = [NSString stringWithFormat:@"%@",[tmpArray2 objectAtIndex:1]];
-                    NSString* lastName = [NSString stringWithFormat:@"%@",[tmpArray2 objectAtIndex:0]];
+                    NSString* firstName = tmpArray2[1];
+                    NSString* lastName = tmpArray2[0];
                     
                     /* Sanatize */
                     firstName = [firstName stringByReplacingOccurrencesOfString:@"\"" withString:@""];
@@ -117,11 +114,8 @@ nsxpc_return:
                     tmpUser.keyWord = user.keyWord;
                     
                     /* then write it to the file */
-                    if(fh)[self writeUser:tmpUser toFile:fh];
+                    if(user.exportFile)[self writeUser:tmpUser toFile:user.exportFile];
                     [returnArray addObject:[tmpUser makeDictFromUser]];
-                    
-                    /* send updates back to the UI */
-                    //[[self.xpcConnection remoteObjectProxy] setProgress:progress];
                 }
             }
             @catch (NSException* exception) {
@@ -129,35 +123,39 @@ nsxpc_return:
         }
     }
     
-    if(ulist)*ulist = returnArray;
+    user.userList = [NSArray arrayWithArray:returnArray];
     return YES;
 }
 
 
 
 -(NSArray*)makeGroups:(NSArray*)groups
-        withUserArray:(NSArray*)users
           usingFilter:(NSString*)filter{
     /* this takes the array of groups/match specified in the main window and then using the users
      from the array set in the parseList method it creates an array of dictionaries of the groups
      and the users that are in them based on the match.  There has to be a better way but this works*/
     
+    NSArray* returnArray;
+    if(!rawUserList){
+        return nil;
+    }
+    
     [[self.xpcConnection remoteObjectProxy] setProgressMsg:@"Determining Group Membership..."];
 
-    
-    NSMutableDictionary* groupDict = [[NSMutableDictionary alloc]init];
     NSMutableSet* groupProcessed = [[NSMutableSet alloc]init];
-    NSMutableSet* userProcessed;
-    
     NSMutableArray* mArray = [[NSMutableArray alloc]init];
-    NSMutableArray* userSet = [[NSMutableArray alloc]init];
+
+    
+    NSMutableDictionary* groupDict;
+    NSMutableSet* userProcessed;
+    NSMutableArray* userArray;
     
     NSString* groupName = nil;
     BOOL isSameGroup = NO;
     
     for(NSDictionary* g in groups){
         if (![groupName isEqualToString:[g objectForKey:@"group"]]){
-            groupDict = [[NSMutableDictionary alloc]init];
+            groupDict = [NSMutableDictionary new];
             groupName = [g objectForKey:@"group"];
             isSameGroup = NO;
         }else{
@@ -167,24 +165,25 @@ nsxpc_return:
         NSString* matchName = [g objectForKey:@"match"];
         
         if ([groupProcessed containsObject:groupName] == NO){
-            userSet = [[NSMutableArray alloc]init];
-            userProcessed = [[NSMutableSet alloc]init];
+            userArray = [NSMutableArray new];
+            userProcessed = [NSMutableSet new];
             [groupProcessed addObject:groupName];
         }
         
-        for(NSString *u in users){
+        for(NSString *u in rawUserList){
             if ([u rangeOfString:filter].location != NSNotFound){
                 if ([u rangeOfString:matchName options:NSCaseInsensitiveSearch].location != NSNotFound){
-                    NSString *uname = [[u componentsSeparatedByString:@"\t"]objectAtIndex:0];
+                    NSString *uname = [u componentsSeparatedByString:@"\t"][0];
                     
                     if ([userProcessed containsObject:uname] == NO){
-                        [userSet addObject:uname];
+                        [userArray addObject:uname];
                     }
                     [userProcessed addObject:uname];
                 }
             }
         }
-        [groupDict setObject:userSet forKey:@"users"];
+        
+        [groupDict setObject:userArray forKey:@"users"];
         [groupDict setObject:groupName forKey:@"group"];
         if(isSameGroup){
             [mArray removeLastObject];
@@ -192,8 +191,8 @@ nsxpc_return:
         [mArray addObject:groupDict];
     }
     
-    NSArray *arr = [NSArray arrayWithArray:mArray];
-    return arr;
+    returnArray = mArray;
+    return returnArray;
 }
 
 

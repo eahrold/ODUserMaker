@@ -302,7 +302,6 @@
 }
 
 
-
 - (IBAction)editServerName:(id)sender{
         if([self getKeyChainPassword])[self refreshServerStatus:nil];
 }
@@ -430,9 +429,8 @@
     }];
 }
 
-
-- (void)addUserToUserList:(NSString*)user{
-    [dsUserArrayController addObject:user];
+-(void)updateUserListArrayWithString:(NSString*)string{
+    NSLog(@"adding user to array: %@",string);
 }
 
 

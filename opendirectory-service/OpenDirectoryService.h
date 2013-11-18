@@ -6,7 +6,6 @@
 //  Copyright (c) 2013 Eldon Ahrold. All rights reserved.
 //
 
-#import <Cocoa/Cocoa.h>
 #import <Foundation/Foundation.h>
 #import <OpenDirectory/OpenDirectory.h>
 #import "ODUserBridge.h"
@@ -16,9 +15,7 @@
 
 /* methods for editing users/group*/
 -(void)addSingleUser:(User*)user andGroups:(NSArray*)groups withReply:(void (^)(NSError *error))reply;
-
--(void)addListOfUsers:(NSArray*)list usingPresetsIn:(User*)user andGroups:(NSArray*)userGroups withReply:(void (^)(NSError *error))reply;
-
+-(void)addListOfUsers:(User*)user withReply:(void (^)(NSError *error))reply;
 -(void)resetUserPassword:(User*)user withReply:(void (^)(NSError *error))reply;
 
 
@@ -44,7 +41,8 @@
 
 
 @interface OpenDirectoryService : NSObject <NSXPCListenerDelegate, OpenDirectoryService, ODQueryDelegate>{
-    void (^replyBlock)(NSArray *userList,NSError *error);
+    void (^replyBlock)(NSError *error);
+    void (^DSReplyBlock)(NSArray* array,NSError *error);
 }
 
 + (OpenDirectoryService *)sharedDirectoryServer;

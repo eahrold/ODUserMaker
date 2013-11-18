@@ -14,9 +14,9 @@ NSString *const kDirectoryServiceName = @"com.aapps.ODUserMaker.opendirectory-se
 @implementation User
 
 - (id)initWithCoder:(NSCoder*)aDecoder {
+    NSSet* whiteList = [NSSet setWithObjects:[NSArray class],[NSDictionary class],[NSString class], nil];
     self = [super init];
     if (self) {
-        // NSSecureCoding requires that we specify the class of the object while decoding it, using the decodeObjectOfClass:forKey: method.
         _userName = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"userName"];
         _firstName = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"firstName"];
         _lastName = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"lastName"];
@@ -34,10 +34,12 @@ NSString *const kDirectoryServiceName = @"com.aapps.ODUserMaker.opendirectory-se
         _nfsPath = [aDecoder decodeObjectOfClass: [NSString class] forKey:@"nfsPath"];
         
         _userFilter = [aDecoder decodeObjectOfClass: [NSString class] forKey:@"userFilter"];
-        
-        _userList = [aDecoder decodeObjectOfClass: [NSArray class] forKey:@"userList"];
-        _groupList = [aDecoder decodeObjectOfClass: [NSArray class] forKey:@"groupList"];
         _userCount = [aDecoder decodeObjectOfClass: [NSNumber class] forKey:@"userCount"];
+
+        //white list because userList  and groupList are arrays of dictioinaries
+        _userList  = [aDecoder decodeObjectOfClasses: whiteList forKey:@"userList"];
+        _groupList = [aDecoder decodeObjectOfClasses: whiteList forKey:@"groupList"];
+        
         
         _exportFile = [aDecoder decodeObjectOfClass: [NSFileHandle class] forKey:@"exportFile"];
         _importFileHandle = [aDecoder decodeObjectOfClass: [NSFileHandle class] forKey:@"importFileHandle"];
@@ -48,7 +50,6 @@ NSString *const kDirectoryServiceName = @"com.aapps.ODUserMaker.opendirectory-se
     return self;
 }
 
-// Because this class implements initWithCoder:, it must also return YES from this method.
 + (BOOL)supportsSecureCoding { return YES; }
 
 - (void)encodeWithCoder:(NSCoder*)aEncoder {
@@ -100,7 +101,6 @@ NSString *const kDirectoryServiceName = @"com.aapps.ODUserMaker.opendirectory-se
 - (id)initWithCoder:(NSCoder*)aDecoder {
     self = [super init];
     if (self) {
-        // NSSecureCoding requires that we specify the class of the object while decoding it, using the decodeObjectOfClass:forKey: method.
         _serverName = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"serverName"];
         _diradminName = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"diradminName"];
         _diradminPass = [aDecoder decodeObjectOfClass:[NSString class] forKey:@"diradminPass"];
@@ -109,8 +109,6 @@ NSString *const kDirectoryServiceName = @"com.aapps.ODUserMaker.opendirectory-se
     return self;
 }
 
-
-// Because this class implements initWithCoder:, it must also return YES from this method.
 + (BOOL)supportsSecureCoding { return YES; }
 
 - (void)encodeWithCoder:(NSCoder*)aEncoder {

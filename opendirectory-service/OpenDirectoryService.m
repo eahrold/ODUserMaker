@@ -8,6 +8,7 @@
 
 #import "OpenDirectoryService.h"
 #import "TBXML.h"
+#import "NSString+uuidFromString.h"
 #import <syslog.h>
 
 @implementation OpenDirectoryService{
@@ -64,49 +65,55 @@ nsxpc_return:
 }
 
 
--(void)addListOfUsers:(NSArray*)list usingPresetsIn:(User*)user andGroups:(NSArray*)userGroups withReply:(void (^)(NSError *error))reply{
-   ;
+-(void)addListOfUsers:(User*)user withReply:(void (^)(NSError *error))reply{
+    replyBlock = reply;
     
+    // in 10.8 you could run what you needed to right here,
+    // as of 10.9 to recieve status updates in the main app
+    // this needs to be in the background.
+    [self performSelectorInBackground:@selector(userListAdd:) withObject:user];
+    
+}
+
+-(void)userListAdd:(User*)user{
     NSError* error = nil;
-    ODRecord* userRecord;
     ImportStatus = TRUE;
     
     // We want to log these issues, so we'll get a collection and log once
-    // so as to keep NSLog from spinning out of control 
+    // so as to keep NSLog from spinning out of control
     NSMutableSet* notAdded = [NSMutableSet new];
     NSMutableSet* wereAdded = [NSMutableSet new];
     NSMutableSet* problemAdding = [NSMutableSet new];
     
-    NSInteger count = [list count];
+    NSInteger count = [user.userList count];
     NSInteger pgcount = 1;
     NSString* progressMessage;
     
     double progress = 100.0/count;
     
     while (ImportStatus) {
-        for(NSDictionary* dict in list){
+        for(NSDictionary* dict in user.userList){
             error = nil;
-
+            
             if(!ImportStatus)break;
-         
-            user.userName = [dict objectForKey:@"userName"];
-            user.firstName = [dict objectForKey:@"firstName"];
-            user.lastName = [dict objectForKey:@"lastName"];
-            user.userCWID = [dict objectForKey:@"userCWID"];
-            user.userUUID = nil; // <-- nil this out since the UUID's not used when importing a list of uses...
+            
+            user.userName  = dict[@"userName"];
+            user.firstName = dict[@"firstName"];
+            user.lastName  = dict[@"lastName"];
+            user.userCWID  = dict[@"userCWID"];
+            user.userUUID  = nil; // <-- nil this out since the UUID's not used when importing a list of uses...
             
             progressMessage = [NSString stringWithFormat:@"Adding %ld/%ld: %@...",(long)pgcount,(long)count,user.userName];
             
             [[self.xpcConnection remoteObjectProxy]setProgress:progress withMessage:progressMessage];
             
-            userRecord = [self getUserRecord:user.userName];
+            ODRecord* userRecord = [self getUserRecord:user.userName];
             if(userRecord){
                 [notAdded addObject:user.userName];
             }else{
                 [self createNewUser:user error:&error];
                 if(error){
                     [problemAdding addObject:user.userName];
-                    NSLog(@"There was a problem creating %@: %@",user.userName,error.localizedDescription);
                 }else{
                     [wereAdded addObject:user.userName];
                 }
@@ -126,16 +133,16 @@ nsxpc_return:
         NSLog(@"There was a problem adding these users to Directory: %@",problemAdding);
     }
     
-    if(userGroups.count > 0){
+    if(user.groupList.count > 0){
         error = nil;
-        [self addGroups:userGroups error:&error];
+        [self addGroups:user.groupList error:&error];
     }
     
     ImportStatus = NO;
     
-    reply(error);
-}
+    replyBlock(error);
 
+}
 -(void)updateProgress:(NSString*)progress{
     [[self.xpcConnection remoteObjectProxy]setProgressMsg:progress];
 }
@@ -418,12 +425,11 @@ nsxpc_return:
         return;
     }
     
-    
-    odArray = [query resultsAllowingPartial:NO error:&error];
-//    replyBlock = reply;
+//    DSReplyBlock = reply;
 //    [query setDelegate:self];
 //    [query scheduleInRunLoop: [NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
     
+    odArray = [query resultsAllowingPartial:NO error:&error];
     userList = [NSMutableArray arrayWithCapacity:[odArray count]];
     
     for (record in odArray) {
@@ -594,15 +600,16 @@ nsxpc_return:
     NSLog(@"Query Delgate Method Started");
     if (!inResults && !inError) {
         [inSearch removeFromRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
-        replyBlock(array,inError);
+        DSReplyBlock(array,inError);
     }
     
     for (ODRecord *record in inResults) {
         NSArray *recordName = [record valuesForAttribute:kODAttributeTypeRecordName error:nil];
         
         if ([recordName count]) {
-            //[[self.xpcConnection remoteObjectProxy] addUserToUserList:recordName[0]];
-            [array addObject:recordName[0]];
+            NSString* rn = recordName[0];
+            [[self.xpcConnection remoteObjectProxy] updateUserListArrayWithString:rn];
+            //[array addObject:recordName[0]];
         }
     }
 }
