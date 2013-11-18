@@ -7,11 +7,6 @@
 //
 
 #import "ODUDelegate.h"
-#import "SSKeychain.h"
-#import "OpenDirectoryService.h"
-#import "ODUserBridge.h"
-#import "ODUDSQuery.h"
-#import "ODUStatus.h"
 
 @implementation ODUDelegate
 
@@ -21,25 +16,9 @@
 
 - (void)applicationDidFinishLaunching:(NSNotification* )aNotification
 {
-    NSError *error;
-    NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
-    // Insert code here to initialize your application
-    Server* server = [Server new];
-    server.serverName = [defaults stringForKey:@"serverName"];
-    server.diradminName = [defaults stringForKey:@"diradminName"];
-    
-    NSString* kcAccount = [NSString stringWithFormat:@"%@:%@",server.diradminName,server.serverName];
-    
-    server.diradminPass = [SSKeychain passwordForService:
-                        [[NSBundle mainBundle] bundleIdentifier] account:kcAccount error:&error];
-    
-    
-    if(!error){
-        _passWord.stringValue = server.diradminPass;
-        [ODUDSQuery getAuthenticatedDirectoryNode:server error:nil];
-    }else{
-        [[ODUStatus sharedStatus] setServerStatus:-1];
-    }
+    [[NSNotificationCenter defaultCenter]
+     postNotificationName:@"appLaunched"
+     object:self];
 }
 
 

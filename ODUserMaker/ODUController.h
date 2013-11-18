@@ -7,13 +7,19 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "ODUAuthenticator.h"
+#import "ODUDSQuery.h"
 
-@interface ODUController : NSObject{
+@interface ODUController : NSObject <ODUAuthenticatorDelegate, ODUSQueryDelegate>{
     IBOutlet NSArrayController *dsGroupArrayController;
     IBOutlet NSArrayController *dsUserArrayController;
     IBOutlet NSArrayController *dsPresetArrayController;
     IBOutlet NSArrayController *groupMatchArrayController;
 }
+
+@property (strong) ODUAuthenticator* authenticator;
+@property (strong) ODUDSQuery* querier;
+
 
 -(IBAction)makeSingleUserPressed:(id)sender;
 -(IBAction)addGroupToUser:(id)sender;
@@ -37,80 +43,86 @@
 //---------------------------------------------------
 // User Settings
 //---------------------------------------------------
-@property (assign) IBOutlet NSTextField *userName;
-@property (assign) IBOutlet NSTextField *emailDomain;
-@property (assign) IBOutlet NSTextField *defaultGroup;
+@property (assign) IBOutlet NSTextField *userNameTF;
+@property (assign) IBOutlet NSTextField   *firstNameTF;
+@property (assign) IBOutlet NSTextField   *lastNameTF;
+@property (assign) IBOutlet NSTextField   *userCWIDTF;
 
-@property (assign) IBOutlet NSTextField   *firstName;
-@property (assign) IBOutlet NSTextField   *lastName;
-@property (assign) IBOutlet NSTextField   *userCWID;
-@property (assign) IBOutlet NSPopUpButton *userPreset;
+@property (assign) IBOutlet NSButton    *extraGroupBT;
 
-@property (assign) IBOutlet NSButton    *extraGroup;
-@property (assign) IBOutlet NSComboBox  *extraGroupShortName;
-@property (assign) IBOutlet NSTextField *extraGroupDescription;
+@property (assign) IBOutlet NSButton    *overrideUIDBT;
+@property (assign) IBOutlet NSTextField *uuidTF;
 
-@property (assign) IBOutlet NSButton    *overrideUID;
-@property (assign) IBOutlet NSTextField *uuid;
+@property (assign) IBOutlet NSPopUpButton *serverGroupListSingleUserPUB;
+@property (assign) IBOutlet NSPopUpButton *groupEntriesPUB;
 
-@property (assign) IBOutlet NSTextField   *statusUpdateUser;
+
+@property (assign) IBOutlet NSTextField   *statusUpdateUserTF;
+
+//---------------------------------------------------
+// Common Settings
+//---------------------------------------------------
+
+@property (assign) IBOutlet NSTextField *emailDomainTF;
+@property (assign) IBOutlet NSTextField *defaultGroupTF;
 
 
 //---------------------------------------------------
-// User Settings Preset
+// User Settings Panel Items
 //---------------------------------------------------
 @property (assign) IBOutlet NSWindow    *presetConfigSheet;
-@property (assign) IBOutlet NSTextField *sharePoint;
-@property (assign) IBOutlet NSTextField *sharePath;
-@property (assign) IBOutlet NSTextField *NFSPath;
-@property (assign) IBOutlet NSTextField *userShell;
+@property (assign) IBOutlet NSTextField *sharePointTF;
+@property (assign) IBOutlet NSTextField *sharePathTF;
+@property (assign) IBOutlet NSTextField *NFSPathTF;
+@property (assign) IBOutlet NSTextField *userShellTF;
+@property (assign) IBOutlet NSComboBox  *extraGroupShortNameCB;
+@property (assign) IBOutlet NSTextField *extraGroupDescriptionTF;
+@property (assign) IBOutlet NSPopUpButton *userPresetPUB;
 
 //---------------------------------------------------
 // Password Reset
 //---------------------------------------------------
-@property (assign) IBOutlet NSComboBox    *userList;
-@property (assign) IBOutlet NSTextField   *statusUpdate;
-@property (assign) IBOutlet NSTextField   *passWord;
+@property (assign) IBOutlet NSComboBox    *userListCB;
+@property (assign) IBOutlet NSTextField   *NewPassWordTF;
+@property (assign) IBOutlet NSTextField   *passwordResetStatusTF;
 
 
 //---------------------------------------------------
 // File Settings
 //---------------------------------------------------
-@property (assign) IBOutlet NSTextField *importFilePath;
-@property (assign) IBOutlet NSTextField *userFilter;
+@property (assign) IBOutlet NSTextField *importFilePathTF;
+@property (assign) IBOutlet NSTextField *userFilterTF;
 
 //---------------------------------------------------
 // Group Settings
 //---------------------------------------------------
-@property (assign) IBOutlet NSPopUpButton *serverGroupList;
-@property (assign) IBOutlet NSPopUpButton *serverGroupListSingleUser;
+@property (assign) IBOutlet NSPopUpButton *serverGroupListPUB;
 
-@property (assign) IBOutlet NSTextField *fileClassList;
+@property (assign) IBOutlet NSTextField *classListFileTF;
 
-@property (assign) IBOutlet NSPopUpButton *groupMatchEntries;
-@property (assign) IBOutlet NSPopUpButton *groupEntries;
+@property (assign) IBOutlet NSPopUpButton *groupMatchEntriesPUB;
 
 //---------------------------------------------------
 // Sever Settings
 //---------------------------------------------------
-@property (assign) IBOutlet NSTextField *serverName;
-@property (assign) IBOutlet NSTextField *diradminName;
-@property (assign) IBOutlet NSTextField *diradminPass;
+@property (assign) IBOutlet NSTextField *serverNameTF;
+@property (assign) IBOutlet NSTextField *diradminNameTF;
+@property (assign) IBOutlet NSTextField *diradminPassTF;
 
 //---------------------------------------------------
 // Server Status Settings
 //---------------------------------------------------
-@property (assign) IBOutlet NSButton *dsServerStatus;
-@property (assign) IBOutlet NSTextField *dsStatusMessage;
+@property (assign) IBOutlet NSButton *dsServerStatusBT;
+@property (assign) IBOutlet NSTextField *dsStatusMessageTF;
 @property (assign) IBOutlet NSProgressIndicator *dsServerStatusProgress;
-@property (assign) IBOutlet NSButton *dsServerRefreshButton;
+@property (assign) IBOutlet NSButton *dsServerRefreshButtonBT;
 
 //---------------------------------------------------
 // Progress Pannel
 //---------------------------------------------------
 @property (assign) IBOutlet NSPanel *progressPanel;
 @property (assign) IBOutlet NSProgressIndicator *progressIndicator;
-@property (assign) IBOutlet NSButton *progressCancelButton;
+@property (assign) IBOutlet NSButton *progressCancelButtonBT;
 @property (copy) NSString *progressMessage;  // <-- this is bound
 
 @end

@@ -7,118 +7,101 @@
 //
 
 #import "ODUDSQuery.h"
-#import "ODUserError.h"
-#import "SecuredObjects.h"
 #import "OpenDirectoryService.h"
 #import "FileService.h"
-#import "ODUStatus.h"
+
+#import "ODCommonHeaders.h"
 #import "ODUController.h"
-#import "ODUAlerts.h"
 
 @implementation ODUDSQuery
 
-+(BOOL)getAuthenticatedDirectoryNode:(Server*)server error:(NSError**)error{
-    NSError* _error;
-    /* don't bother checking untill everything is in place */
-    
-    if([server.serverName isEqualToString:@""] ||
-       [server.diradminName isEqualToString:@""] ||
-       [server.diradminPass isEqualToString:@""]){
-        _error = [ODUserError errorWithCode:ODUMFieldsMissing];
-        if(error)*error = _error;
-        return NO;
+-(id)initWithDelegate:(id)delegate{
+    self = [super init];
+    if(self){
+        _delegate = delegate;
     }
-  
-    NSXPCConnection* connection = [[NSXPCConnection alloc] initWithServiceName:kDirectoryServiceName];
-    connection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(OpenDirectoryService)];
-    //connection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
-    //connection.exportedObject = self;
-    [connection resume];
-    [[connection remoteObjectProxy] checkServerStatus:server withReply:^(OSStatus status)  {
-        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-            [ODUStatus sharedStatus].serverStatus = status;
-            }
-        ];
-        [connection invalidate];
-    }];
-    return YES;
+    return self;
 }
 
-+(void)getDSUserList{
+-(void)getDSGroupList{
     NSXPCConnection* connection = [[NSXPCConnection alloc] initWithServiceName:kDirectoryServiceName];
     connection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(OpenDirectoryService)];
-//    connection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
-//    connection.exportedObject = self;
+    connection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
+    connection.exportedObject = _delegate;
+    [connection resume];
+    [[connection remoteObjectProxy] getGroupListFromServer:^(NSArray *gArray, NSError *error) {
+        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            if(!error){
+                [_delegate didGetDSGroupList:gArray];
+            }
+        }];
+        [connection invalidate];
+    }];
+}
+
+-(void)getDSUserList{
+    NSXPCConnection* connection = [[NSXPCConnection alloc] initWithServiceName:kDirectoryServiceName];
+    connection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(OpenDirectoryService)];
+    connection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
+    connection.exportedObject = _delegate ;
     [connection resume];
     [[connection remoteObjectProxy] getUserListFromServer:^(NSArray *uArray, NSError *error) {
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
             if(!error){
                 NSSortDescriptor* sortOrder = [NSSortDescriptor sortDescriptorWithKey:@"self" ascending: YES];
                 NSArray* userList = [uArray sortedArrayUsingDescriptors:[NSArray arrayWithObject:sortOrder]];
-                [[ODUStatus sharedStatus] setUserList:userList];
+                [_delegate didGetDSUserList:userList];
             }
         }];
         [connection invalidate];
     }];
 }
 
-+(void)getDSGroupList{
+-(void)getDSUserPresets{
     NSXPCConnection* connection = [[NSXPCConnection alloc] initWithServiceName:kDirectoryServiceName];
     connection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(OpenDirectoryService)];
-    //connection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
-    //connection.exportedObject = self;
-    [connection resume];
-    [[connection remoteObjectProxy] getGroupListFromServer:^(NSArray *gArray, NSError *error) {
-        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-            if(!error){
-                [[ODUStatus sharedStatus]setGroupList:gArray];
-            }
-        }];
-        [connection invalidate];
-    }];
-}
-
-+(void)getDSUserPresets{
-    NSXPCConnection* connection = [[NSXPCConnection alloc] initWithServiceName:kDirectoryServiceName];
-    connection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(OpenDirectoryService)];
-    //connection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
-    //connection.exportedObject = self;
+    connection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
+    connection.exportedObject = _delegate;
     [connection resume];
     [[connection remoteObjectProxy] getUserPresets:^(NSArray *pArray, NSError *error) {
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
             if(!error){
-                [[ODUStatus sharedStatus]setPresetList:pArray];
+                [_delegate didGetDSUserPresets:pArray];
             }
         }];
         [connection invalidate];
     }];
-
 }
 
-+(void)getSettingsForPreset:(NSString*)preset sender:(ODUController*)sender{
+-(void)getSettingsForPreset{
+    NSString* presetName = [_delegate nameOfPreset];
+    if(!presetName){
+        return;
+    }
     NSXPCConnection* connection = [[NSXPCConnection alloc] initWithServiceName:kDirectoryServiceName];
     connection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(OpenDirectoryService)];
     connection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
-    connection.exportedObject = sender;
+    connection.exportedObject = _delegate;
     [connection resume];
-    [[connection remoteObjectProxy] getSettingsForPreset:preset withReply:^(NSDictionary *settings, NSError *error) {
+    [[connection remoteObjectProxy] getSettingsForPreset:presetName withReply:^(NSDictionary *settings, NSError *error) {
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
             if(!error){
-                sender.sharePoint.stringValue = [settings valueForKey:@"sharePoint"];
-                sender.sharePath.stringValue = [settings valueForKey:@"sharePath"];
-                sender.userShell.stringValue = [settings valueForKey:@"userShell"];
-                sender.NFSPath.stringValue = [settings valueForKey:@"NFSHome"];
+                [_delegate didGetSettingsForPreset:settings];
             }
         }];
         [connection invalidate];
     }];
-    
+
 }
+
+
+
+
 
 
 +(void)addUser:(User*)user toGroups:userGroups sender:(ODUController*)sender{
     NSString* progress = [NSString stringWithFormat:@"adding %@ to %@...",
-                          user.userName, sender.serverName.stringValue];
+                          user.userName, sender.serverNameTF.stringValue];
     
     [sender startProgressPanelWithMessage:progress indeterminate:YES];
     NSXPCConnection* connection = [[NSXPCConnection alloc] initWithServiceName:kDirectoryServiceName];
@@ -133,7 +116,7 @@
                 NSLog(@"Error: %@",[error localizedDescription]);
                 [ODUAlerts showErrorAlert:error];
             }else{
-                sender.statusUpdateUser.stringValue = [NSString stringWithFormat:@"Added/Updated %@",user.userName];
+                sender.statusUpdateUserTF.stringValue = [NSString stringWithFormat:@"Added/Updated %@",user.userName];
             }
         }];
         [connection invalidate];
@@ -214,8 +197,8 @@
                 NSLog(@"Error: %@",[error localizedDescription]);
                 [ODUAlerts showErrorAlert:error];
             }else{
-                sender.statusUpdate.textColor = [NSColor redColor];
-                sender.statusUpdate.stringValue = [NSString stringWithFormat:@"Password reset for %@",user.userName];
+                sender.statusUpdateUserTF.textColor = [NSColor redColor];
+                sender.statusUpdateUserTF.stringValue = [NSString stringWithFormat:@"Password reset for %@",user.userName];
             }
         }];
         [connection invalidate];

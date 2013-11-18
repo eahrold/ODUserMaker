@@ -7,7 +7,6 @@
 //
 
 #import "ODUserError.h"
-#import <Cocoa/Cocoa.h>
 
 //  The Domain to user with error codes and Alert Panel
 NSString* const ODUMDomain = @"com.aapps.ODUserMaker";

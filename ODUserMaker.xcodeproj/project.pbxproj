@@ -19,6 +19,8 @@
 		BE2D96B417D220540076258A /* ODUserError.m in Sources */ = {isa = PBXBuildFile; fileRef = BE2D96B317D220540076258A /* ODUserError.m */; };
 		BE2D96B617D220540076258A /* ODUserError.m in Sources */ = {isa = PBXBuildFile; fileRef = BE2D96B317D220540076258A /* ODUserError.m */; };
 		BE2D96B717D220540076258A /* ODUserError.m in Sources */ = {isa = PBXBuildFile; fileRef = BE2D96B317D220540076258A /* ODUserError.m */; };
+		BE70D242183A8A2D004D70FA /* ODUAuthenticator.m in Sources */ = {isa = PBXBuildFile; fileRef = BE70D241183A8A2D004D70FA /* ODUAuthenticator.m */; };
+		BE70D245183AC189004D70FA /* ODUPasswordReset.m in Sources */ = {isa = PBXBuildFile; fileRef = BE70D244183AC189004D70FA /* ODUPasswordReset.m */; };
 		BE94E3CB1798E6830024C9E5 /* ODUserMaker.icns in Resources */ = {isa = PBXBuildFile; fileRef = BE94E3CA1798E6830024C9E5 /* ODUserMaker.icns */; };
 		BE9625E51795A55800839C80 /* SSKeychain.m in Sources */ = {isa = PBXBuildFile; fileRef = BE9625E41795A55800839C80 /* SSKeychain.m */; };
 		BE9625EA1795A75100839C80 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BE9625E81795A74A00839C80 /* Security.framework */; };
@@ -76,7 +78,11 @@
 		BE29325517972994001502D7 /* file-service.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "file-service.entitlements"; path = "file-service/file-service.entitlements"; sourceTree = "<group>"; };
 		BE2D96B217D220540076258A /* ODUserError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ODUserError.h; sourceTree = "<group>"; };
 		BE2D96B317D220540076258A /* ODUserError.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ODUserError.m; sourceTree = "<group>"; };
-		BE2D96B817D222880076258A /* ODUserBridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ODUserBridge.h; path = ODUserMaker/ODUserBridge.h; sourceTree = SOURCE_ROOT; };
+		BE2D96B817D222880076258A /* ODCommonHeaders.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ODCommonHeaders.h; path = ODUserMaker/ODCommonHeaders.h; sourceTree = SOURCE_ROOT; };
+		BE70D240183A8A2D004D70FA /* ODUAuthenticator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ODUAuthenticator.h; sourceTree = "<group>"; };
+		BE70D241183A8A2D004D70FA /* ODUAuthenticator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ODUAuthenticator.m; sourceTree = "<group>"; };
+		BE70D243183AC189004D70FA /* ODUPasswordReset.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ODUPasswordReset.h; sourceTree = "<group>"; };
+		BE70D244183AC189004D70FA /* ODUPasswordReset.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ODUPasswordReset.m; sourceTree = "<group>"; };
 		BE94E3CA1798E6830024C9E5 /* ODUserMaker.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = ODUserMaker.icns; sourceTree = "<group>"; };
 		BE9625E31795A55800839C80 /* SSKeychain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SSKeychain.h; sourceTree = "<group>"; };
 		BE9625E41795A55800839C80 /* SSKeychain.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SSKeychain.m; sourceTree = "<group>"; };
@@ -234,8 +240,12 @@
 				BEC425081791A80000CA45A5 /* ODUDelegate.m */,
 				BEC4252C1791AE3500CA45A5 /* ODUController.h */,
 				BEC4252D1791AE3500CA45A5 /* ODUController.m */,
+				BE70D240183A8A2D004D70FA /* ODUAuthenticator.h */,
+				BE70D241183A8A2D004D70FA /* ODUAuthenticator.m */,
 				BEAA9EF81832D62200E0BEA8 /* ODUDSQuery.h */,
 				BEAA9EF91832D62200E0BEA8 /* ODUDSQuery.m */,
+				BE70D243183AC189004D70FA /* ODUPasswordReset.h */,
+				BE70D244183AC189004D70FA /* ODUPasswordReset.m */,
 				BEAA9EF51832CF8A00E0BEA8 /* ODUAlerts.h */,
 				BEAA9EF61832CF8A00E0BEA8 /* ODUAlerts.m */,
 				BEC4250A1791A80000CA45A5 /* MainMenu.xib */,
@@ -267,7 +277,7 @@
 				BEFBDC70179C173E00AB0960 /* OpenDirectoryService.h */,
 				BEC425421792309D00CA45A5 /* FileService.h */,
 				BEC4252F1792005000CA45A5 /* ODUProgress.h */,
-				BE2D96B817D222880076258A /* ODUserBridge.h */,
+				BE2D96B817D222880076258A /* ODCommonHeaders.h */,
 			);
 			name = Interfaces;
 			path = "uploader-service";
@@ -475,9 +485,11 @@
 				BEAA9F431833D3F100E0BEA8 /* ODUStatus.m in Sources */,
 				BEC425021791A80000CA45A5 /* main.m in Sources */,
 				BEC425091791A80000CA45A5 /* ODUDelegate.m in Sources */,
+				BE70D245183AC189004D70FA /* ODUPasswordReset.m in Sources */,
 				BEAA9EF71832CF8A00E0BEA8 /* ODUAlerts.m in Sources */,
 				BEAA9EFA1832D62200E0BEA8 /* ODUDSQuery.m in Sources */,
 				BEC4252E1791AE3500CA45A5 /* ODUController.m in Sources */,
+				BE70D242183A8A2D004D70FA /* ODUAuthenticator.m in Sources */,
 				BEC425471792451E00CA45A5 /* SecuredObjects.m in Sources */,
 				BE9625E51795A55800839C80 /* SSKeychain.m in Sources */,
 				BE2D96B417D220540076258A /* ODUserError.m in Sources */,

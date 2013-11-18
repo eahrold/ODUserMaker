@@ -8,8 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import <OpenDirectory/OpenDirectory.h>
-#import "ODUserBridge.h"
-
+@class User,Server;
 
 @protocol OpenDirectoryService
 

@@ -7,17 +7,20 @@
 //
 
 #import <Foundation/Foundation.h>
-@class Server,User,ODUController;
+@class Server,User,ODUController,ODUDSQuery;
+
+
+@protocol ODUSQueryDelegate <NSObject>
+-(NSString*)nameOfPreset;
+-(void)didGetDSUserList:(NSArray*)dsusers;
+-(void)didGetDSGroupList:(NSArray*)dsgroups;
+-(void)didGetDSUserPresets:(NSArray*)dspresets;
+-(void)didGetSettingsForPreset:(NSDictionary*)settings;
+@end
+
 
 @interface ODUDSQuery : NSObject
-
-+(BOOL)getAuthenticatedDirectoryNode:(Server*)server error:(NSError**)error;
-
-+(void)getDSUserList;
-+(void)getDSGroupList;
-+(void)getDSUserPresets;
-
-+(void)getSettingsForPreset:(NSString*)preset sender:(ODUController*)sender;
+@property (strong) id<ODUSQueryDelegate>delegate;
 
 +(void)addUser:(User*)user toGroups:userGroups sender:(id)sender;
 
@@ -25,5 +28,11 @@
 +(void)cancelUserImport:(ODUController*)sender;
 
 +(void)resetPassword:(User*)user sender:(ODUController*)sender;
+
+-(id)initWithDelegate:(id)delegate;
+-(void)getDSUserList;
+-(void)getDSGroupList;
+-(void)getDSUserPresets;
+-(void)getSettingsForPreset;
 
 @end

@@ -7,6 +7,8 @@
 //
 
 #import "OpenDirectoryService.h"
+#import "ODCommonHeaders.h"
+
 #import "TBXML.h"
 #import "NSString+uuidFromString.h"
 #import <syslog.h>
@@ -608,7 +610,7 @@ nsxpc_return:
         
         if ([recordName count]) {
             NSString* rn = recordName[0];
-            [[self.xpcConnection remoteObjectProxy] updateUserListArrayWithString:rn];
+            //[[self.xpcConnection remoteObjectProxy] updateUserListArrayWithString:rn];
             //[array addObject:recordName[0]];
         }
     }

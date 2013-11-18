@@ -7,8 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "ODUserBridge.h"
-
+#import "ODCommonHeaders.h"
 
 @protocol FileService
 -(void)makeMultiUserFile:(User*)user withReply:(void (^)(NSError *error))reply;
