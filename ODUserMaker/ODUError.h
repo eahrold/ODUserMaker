@@ -10,7 +10,7 @@
 /* set up domain */
 extern NSString* const ODUMDomain;
 
-@interface ODUserError : NSError
+@interface ODUError : NSError
 + (NSError*) errorWithCode:(int)code;
 + (NSError*) errorWithCode:(NSInteger)rc message:(NSString*)msg;
 
@@ -22,6 +22,7 @@ enum ODUMErrorCodes {
     ODUMReadFileError = 1001,
     ODUMWriteFileError = 1002,
     ODUMNoUsersInFile = 1003,
+    ODUMNoFileSelected = 1004,
     
     ODUMUserNotFound = 2001,
     ODUMUserAlreadyExists = 2002,

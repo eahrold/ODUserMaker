@@ -22,7 +22,6 @@
 @interface ODUAuthenticator : NSObject
 
 @property (strong) id<ODUAuthenticatorDelegate>delegate;
-@property BOOL status;
 @property (strong) NSString* serverName;
 @property (strong) NSString* diradminName;
 

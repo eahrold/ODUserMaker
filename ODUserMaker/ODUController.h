@@ -37,9 +37,6 @@
 -(IBAction)getSettingsForPreset:(id)sender;
 -(IBAction)configrureUserPreset:(id)sender;
 
-- (void)startProgressPanelWithMessage:(NSString*)message indeterminate:(BOOL)indeterminate;
-- (void)stopProgressPanel;
-
 //---------------------------------------------------
 // User Settings
 //---------------------------------------------------
@@ -65,6 +62,7 @@
 
 @property (assign) IBOutlet NSTextField *emailDomainTF;
 @property (assign) IBOutlet NSTextField *defaultGroupTF;
+@property (assign) IBOutlet NSButton *chooseUserPresetBT;
 
 
 //---------------------------------------------------
@@ -96,10 +94,9 @@
 //---------------------------------------------------
 // Group Settings
 //---------------------------------------------------
+@property (assign) IBOutlet NSTextField *groupMatchTF;
+
 @property (assign) IBOutlet NSPopUpButton *serverGroupListPUB;
-
-@property (assign) IBOutlet NSTextField *classListFileTF;
-
 @property (assign) IBOutlet NSPopUpButton *groupMatchEntriesPUB;
 
 //---------------------------------------------------
@@ -117,12 +114,6 @@
 @property (assign) IBOutlet NSProgressIndicator *dsServerStatusProgress;
 @property (assign) IBOutlet NSButton *dsServerRefreshButtonBT;
 
-//---------------------------------------------------
-// Progress Pannel
-//---------------------------------------------------
-@property (assign) IBOutlet NSPanel *progressPanel;
-@property (assign) IBOutlet NSProgressIndicator *progressIndicator;
-@property (assign) IBOutlet NSButton *progressCancelButtonBT;
-@property (copy) NSString *progressMessage;  // <-- this is bound
+
 
 @end

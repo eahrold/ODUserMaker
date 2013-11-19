@@ -7,23 +7,21 @@
 //
 
 #import "ODUPasswordReset.h"
-#import "ODUController.h"
-#import "SecuredObjects.h"
+#import "ODCommonHeaders.h"
+#import "ODUDelegate.h"
 #import "OpenDirectoryService.h"
-#import "ODUProgress.h"
-#import "ODUAlerts.h"
 
 @implementation ODUPasswordReset
 
--(void)resetPassword:(ODUController *)sender{
+-(void)resetPassword:(void (^)(NSError *error))pwResetReply{
     /* Set up the User Object */
     
-    if([_userName isEqualToString:@""]){
+    if([_userName isBlank]){
         [ODUAlerts showAlert:@"Name feild empty" withDescription:@"The name field can't be empty"];
         return;
     }
     
-    if([_NewPassword isEqualToString:@""]){
+    if([_NewPassword isBlank]){
         [ODUAlerts showAlert:@"New Password Feild Empty" withDescription:@"The password field can't be empty"];
         return;
     }
@@ -32,25 +30,17 @@
     user.userName = _userName;
     user.userCWID = _NewPassword;
     
-    [sender startProgressPanelWithMessage:@"Resetting password..." indeterminate:YES];
-    sender.passwordResetStatusTF.stringValue = @"";
-
+    [[NSApp delegate] startProgressPanelWithMessage:@"Resetting password..." indeterminate:YES];
     
     NSXPCConnection* connection = [[NSXPCConnection alloc] initWithServiceName:kDirectoryServiceName];
     connection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(OpenDirectoryService)];
     connection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
-    connection.exportedObject = sender;
+    connection.exportedObject = [NSApp delegate];
     [connection resume];
     [[connection remoteObjectProxy] resetUserPassword:user withReply:^(NSError *error) {
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-            [sender stopProgressPanel];
-            if(error){
-                NSLog(@"Error: %@",[error localizedDescription]);
-                [ODUAlerts showErrorAlert:error];
-            }else{
-                sender.passwordResetStatusTF.textColor = [NSColor redColor];
-                sender.passwordResetStatusTF.stringValue = [NSString stringWithFormat:@"Password reset for %@",user.userName];
-            }
+            [[NSApp delegate] stopProgressPanel];
+            pwResetReply(error);
         }];
         [connection invalidate];
     }];

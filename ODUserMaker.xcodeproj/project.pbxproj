@@ -16,17 +16,20 @@
 		BE29322C17965D99001502D7 /* FileService.m in Sources */ = {isa = PBXBuildFile; fileRef = BEC425431792309D00CA45A5 /* FileService.m */; };
 		BE29322F1796F18B001502D7 /* NSString+StringSanitizer.m in Sources */ = {isa = PBXBuildFile; fileRef = BE29322E1796F18B001502D7 /* NSString+StringSanitizer.m */; };
 		BE29325617972994001502D7 /* file-service.entitlements in Resources */ = {isa = PBXBuildFile; fileRef = BE29325517972994001502D7 /* file-service.entitlements */; };
-		BE2D96B417D220540076258A /* ODUserError.m in Sources */ = {isa = PBXBuildFile; fileRef = BE2D96B317D220540076258A /* ODUserError.m */; };
-		BE2D96B617D220540076258A /* ODUserError.m in Sources */ = {isa = PBXBuildFile; fileRef = BE2D96B317D220540076258A /* ODUserError.m */; };
-		BE2D96B717D220540076258A /* ODUserError.m in Sources */ = {isa = PBXBuildFile; fileRef = BE2D96B317D220540076258A /* ODUserError.m */; };
+		BE2D96B417D220540076258A /* ODUError.m in Sources */ = {isa = PBXBuildFile; fileRef = BE2D96B317D220540076258A /* ODUError.m */; };
+		BE2D96B617D220540076258A /* ODUError.m in Sources */ = {isa = PBXBuildFile; fileRef = BE2D96B317D220540076258A /* ODUError.m */; };
+		BE2D96B717D220540076258A /* ODUError.m in Sources */ = {isa = PBXBuildFile; fileRef = BE2D96B317D220540076258A /* ODUError.m */; };
+		BE47D220183BBD5800203771 /* ODUUserList.m in Sources */ = {isa = PBXBuildFile; fileRef = BE47D21F183BBD5800203771 /* ODUUserList.m */; };
+		BE47D223183BC95700203771 /* ODUSingleUser.m in Sources */ = {isa = PBXBuildFile; fileRef = BE47D222183BC95700203771 /* ODUSingleUser.m */; };
 		BE70D242183A8A2D004D70FA /* ODUAuthenticator.m in Sources */ = {isa = PBXBuildFile; fileRef = BE70D241183A8A2D004D70FA /* ODUAuthenticator.m */; };
 		BE70D245183AC189004D70FA /* ODUPasswordReset.m in Sources */ = {isa = PBXBuildFile; fileRef = BE70D244183AC189004D70FA /* ODUPasswordReset.m */; };
+		BE7DB459183B24AD0049D82F /* NSString(TextField)+isNotBlank.m in Sources */ = {isa = PBXBuildFile; fileRef = BE7DB458183B24AD0049D82F /* NSString(TextField)+isNotBlank.m */; };
+		BE7DB45C183B27B60049D82F /* NSTextField+blankCheck.m in Sources */ = {isa = PBXBuildFile; fileRef = BE7DB45B183B27B60049D82F /* NSTextField+blankCheck.m */; };
 		BE94E3CB1798E6830024C9E5 /* ODUserMaker.icns in Resources */ = {isa = PBXBuildFile; fileRef = BE94E3CA1798E6830024C9E5 /* ODUserMaker.icns */; };
 		BE9625E51795A55800839C80 /* SSKeychain.m in Sources */ = {isa = PBXBuildFile; fileRef = BE9625E41795A55800839C80 /* SSKeychain.m */; };
 		BE9625EA1795A75100839C80 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BE9625E81795A74A00839C80 /* Security.framework */; };
 		BEAA9EF71832CF8A00E0BEA8 /* ODUAlerts.m in Sources */ = {isa = PBXBuildFile; fileRef = BEAA9EF61832CF8A00E0BEA8 /* ODUAlerts.m */; };
 		BEAA9EFA1832D62200E0BEA8 /* ODUDSQuery.m in Sources */ = {isa = PBXBuildFile; fileRef = BEAA9EF91832D62200E0BEA8 /* ODUDSQuery.m */; };
-		BEAA9F431833D3F100E0BEA8 /* ODUStatus.m in Sources */ = {isa = PBXBuildFile; fileRef = BEAA9F421833D3F100E0BEA8 /* ODUStatus.m */; };
 		BEC424F61791A7FF00CA45A5 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BEC424F51791A7FF00CA45A5 /* Cocoa.framework */; };
 		BEC425001791A80000CA45A5 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = BEC424FE1791A80000CA45A5 /* InfoPlist.strings */; };
 		BEC425021791A80000CA45A5 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = BEC425011791A80000CA45A5 /* main.m */; };
@@ -76,13 +79,21 @@
 		BE29322D1796F18B001502D7 /* NSString+StringSanitizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSString+StringSanitizer.h"; path = "file-service/NSString+StringSanitizer.h"; sourceTree = "<group>"; };
 		BE29322E1796F18B001502D7 /* NSString+StringSanitizer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSString+StringSanitizer.m"; path = "file-service/NSString+StringSanitizer.m"; sourceTree = "<group>"; };
 		BE29325517972994001502D7 /* file-service.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "file-service.entitlements"; path = "file-service/file-service.entitlements"; sourceTree = "<group>"; };
-		BE2D96B217D220540076258A /* ODUserError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ODUserError.h; sourceTree = "<group>"; };
-		BE2D96B317D220540076258A /* ODUserError.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ODUserError.m; sourceTree = "<group>"; };
+		BE2D96B217D220540076258A /* ODUError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ODUError.h; sourceTree = "<group>"; };
+		BE2D96B317D220540076258A /* ODUError.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ODUError.m; sourceTree = "<group>"; };
 		BE2D96B817D222880076258A /* ODCommonHeaders.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ODCommonHeaders.h; path = ODUserMaker/ODCommonHeaders.h; sourceTree = SOURCE_ROOT; };
+		BE47D21E183BBD5800203771 /* ODUUserList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ODUUserList.h; sourceTree = "<group>"; };
+		BE47D21F183BBD5800203771 /* ODUUserList.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ODUUserList.m; sourceTree = "<group>"; };
+		BE47D221183BC95700203771 /* ODUSingleUser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ODUSingleUser.h; sourceTree = "<group>"; };
+		BE47D222183BC95700203771 /* ODUSingleUser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ODUSingleUser.m; sourceTree = "<group>"; };
 		BE70D240183A8A2D004D70FA /* ODUAuthenticator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ODUAuthenticator.h; sourceTree = "<group>"; };
 		BE70D241183A8A2D004D70FA /* ODUAuthenticator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ODUAuthenticator.m; sourceTree = "<group>"; };
 		BE70D243183AC189004D70FA /* ODUPasswordReset.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ODUPasswordReset.h; sourceTree = "<group>"; };
 		BE70D244183AC189004D70FA /* ODUPasswordReset.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ODUPasswordReset.m; sourceTree = "<group>"; };
+		BE7DB457183B24AD0049D82F /* NSString(TextField)+isNotBlank.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString(TextField)+isNotBlank.h"; sourceTree = "<group>"; };
+		BE7DB458183B24AD0049D82F /* NSString(TextField)+isNotBlank.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString(TextField)+isNotBlank.m"; sourceTree = "<group>"; };
+		BE7DB45A183B27B60049D82F /* NSTextField+blankCheck.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSTextField+blankCheck.h"; path = "ODUserMaker/NSTextField+blankCheck.h"; sourceTree = SOURCE_ROOT; };
+		BE7DB45B183B27B60049D82F /* NSTextField+blankCheck.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSTextField+blankCheck.m"; path = "ODUserMaker/NSTextField+blankCheck.m"; sourceTree = SOURCE_ROOT; };
 		BE94E3CA1798E6830024C9E5 /* ODUserMaker.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = ODUserMaker.icns; sourceTree = "<group>"; };
 		BE9625E31795A55800839C80 /* SSKeychain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SSKeychain.h; sourceTree = "<group>"; };
 		BE9625E41795A55800839C80 /* SSKeychain.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SSKeychain.m; sourceTree = "<group>"; };
@@ -91,8 +102,6 @@
 		BEAA9EF61832CF8A00E0BEA8 /* ODUAlerts.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ODUAlerts.m; sourceTree = "<group>"; };
 		BEAA9EF81832D62200E0BEA8 /* ODUDSQuery.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ODUDSQuery.h; sourceTree = "<group>"; };
 		BEAA9EF91832D62200E0BEA8 /* ODUDSQuery.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ODUDSQuery.m; sourceTree = "<group>"; };
-		BEAA9F411833D3F100E0BEA8 /* ODUStatus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ODUStatus.h; path = ../ODUStatus.h; sourceTree = "<group>"; };
-		BEAA9F421833D3F100E0BEA8 /* ODUStatus.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ODUStatus.m; path = ../ODUStatus.m; sourceTree = "<group>"; };
 		BEC424F21791A7FF00CA45A5 /* ODUserMaker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ODUserMaker.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BEC424F51791A7FF00CA45A5 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		BEC424F81791A7FF00CA45A5 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -164,15 +173,19 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		BE2FD6D717D53F7E00B3D28D /* NSStringHelpers */ = {
+		BE2FD6D717D53F7E00B3D28D /* Custom Catagories */ = {
 			isa = PBXGroup;
 			children = (
 				BE29322D1796F18B001502D7 /* NSString+StringSanitizer.h */,
 				BE29322E1796F18B001502D7 /* NSString+StringSanitizer.m */,
 				BE18C1C917D40CAE00C92AF3 /* NSString+uuidFromString.h */,
 				BE18C1CA17D40CAE00C92AF3 /* NSString+uuidFromString.m */,
+				BE7DB457183B24AD0049D82F /* NSString(TextField)+isNotBlank.h */,
+				BE7DB458183B24AD0049D82F /* NSString(TextField)+isNotBlank.m */,
+				BE7DB45A183B27B60049D82F /* NSTextField+blankCheck.h */,
+				BE7DB45B183B27B60049D82F /* NSTextField+blankCheck.m */,
 			);
-			name = NSStringHelpers;
+			name = "Custom Catagories";
 			sourceTree = "<group>";
 		};
 		BE2FD6D817D53FA900B3D28D /* Entitlements */ = {
@@ -189,7 +202,7 @@
 			isa = PBXGroup;
 			children = (
 				BEC424FB1791A7FF00CA45A5 /* ODUserMaker */,
-				BE2FD6D717D53F7E00B3D28D /* NSStringHelpers */,
+				BE2FD6D717D53F7E00B3D28D /* Custom Catagories */,
 				BEC4252B1791AA1C00CA45A5 /* Interfaces */,
 				BEC425491792452A00CA45A5 /* Secure Objects */,
 				BEFBDC60179C161F00AB0960 /* opendirectory-service */,
@@ -240,14 +253,16 @@
 				BEC425081791A80000CA45A5 /* ODUDelegate.m */,
 				BEC4252C1791AE3500CA45A5 /* ODUController.h */,
 				BEC4252D1791AE3500CA45A5 /* ODUController.m */,
-				BE70D240183A8A2D004D70FA /* ODUAuthenticator.h */,
-				BE70D241183A8A2D004D70FA /* ODUAuthenticator.m */,
-				BEAA9EF81832D62200E0BEA8 /* ODUDSQuery.h */,
-				BEAA9EF91832D62200E0BEA8 /* ODUDSQuery.m */,
+				BE47D221183BC95700203771 /* ODUSingleUser.h */,
+				BE47D222183BC95700203771 /* ODUSingleUser.m */,
 				BE70D243183AC189004D70FA /* ODUPasswordReset.h */,
 				BE70D244183AC189004D70FA /* ODUPasswordReset.m */,
-				BEAA9EF51832CF8A00E0BEA8 /* ODUAlerts.h */,
-				BEAA9EF61832CF8A00E0BEA8 /* ODUAlerts.m */,
+				BE47D21E183BBD5800203771 /* ODUUserList.h */,
+				BE47D21F183BBD5800203771 /* ODUUserList.m */,
+				BEAA9EF81832D62200E0BEA8 /* ODUDSQuery.h */,
+				BEAA9EF91832D62200E0BEA8 /* ODUDSQuery.m */,
+				BE70D240183A8A2D004D70FA /* ODUAuthenticator.h */,
+				BE70D241183A8A2D004D70FA /* ODUAuthenticator.m */,
 				BEC4250A1791A80000CA45A5 /* MainMenu.xib */,
 				BEFBDC74179C95B000AB0960 /* Supporting Classes */,
 				BEC424FC1791A80000CA45A5 /* Supporting Files */,
@@ -337,10 +352,10 @@
 		BEFBDC74179C95B000AB0960 /* Supporting Classes */ = {
 			isa = PBXGroup;
 			children = (
-				BEAA9F411833D3F100E0BEA8 /* ODUStatus.h */,
-				BEAA9F421833D3F100E0BEA8 /* ODUStatus.m */,
-				BE2D96B217D220540076258A /* ODUserError.h */,
-				BE2D96B317D220540076258A /* ODUserError.m */,
+				BEAA9EF51832CF8A00E0BEA8 /* ODUAlerts.h */,
+				BEAA9EF61832CF8A00E0BEA8 /* ODUAlerts.m */,
+				BE2D96B217D220540076258A /* ODUError.h */,
+				BE2D96B317D220540076258A /* ODUError.m */,
 				BE9625E31795A55800839C80 /* SSKeychain.h */,
 				BE9625E41795A55800839C80 /* SSKeychain.m */,
 			);
@@ -482,17 +497,20 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BEAA9F431833D3F100E0BEA8 /* ODUStatus.m in Sources */,
 				BEC425021791A80000CA45A5 /* main.m in Sources */,
 				BEC425091791A80000CA45A5 /* ODUDelegate.m in Sources */,
+				BE47D220183BBD5800203771 /* ODUUserList.m in Sources */,
 				BE70D245183AC189004D70FA /* ODUPasswordReset.m in Sources */,
+				BE47D223183BC95700203771 /* ODUSingleUser.m in Sources */,
 				BEAA9EF71832CF8A00E0BEA8 /* ODUAlerts.m in Sources */,
 				BEAA9EFA1832D62200E0BEA8 /* ODUDSQuery.m in Sources */,
 				BEC4252E1791AE3500CA45A5 /* ODUController.m in Sources */,
 				BE70D242183A8A2D004D70FA /* ODUAuthenticator.m in Sources */,
 				BEC425471792451E00CA45A5 /* SecuredObjects.m in Sources */,
 				BE9625E51795A55800839C80 /* SSKeychain.m in Sources */,
-				BE2D96B417D220540076258A /* ODUserError.m in Sources */,
+				BE7DB459183B24AD0049D82F /* NSString(TextField)+isNotBlank.m in Sources */,
+				BE7DB45C183B27B60049D82F /* NSTextField+blankCheck.m in Sources */,
+				BE2D96B417D220540076258A /* ODUError.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -503,7 +521,7 @@
 				BEC4253E1792302A00CA45A5 /* main.m in Sources */,
 				BE29322C17965D99001502D7 /* FileService.m in Sources */,
 				BE29322F1796F18B001502D7 /* NSString+StringSanitizer.m in Sources */,
-				BE2D96B617D220540076258A /* ODUserError.m in Sources */,
+				BE2D96B617D220540076258A /* ODUError.m in Sources */,
 				BE085A63179346020079DFE9 /* SecuredObjects.m in Sources */,
 				BE18C1CB17D40CAE00C92AF3 /* NSString+uuidFromString.m in Sources */,
 			);
@@ -516,7 +534,7 @@
 				BEFBDC68179C161F00AB0960 /* main.m in Sources */,
 				BEFBDC73179C5D1600AB0960 /* SecuredObjects.m in Sources */,
 				BEFBDC6F179C16E200AB0960 /* OpenDirectoryService.m in Sources */,
-				BE2D96B717D220540076258A /* ODUserError.m in Sources */,
+				BE2D96B717D220540076258A /* ODUError.m in Sources */,
 				BE18C1C417D3BFDF00C92AF3 /* TBXML.m in Sources */,
 				BE18C1CC17D40CAE00C92AF3 /* NSString+uuidFromString.m in Sources */,
 			);

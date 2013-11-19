@@ -1,5 +1,5 @@
 //
-//  ODUNSXPC.h
+//  ODUDSQuery.h
 //  ODUserMaker
 //
 //  Created by Eldon on 11/12/13.
@@ -21,15 +21,8 @@
 
 @interface ODUDSQuery : NSObject
 @property (strong) id<ODUSQueryDelegate>delegate;
-
-+(void)addUser:(User*)user toGroups:userGroups sender:(id)sender;
-
-+(void)addUserList:(User*)user withGroups:(NSArray*)groups sender:(ODUController*)sender;
-+(void)cancelUserImport:(ODUController*)sender;
-
-+(void)resetPassword:(User*)user sender:(ODUController*)sender;
-
 -(id)initWithDelegate:(id)delegate;
+
 -(void)getDSUserList;
 -(void)getDSGroupList;
 -(void)getDSUserPresets;

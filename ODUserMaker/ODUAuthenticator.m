@@ -37,7 +37,7 @@
     
     /* don't bother checking untill everything is in place */
     if(!serverName||!diradminName||!diradminPass){
-        error = [ODUserError errorWithCode:ODUMFieldsMissing];
+        error = [ODUError errorWithCode:ODUMFieldsMissing];
         [_delegate didRecieveStatusUpdate:ODUNoNode];
         return;
     }
@@ -51,7 +51,7 @@
     NSXPCConnection* connection = [[NSXPCConnection alloc] initWithServiceName:kDirectoryServiceName];
     connection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(OpenDirectoryService)];
     connection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
-    connection.exportedObject = _delegate;
+    connection.exportedObject = [NSApp delegate];
     [connection resume];
     [[connection remoteObjectProxy] checkServerStatus:server withReply:^(OSStatus status)  {
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{

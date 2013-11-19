@@ -40,7 +40,7 @@
     NSArray* groupList;
 
     if(![self parseUserList:user error:&error]){
-        error = [ODUserError errorWithCode:ODUMReadFileError];
+        error = [ODUError errorWithCode:ODUMReadFileError];
         goto nsxpc_return;
     }
     
@@ -57,7 +57,7 @@ nsxpc_return:
     NSData* importFileData = [user.importFileHandle readDataToEndOfFile];
     
     if(!importFileData){
-        if(error)*error = [ODUserError errorWithCode:ODUMReadFileError];
+        if(error)*error = [ODUError errorWithCode:ODUMReadFileError];
         return NO;
     }
     
@@ -72,7 +72,7 @@ nsxpc_return:
     [rawUserList sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
     
     if( rawUserList == nil || [rawUserList count] <= 1 ){
-        if(error)*error = [ODUserError errorWithCode:ODUMNoUsersInFile];
+        if(error)*error = [ODUError errorWithCode:ODUMNoUsersInFile];
         return NO;
     }
     

@@ -12,6 +12,17 @@
 }
 
 @property (assign) IBOutlet NSWindow *window;
-@property (assign) IBOutlet NSTextField   *passWord;
+
+
+//---------------------------------------------------
+// Progress Pannel
+//---------------------------------------------------
+- (void)startProgressPanelWithMessage:(NSString*)message indeterminate:(BOOL)indeterminate;
+- (void)stopProgressPanel;
+
+@property (assign) IBOutlet NSPanel *progressPanel;
+@property (assign) IBOutlet NSProgressIndicator *progressIndicator;
+@property (assign) IBOutlet NSButton *progressCancelButtonBT;
+@property (copy) NSString *progressMessage;  // <-- this is bound
 
 @end

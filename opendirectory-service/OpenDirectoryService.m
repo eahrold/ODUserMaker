@@ -32,7 +32,7 @@
     
     userRecord = [self getUserRecord:user.userName];
     if(userRecord){
-        error = [ODUserError errorWithCode:ODUMUserAlreadyExists];
+        error = [ODUError errorWithCode:ODUMUserAlreadyExists];
         userError = YES;
         goto update_group;
     }
@@ -57,9 +57,9 @@ update_group:
     }
  
     if(userError && groupError){
-        error = [ODUserError errorWithCode:ODUMCantAddUserToServerOrGroup ];
+        error = [ODUError errorWithCode:ODUMCantAddUserToServerOrGroup ];
     }else if (groupError){
-        error = [ODUserError errorWithCode:ODUMCantAddUserToGroup ];
+        error = [ODUError errorWithCode:ODUMCantAddUserToGroup ];
     }
     
 nsxpc_return:
@@ -164,7 +164,7 @@ nsxpc_return:
         [userRecord changePassword:nil toPassword:user.userCWID error:&error];
         [userRecord synchronizeAndReturnError:&error];
     }else{
-        error = [ODUserError errorWithCode:ODUMUserNotFound];
+        error = [ODUError errorWithCode:ODUMUserNotFound];
     }
     
     reply(error);

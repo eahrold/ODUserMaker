@@ -6,16 +6,16 @@
 //  Copyright (c) 2013 Eldon Ahrold. All rights reserved.
 //
 
-#import "ODUserError.h"
+#import "ODUError.h"
 
 //  The Domain to user with error codes and Alert Panel
 NSString* const ODUMDomain = @"com.aapps.ODUserMaker";
 
-@implementation ODUserError
+@implementation ODUError
 
 + (NSError*) errorWithCode:(int)code
 {
-    NSDictionary* info = [NSDictionary dictionaryWithObjectsAndKeys:[ODUserError errorTextForCode:code], NSLocalizedDescriptionKey, nil];
+    NSDictionary* info = [NSDictionary dictionaryWithObjectsAndKeys:[ODUError errorTextForCode:code], NSLocalizedDescriptionKey, nil];
     return [self errorWithDomain:ODUMDomain code:code userInfo:info];
 }
 
@@ -34,6 +34,8 @@ NSString* const ODUMDomain = @"com.aapps.ODUserMaker";
         case ODUMWriteFileError: codeText = @"There was a problem writing the DSimport file.  Please make sure you've chosen a location inside you home directory";
             break;
         case ODUMNoUsersInFile: codeText = @"The File dose not contain any users (or is not formatted correctly)";
+            break;
+        case ODUMNoFileSelected: codeText = @"You must choose a file first";
             break;
         case ODUMUserNotFound:codeText = @"A user with that name was not found on the server";
             break;

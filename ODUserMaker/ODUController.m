@@ -12,11 +12,14 @@
 #import "ODCommonHeaders.h"
 #import "ODUDSQuery.h"
 #import "ODUPasswordReset.h"
+#import "ODUDelegate.h"
+#import "ODUUserList.h"
+#import "ODUSingleUser.h"
 
 @implementation ODUController{
     NSMutableArray *groups;
 }
-@synthesize authenticator;
+@synthesize authenticator,querier;
 
 
 -(void)awakeFromNib{
@@ -28,20 +31,20 @@
 }
 
 
-#pragma mark -- Add Single User
+#pragma mark - Add Single User
 -(void)makeSingleUserPressed:(id)sender{
     NSError* error = nil;
     
     if(!_dsServerStatusBT.state){
-        error = [ODUserError errorWithCode:ODUMNotAuthenticated];
+        error = [ODUError errorWithCode:ODUMNotAuthenticated];
         [ODUAlerts showErrorAlert:error];
         return;
     }
     
-    NSArray* requiredFields = [NSArray arrayWithObjects:_firstNameTF,_lastNameTF,_userNameTF,_userCWIDTF,_emailDomainTF,_defaultGroupTF, nil];
+    NSArray* requiredFields = @[_firstNameTF,_lastNameTF,_userNameTF,_userCWIDTF,_emailDomainTF,_defaultGroupTF];
     
     for (NSTextField* i in requiredFields){
-        if([i.stringValue isEqual: @""]){
+        if([i isBlank]){
             [ODUAlerts showAlert:@"Missing fileds" withDescription:@"Please fill out all fields"];
             return;
         }
@@ -66,15 +69,18 @@
     NSMutableArray* ug = [NSMutableArray new];
     
     if(_extraGroupBT.state){
-        [ug addObject:_extraGroupShortNameCB.stringValue];
+        if([_extraGroupShortNameCB isNotBlank]){
+            [ug addObject:_extraGroupShortNameCB.stringValue];
+        }
     }
     
     //do get other groups...
     for (NSString* i in _groupEntriesPUB.itemTitles){
         [ug addObject:i];
     }
+    
     //then...
-    NSArray* userGroups = [NSArray arrayWithArray:ug];
+    NSArray* userGroups = ug;
     
     if(_overrideUIDBT.state){
         NSNumberFormatter* f = [NSNumberFormatter new];
@@ -90,7 +96,14 @@
         user.keyWord = _extraGroupDescriptionTF.stringValue;
     }
     
-    [ODUDSQuery addUser:user toGroups:userGroups sender:self];
+    [[NSApp delegate]startProgressPanelWithMessage:@"Adding User..." indeterminate:YES];
+    ODUSingleUser* addSingleUser = [[ODUSingleUser alloc]initWithUser:user andGroups:userGroups];
+    [addSingleUser addUser:^(NSError *error) {
+        [[NSApp delegate]stopProgressPanel];
+        if(error){
+            [ODUAlerts showErrorAlert:error];
+        }
+    }];
 }
 
 -(IBAction)addGroupToUser:(id)sender{
@@ -115,16 +128,22 @@
 
 
 
-#pragma mark -- Add Users using File
+#pragma mark - User List IBActions
 - (IBAction)makeMultiUserPressed:(id)sender{
     NSButton* button = sender;
-    
     NSError* error = nil;
+    
     if(!_dsServerStatusBT.state){
-        error = [ODUserError errorWithCode:ODUMNotAuthenticated];
-        [ODUAlerts showErrorAlert:error];
+        [ODUAlerts showErrorAlert:[ODUError errorWithCode:ODUMNotAuthenticated]];
         return;
     }
+    
+    if([_importFilePathTF isBlank]){
+        [ODUAlerts showErrorAlert:[ODUError errorWithCode:ODUMNoFileSelected]];
+        return;
+    }
+    
+   
     
     /*set up the user object*/
     User* user = [User new];
@@ -133,7 +152,7 @@
     user.userPreset = [ _userPresetPUB titleOfSelectedItem];
     user.keyWord = @"";
     
-    if(![_userFilterTF.stringValue isEqualToString:@""]){
+    if(_userFilterTF.isNotBlank){
         user.userFilter = _userFilterTF.stringValue;
     }else{
         user.userFilter = @" ";
@@ -142,9 +161,19 @@
     /* Set up the import FileHandles */
     NSURL * importFileURL = [NSURL fileURLWithPath:_importFilePathTF.stringValue];
     user.importFileHandle = [NSFileHandle fileHandleForReadingFromURL:importFileURL error:&error];
+    ODUUserList* makeList = [ODUUserList new];
     
+
     if([button.title isEqualToString:@"Import Users"]){
-        [ODUDSQuery addUserList:user withGroups:groups sender:self];
+        [[NSApp delegate] startProgressPanelWithMessage:@"Importing Users..." indeterminate:YES];
+        [makeList setUser:user];
+        [makeList setGroups:groups];
+        [makeList addUserList:^(NSError *error) {
+            [[NSApp delegate] stopProgressPanel];
+            if(error){
+                [ODUAlerts showErrorAlert:error];
+            }
+        }];
         return;
     }
     
@@ -152,8 +181,7 @@
         NSURL* exportFileURL =[self openSavePanel];
         
         if(!exportFileURL){
-            error = [ODUserError errorWithCode:ODUMWriteFileError];
-            [ODUAlerts showErrorAlert:error];
+            [ODUAlerts showErrorAlert:[ODUError errorWithCode:ODUMWriteFileError]];
             return;
         }
         
@@ -163,14 +191,29 @@
             return;
         }
 
-        [self startProgressPanelWithMessage:@"Creating DSImport File..." indeterminate:YES];
         user.exportFile = [NSFileHandle fileHandleForWritingToURL:exportFileURL error:&error];
-        [ODUDSQuery addUserList:user withGroups:groups sender:self];
+        
+        if(error){
+            [ODUAlerts showErrorAlert:error];
+            return;
+        }
+
+        [[NSApp delegate] startProgressPanelWithMessage:@"Creating DSImport File..." indeterminate:YES];
+
+        [makeList setUser:user];
+        [makeList setGroups:groups];
+        
+        [makeList addUserList:^(NSError *error) {
+            [[NSApp delegate] stopProgressPanel];
+            if(error){
+                [ODUAlerts showErrorAlert:error];
+            }
+        }];
     }
 }
 
 -(IBAction)cancelUserImport:(id)sender{
-    [ODUDSQuery cancelUserImport:self];
+    [ODUUserList cancel];
 }
 
 -(IBAction)chooseImportFile:(id)sender{
@@ -189,17 +232,14 @@
 
 
 -(IBAction)addGroupMatch:(id)sender{
-    NSString* match = _classListFileTF.stringValue;
-    NSString* group = [_serverGroupListPUB titleOfSelectedItem];
+    NSString* match = _groupMatchTF.stringValue;
+    NSString* group = _serverGroupListPUB.titleOfSelectedItem;
     
-    if(!groups){
-        groups = [[NSMutableArray alloc] init];
-    }
+    if(!groups)groups = [[NSMutableArray alloc] init];
+    if([group isBlank]||[match isBlank])return;
     
-    if([group isEqualToString:@""]||[match isEqualToString:@""])
-        return;
-    
-    NSDictionary * dict = [NSDictionary dictionaryWithObjectsAndKeys:[NSString stringWithFormat:@"%@:%@",group,match],@"description",group, @"group", match, @"match", nil];
+    NSString* description =[NSString stringWithFormat:@"%@:%@",group,match];
+    NSDictionary * dict = @{@"description":description,@"group":group,@"match":match};
 
     [groups addObject:dict];
     [groups sortUsingDescriptors:[NSArray arrayWithObjects:[NSSortDescriptor sortDescriptorWithKey:@"group" ascending:YES], nil]];
@@ -216,25 +256,35 @@
 }
 
 
-#pragma mark -- Reset Password
+#pragma mark - Reset Password
 - (IBAction)resetPasswordPressed:(id)sender{
     NSError* error = nil;
     
     if(!_dsServerStatusBT.state){
-        error = [ODUserError errorWithCode:ODUMNotAuthenticated];
+        error = [ODUError errorWithCode:ODUMNotAuthenticated];
         [ODUAlerts showErrorAlert:error];
         return;
     }
     
     ODUPasswordReset* resetter = [ODUPasswordReset new];
-    resetter.userName = _userListCB.stringValue;
-    resetter.NewPassword = _NewPassWordTF.stringValue;
-    [resetter resetPassword:self];
+    
+    resetter.userName = [_userListCB blankCheck];
+    resetter.NewPassword = [_NewPassWordTF blankCheck];
+    
+    [resetter resetPassword:^(NSError *error) {
+        if(error){
+            NSLog(@"Error: %@",[error localizedDescription]);
+            [ODUAlerts showErrorAlert:error];
+        }else{
+            _passwordResetStatusTF.textColor = [NSColor greenColor];
+            _passwordResetStatusTF.stringValue = [NSString stringWithFormat:@"Password reset for %@",resetter.userName];
+        }
+    }];
 }
 
 
 
-
+#pragma mark - Server Status IBActions
 //-------------------------------------------
 //  Server Status IBActions
 //-------------------------------------------
@@ -260,16 +310,16 @@
 }
 
 -(IBAction)getSettingsForPreset:(id)sender{
-    if(!_querier){
-        _querier = [[ODUDSQuery alloc]initWithDelegate:self];
+    if(!querier){
+        querier = [[ODUDSQuery alloc]initWithDelegate:self];
     }
     
-    [_querier getSettingsForPreset];
+    [querier getSettingsForPreset];
 }
 
 
 
-#pragma mark -- Authenticator Delegate
+#pragma mark - Authenticator Delegate
 //-------------------------------------------
 //  Authenticator Delegate
 //-------------------------------------------
@@ -281,12 +331,12 @@
     if(status < 0){
         [_dsServerStatusBT setImage:[NSImage imageNamed:@"connected-offline.tiff"]];
     }else{
-        if(!_querier){
-            _querier = [[ODUDSQuery alloc]initWithDelegate:self];
+        if(!querier){
+            querier = [[ODUDSQuery alloc]initWithDelegate:self];
         }
-        [_querier getDSUserPresets];
-        [_querier getDSUserList];
-        [_querier getDSGroupList];
+        [querier getDSUserPresets];
+        [querier getDSUserList];
+        [querier getDSGroupList];
     }
     
     NSString* sv;
@@ -316,28 +366,31 @@
 }
 
 -(NSString *)nameOfDiradmin:(ODUAuthenticator *)authenticator{
-    if([_diradminNameTF.stringValue isEqualToString:@""])return nil;
-    return _diradminNameTF.stringValue;
+    return _diradminNameTF.blankCheck;
 
 }
 
 -(NSString *)nameOfServer:(ODUAuthenticator *)authenticator{
-    if([_serverNameTF.stringValue isEqualToString:@""])return nil;
-    return _serverNameTF.stringValue;
+    return _serverNameTF.blankCheck;
 }
 
 -(NSString *)passwordForDiradmin:(ODUAuthenticator *)authenticator{
-    if([_diradminPassTF.stringValue isEqualToString:@""])return nil;
-    return _diradminPassTF.stringValue;
+    return _diradminPassTF.blankCheck;
 }
 
 
-#pragma mark -- ODUDSQueryDelegate
+#pragma mark - ODUDSQueryDelegate
 //-------------------------------------------
 //  Querier Delegate
 //-------------------------------------------
 -(void)didGetDSGroupList:(NSArray *)dsgroups{
     [dsGroupArrayController setContent:dsgroups];
+    NSString* exg = [[NSUserDefaults standardUserDefaults]objectForKey:@"extraGroup"];
+    
+    if([exg isNotBlank])
+        _extraGroupShortNameCB.stringValue = exg;
+    else
+        _extraGroupShortNameCB.stringValue = @"staff";
 }
 
 -(void)didGetDSUserList:(NSArray *)dsusers{
@@ -346,9 +399,16 @@
 
 -(void)didGetDSUserPresets:(NSArray *)dspresets{
     [dsPresetArrayController setContent:dspresets];
+    if(dspresets.count){
+        [_chooseUserPresetBT setTitle:[dspresets[0] objectForKey:@"presetName"]];
+    }else{
+        [_chooseUserPresetBT setTitle:@"Configure"];
+    }
+    [querier getSettingsForPreset];
 }
 
 -(void)didGetSettingsForPreset:(NSDictionary *)settings{
+    [_chooseUserPresetBT setTitle:_userPresetPUB.titleOfSelectedItem];
     _sharePointTF.stringValue = settings[@"sharePoint"];
     _sharePathTF.stringValue  = settings[@"sharePath"];
     _userShellTF.stringValue  = settings[@"userShell"];
@@ -356,13 +416,12 @@
 }
 
 -(NSString *)nameOfPreset{
-    if([_userPresetPUB.titleOfSelectedItem isEqualToString:@""])return nil;
-    return _userPresetPUB.titleOfSelectedItem;
+    return _userPresetPUB.titleOfSelectedItem.blankCheck;
 }
 
 
 
-#pragma mark -- Sheets and Panels
+#pragma mark - Sheets and Panels
 //-------------------------------------------
 //  Open and Save Panels
 //-------------------------------------------
@@ -400,65 +459,9 @@
     if(![_extraGroupDescriptionTF.stringValue isEqualToString:@""]){
         _extraGroupBT.title = _extraGroupDescriptionTF.stringValue;
     }
-}
-
-//-------------------------------------------
-//  Progress Panel
-//-------------------------------------------
-
-- (void)startProgressPanelWithMessage:(NSString*)message indeterminate:(BOOL)indeterminate {
-    /* Display a progress panel as a sheet */
-    self.progressMessage = message;
     
-    if (indeterminate) {
-        [self.progressIndicator setIndeterminate:YES];
-        [self.progressIndicator displayIfNeeded];
-    } else {
-        [self.progressIndicator setUsesThreadedAnimation:YES];
-        [self.progressIndicator setIndeterminate:NO];
-        [self.progressIndicator setDoubleValue:0.0];
-        [self.progressIndicator displayIfNeeded];
-    }
-    
-    [self.progressIndicator startAnimation:self];
-    [self.progressCancelButtonBT setEnabled:YES];
-    [NSApp beginSheet:self.progressPanel
-       modalForWindow:[[NSApplication sharedApplication]mainWindow]
-        modalDelegate:self
-       didEndSelector:nil
-          contextInfo:NULL];
+    [[NSUserDefaults standardUserDefaults] setObject:_extraGroupShortNameCB.stringValue forKey:@"extraGroup"];
 }
-
-- (void)stopProgressPanel {
-    [self.progressPanel orderOut:self];
-    [NSApp endSheet:self.progressPanel returnCode:0];
-}
-
-
-
-#pragma mark -- NSXPC exported object Protocol
-//----------------------------------------------------
-//  NSXPC Return Messages via Exported Object Protocol
-//----------------------------------------------------
-- (void)setProgressMsg:(NSString*)message{
-    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-       self.progressMessage = message;
-    }];
-}
-
-- (void)setProgress:(double)progress withMessage:(NSString*)message {
-    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-        [self.progressIndicator incrementBy:progress];
-        self.progressMessage = message;
-    }];
-}
-
-- (void)setProgress:(double)progress {
-    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-        [self.progressIndicator incrementBy:progress];
-    }];
-}
-
 
 
 @end

@@ -8,10 +8,8 @@
 
 #import <Foundation/Foundation.h>
 
-@class ODUController,User;
-
 @interface ODUPasswordReset : NSObject
--(void)resetPassword:(ODUController*)sender;
+-(void)resetPassword:(void (^)(NSError *error))pwResetReply;
 @property (copy) NSString* userName;
 @property (copy) NSString* NewPassword;
 @property BOOL changed;
