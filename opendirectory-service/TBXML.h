@@ -159,6 +159,7 @@ typedef void (^TBXMLIterateAttributeBlock)(TBXMLAttribute *attribute, NSString *
 + (id)newTBXMLWithXMLFile:(NSString*)aXMLFile __attribute__((deprecated));
 + (id)newTBXMLWithXMLFile:(NSString*)aXMLFile fileExtension:(NSString*)aFileExtension __attribute__((deprecated));
 
++(NSString*)getValueForKey:(NSString*)key fromXMLString:(NSString*)xml;
 
 - (id)initWithXMLString:(NSString*)aXMLString error:(NSError **)error;
 - (id)initWithXMLData:(NSData*)aData error:(NSError **)error;

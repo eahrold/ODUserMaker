@@ -13,7 +13,8 @@
     /*This makes a 5 digit user ID based on the user name*/
     const char* cStr = [self UTF8String];
     unsigned char digest[16];
-    CC_MD5( cStr, strlen(cStr), digest ); // This is the md5 call
+    
+    CC_MD5( cStr, (int)strlen(cStr), digest ); // This is the md5 call
     
     NSMutableString* md5 = [NSMutableString stringWithCapacity:CC_MD5_DIGEST_LENGTH* 2];
     

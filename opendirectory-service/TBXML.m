@@ -80,6 +80,7 @@
 	return [[TBXML alloc] initWithXMLFile:aXMLFile fileExtension:aFileExtension error:error];
 }
 
+
 - (id)init {
 	self = [super init];
 	if (self != nil) {
@@ -240,7 +241,22 @@
     if (error) *error = localError;
     
     // return success or error code
-    return localError == nil ? D_TBXML_SUCCESS : [localError code];
+    return localError == nil ? D_TBXML_SUCCESS : (int)[localError code];
+}
+
+
+#pragma mark - Convience Methods
++(NSString*)getValueForKey:(NSString*)key fromXMLString:(NSString*)xml{
+    NSString* reply;
+    NSData *data = [xml dataUsingEncoding:NSUTF8StringEncoding];
+    
+    if(data){
+        TBXML *xml = [[TBXML alloc]initWithXMLData:data error:nil];
+        TBXMLElement *rootElement = [xml rootXMLElement];
+        TBXMLElement *tableVal = [TBXML childElementNamed:key parentElement:rootElement];
+        reply = [NSString stringWithUTF8String:tableVal->text];
+    }
+    return reply;
 }
 
 @end
@@ -525,6 +541,8 @@
     }
 }
 
+
+
 @end
 
 
@@ -597,7 +615,7 @@
     
     if (error) *error = localError;
         
-    return localError == nil ? D_TBXML_SUCCESS : [localError code];
+    return localError == nil ? D_TBXML_SUCCESS : (int)[localError code];
 }
 
 - (void) decodeBytes {
@@ -952,5 +970,7 @@
 	
 	return &currentAttributeBuffer->attributes[currentAttribute];
 }
+
+
 
 @end
