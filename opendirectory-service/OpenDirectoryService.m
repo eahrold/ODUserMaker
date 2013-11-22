@@ -17,11 +17,39 @@
     ODNode* node;
     BOOL ImportStatus;
 }
-//------------------------------------------------------------
-//  NSXPC methods for App Controller
-//------------------------------------------------------------
+#pragma mark - Sinleton and Listener Delegate
+//---------------------------------
+//  Singleton and ListenerDelegate
+//---------------------------------
+
++ (OpenDirectoryService*)sharedDirectoryServer {
+    static dispatch_once_t onceToken;
+    static OpenDirectoryService* shared;
+    dispatch_once(&onceToken, ^{
+        shared = [OpenDirectoryService new];
+    });
+    return shared;
+}
 
 
+- (BOOL)listener:(NSXPCListener*)listener shouldAcceptNewConnection:(NSXPCConnection*)newConnection {
+    
+    newConnection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(OpenDirectoryService)];
+    newConnection.exportedObject = self;
+    
+    newConnection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
+    self.xpcConnection = newConnection;
+    
+    [newConnection resume];
+    
+    return YES;
+}
+
+
+#pragma mark - NSXPC User Actions
+//------------------------------------------------------------
+//  NSXPC User Change Methods
+//------------------------------------------------------------
 -(void)addSingleUser:(User*)user andGroups:(NSArray*)groups withReply:(void (^)(NSError *error))reply{
     NSError* error = nil;
     BOOL userError = NO;
@@ -66,87 +94,80 @@ nsxpc_return:
     reply(error);
 }
 
-
 -(void)addListOfUsers:(User*)user withReply:(void (^)(NSError *error))reply{
-    replyBlock = reply;
     
     // in 10.8 you could run what you needed to right here,
     // as of 10.9 to recieve status updates in the main app
     // this needs to be in the background.
-    [self performSelectorInBackground:@selector(userListAdd:) withObject:user];
-    
-}
-
--(void)userListAdd:(User*)user{
-    NSError* error = nil;
-    ImportStatus = TRUE;
-    
-    // We want to log these issues, so we'll get a collection and log once
-    // so as to keep NSLog from spinning out of control
-    NSMutableSet* notAdded = [NSMutableSet new];
-    NSMutableSet* wereAdded = [NSMutableSet new];
-    NSMutableSet* problemAdding = [NSMutableSet new];
-    
-    NSInteger count = [user.userList count];
-    NSInteger pgcount = 1;
-    NSString* progressMessage;
-    
-    double progress = 100.0/count;
-    
-    while (ImportStatus) {
-        for(NSDictionary* dict in user.userList){
-            error = nil;
-            
-            if(!ImportStatus)break;
-            
-            user.userName  = dict[@"userName"];
-            user.firstName = dict[@"firstName"];
-            user.lastName  = dict[@"lastName"];
-            user.userCWID  = dict[@"userCWID"];
-            user.userUUID  = nil; // <-- nil this out since the UUID's not used when importing a list of uses...
-            
-            progressMessage = [NSString stringWithFormat:@"Adding %ld/%ld: %@...",(long)pgcount,(long)count,user.userName];
-            
-            [[self.xpcConnection remoteObjectProxy]setProgress:progress withMessage:progressMessage];
-            
-            ODRecord* userRecord = [self getUserRecord:user.userName];
-            if(userRecord){
-                [notAdded addObject:user.userName];
-            }else{
-                [self createNewUser:user error:&error];
-                if(error){
-                    [problemAdding addObject:user.userName];
+    dispatch_queue_t userAddQueue = dispatch_queue_create("userAddQueue",NULL);
+    dispatch_async(userAddQueue, ^{
+        
+        NSError* error = nil;
+        ImportStatus = TRUE;
+        
+        // We want to log these issues, so we'll get a collection and log once
+        // so as to keep NSLog from spinning out of control
+        NSMutableSet* notAdded = [NSMutableSet new];
+        NSMutableSet* wereAdded = [NSMutableSet new];
+        NSMutableSet* problemAdding = [NSMutableSet new];
+        
+        NSInteger count = [user.userList count];
+        NSInteger pgcount = 1;
+        NSString* progressMessage;
+        
+        double progress = 100.0/count;
+        
+        while (ImportStatus) {
+            for(NSDictionary* dict in user.userList){
+                error = nil;
+                
+                if(!ImportStatus)break;
+                
+                user.userName  = dict[@"userName"];
+                user.firstName = dict[@"firstName"];
+                user.lastName  = dict[@"lastName"];
+                user.userCWID  = dict[@"userCWID"];
+                user.userUUID  = nil; // <-- nil this out since the UUID's not used when importing a list of uses...
+                
+                progressMessage = [NSString stringWithFormat:@"Adding %ld/%ld: %@...",(long)pgcount,(long)count,user.userName];
+                
+                [[self.xpcConnection remoteObjectProxy]setProgress:progress withMessage:progressMessage];
+                
+                ODRecord* userRecord = [self getUserRecord:user.userName];
+                if(userRecord){
+                    [notAdded addObject:user.userName];
                 }else{
-                    [wereAdded addObject:user.userName];
+                    [self createNewUser:user error:&error];
+                    if(error){
+                        [problemAdding addObject:user.userName];
+                    }else{
+                        [wereAdded addObject:user.userName];
+                    }
                 }
+                pgcount++;
             }
-            pgcount++;
+            break;
         }
-        break;
-    }
-    
-    if([notAdded count] > 0){
-        NSLog(@"These users already existed on the server and were skipped: %@",notAdded);
-    }
-    if([wereAdded count] > 0){
-        NSLog(@"We added %lu users to the Directory: %@",(unsigned long)wereAdded.count,wereAdded);
-    }
-    if([problemAdding count] > 0){
-        NSLog(@"There was a problem adding these users to Directory: %@",problemAdding);
-    }
-    
-    if(user.groupList.count > 0){
-        error = nil;
-        [self addGroups:user.groupList error:&error];
-    }
-    
-    ImportStatus = NO;
-    
-    replyBlock(error);
-
-}
--(void)updateProgress:(NSString*)progress{
-    [[self.xpcConnection remoteObjectProxy]setProgressMsg:progress];
+        
+        if([notAdded count] > 0){
+            NSLog(@"These users already existed on the server and were skipped: %@",notAdded);
+        }
+        if([wereAdded count] > 0){
+            NSLog(@"We added %lu users to the Directory: %@",(unsigned long)wereAdded.count,wereAdded);
+        }
+        if([problemAdding count] > 0){
+            NSLog(@"There was a problem adding these users to Directory: %@",problemAdding);
+        }
+        
+        if(user.groupList.count > 0){
+            error = nil;
+            [self addGroups:user.groupList error:&error];
+        }
+        
+        ImportStatus = NO;
+        
+        reply(error);
+    });
 }
 
 -(void)cancelImportStatus:(void (^)(OSStatus connected))reply{
@@ -154,10 +175,11 @@ nsxpc_return:
     reply(YES);
 }
 
+
 -(void)resetUserPassword:(User*)user withReply:(void (^)(NSError *error))reply{
     NSError *error = nil;
     ODRecord* userRecord;
-
+    
     userRecord = [self getUserRecord:user.userName];
     
     if(userRecord){
@@ -170,9 +192,206 @@ nsxpc_return:
     reply(error);
 }
 
+
+
+#pragma mark - NSXPC Record Request
+//------------------------------------------------------------
+//  NSXPC Query Methods
+//------------------------------------------------------------
+-(void)getGroupListFromServer:(void (^)(NSArray *groupList,NSError *error))reply{
+    NSError *error = nil;
+    NSArray * odArray;
+    ODQuery *query;
+    NSMutableArray *groupList;
+    ODRecord *record;
+    
+    query = [ODQuery  queryWithNode: node
+                     forRecordTypes: kODRecordTypeGroups
+                          attribute: kODAttributeTypeRecordName
+                          matchType: kODMatchAny
+                        queryValues: nil
+                   returnAttributes: kODAttributeTypeStandardOnly
+                     maximumResults: 0
+                              error: &error];
+    
+    odArray = [query resultsAllowingPartial:NO error:&error];
+    
+    groupList = [NSMutableArray arrayWithCapacity:[odArray count]];
+    
+    for (record in odArray) {
+        NSError *err;
+        NSArray *recordName = [record valuesForAttribute:kODAttributeTypeRecordName error:&err];
+        
+        if ([recordName count]) {
+            [groupList addObject:[recordName objectAtIndex:0]];
+        }
+    }
+    
+nsxpc_return:
+    reply(groupList,error);
+}
+
+-(void)getUserListFromServer:(void (^)(NSArray *userList,NSError *error))reply{
+    NSError *error = nil;
+    ODRecord *record;
+    ODQuery *query;
+    NSArray *odArray;
+    NSMutableArray *userList;
+    
+    query = [ODQuery  queryWithNode: node
+                     forRecordTypes: kODRecordTypeUsers
+                          attribute: kODAttributeTypeAllAttributes
+                          matchType: kODMatchAny
+                        queryValues: nil
+                   returnAttributes: kODAttributeTypeStandardOnly
+                     maximumResults: 0
+                              error: &error];
+    
+    if(error){
+        reply(nil,error);
+        return;
+    }
+    
+    //TODO: get delegate working...
+    //    DSReplyBlock = reply;
+    //    [query setDelegate:self];
+    //    [query scheduleInRunLoop: [NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
+    
+    odArray = [query resultsAllowingPartial:NO error:&error];
+    userList = [NSMutableArray arrayWithCapacity:[odArray count]];
+    
+    for (record in odArray) {
+        NSError *err;
+        NSArray *recordName = [record valuesForAttribute:kODAttributeTypeRecordName error:&err];
+        
+        if ([recordName count]) {
+            [userList addObject:[recordName objectAtIndex:0]];
+        }
+    }
+    
+    reply(userList,error);
+}
+
+-(void)getUserPresets:(void (^)(NSArray *userPreset,NSError *error))reply{
+    NSError *error = nil;
+    ODRecord *record;
+    NSArray *odArray;
+    NSMutableArray *userPresets;
+    ODQuery *query;
+    
+    query = [ODQuery  queryWithNode: node
+                     forRecordTypes: kODRecordTypePresetUsers
+                          attribute: kODAttributeTypeRecordName
+                          matchType: kODMatchAny
+                        queryValues: nil
+                   returnAttributes: kODAttributeTypeStandardOnly
+                     maximumResults: 0
+                              error: &error];
+    
+    odArray = [query resultsAllowingPartial:NO error:&error];
+    userPresets = [NSMutableArray arrayWithCapacity:[odArray count]];
+    
+    for (record in odArray) {
+        NSMutableDictionary* dict = [NSMutableDictionary new];
+        NSError *err;
+        NSArray *arr;
+        
+        arr = [record valuesForAttribute:kODAttributeTypeRecordName error:&err];
+        if ([arr count]) {
+            [dict setObject:[arr objectAtIndex:0] forKey:@"presetName"];
+        }
+        
+        arr = [record valuesForAttribute:kODAttributeTypeNFSHomeDirectory error:nil];
+        if([arr count]){
+            [dict setObject:[arr objectAtIndex:0] forKey:@"NFSHome"];
+        }
+        
+        arr = [record valuesForAttribute:kODAttributeTypeUserShell error:nil];
+        if([arr count]){
+            [dict setObject:[arr objectAtIndex:0]forKey:@"userShell"];
+        }
+        
+        arr = [record valuesForAttribute:kODAttributeTypeHomeDirectory error:nil];
+        if([arr count]){
+            NSString* url = [TBXML getValueForKey:@"url" fromXMLString:[arr objectAtIndex:0]];
+            NSString* path = [TBXML getValueForKey:@"path" fromXMLString:[arr objectAtIndex:0]];
+            [dict setObject:path forKey:@"sharePath"];
+            [dict setObject:url forKey:@"sharePoint"];
+        }
+        [userPresets addObject:dict];
+    }
+nsxpc_return:
+    reply(userPresets,error);
+}
+
+-(void)getSettingsForPreset:(NSString*)preset
+                  withReply:(void (^)(NSDictionary *settings,NSError *error))reply{
+    
+    NSMutableDictionary* dict = [NSMutableDictionary new];
+    NSDictionary *settings;
+    NSError* error = nil;
+    NSArray *odArray;
+    ODRecord *record;
+    ODQuery * query;
+    
+    NSString* shareFull;
+    NSString* sharePoint;
+    NSString* sharePath;
+    NSString* NFSHome;
+    NSString* userShell;
+    NSArray* arr;
+    
+    
+    
+    
+    query = [ODQuery  queryWithNode: node
+                     forRecordTypes: kODRecordTypePresetUsers
+                          attribute: kODAttributeTypeRecordName
+                          matchType: kODMatchEqualTo
+                        queryValues: preset
+                   returnAttributes: kODAttributeTypeStandardOnly
+                     maximumResults: 0
+                              error: &error];
+    
+    odArray = [query resultsAllowingPartial:NO error:&error];
+    if([odArray count]){
+        record = [odArray objectAtIndex:0];
+    }
+    
+    arr = [record valuesForAttribute:kODAttributeTypeHomeDirectory error:nil];
+    if([arr count]){
+        shareFull = [arr objectAtIndex:0];
+    }
+    
+    arr = [record valuesForAttribute:kODAttributeTypeNFSHomeDirectory error:nil];
+    if([arr count]){
+        NFSHome = [arr objectAtIndex:0];
+    }
+    
+    arr = [record valuesForAttribute:kODAttributeTypeUserShell error:nil];
+    if([arr count]){
+        userShell = [arr objectAtIndex:0];
+    }
+    
+    
+    sharePoint = [TBXML getValueForKey:@"url" fromXMLString:shareFull];
+    sharePath = [TBXML getValueForKey:@"path" fromXMLString:shareFull];
+    
+    [dict setObject:sharePoint forKey:@"sharePoint"];
+    [dict setObject:sharePath forKey:@"sharePath"];
+    [dict setObject:NFSHome forKey:@"NFSHome"];
+    [dict setObject:userShell forKey:@"userShell"];
+    
+    
+nsxpc_return:
+    settings = [NSDictionary dictionaryWithDictionary:dict];
+    reply(settings,error);
+}
+
 //--------------------------------------------------------------
 //  Private Methods for Editing Users and Groups
 //--------------------------------------------------------------
+#pragma mark  - Add / Create Internal
 
 -(ODRecord*)createNewUser:(User*)user error:(NSError**)error{
     NSError* localError = nil;
@@ -220,7 +439,6 @@ nsxpc_return:
     return userRecord;
 }
 
-
 -(BOOL)addGroups:(NSArray*)groups error:(NSError**)error{
     BOOL rc = YES;
     NSError* localError =nil;
@@ -252,201 +470,12 @@ nsxpc_return:
     return rc;
 }
 
-#pragma mark -- NSXPC Listener methods
-//------------------------------------------------------------
-//  NSXPC methods
-//------------------------------------------------------------
-
--(void)getUserPresets:(void (^)(NSArray *userPreset,NSError *error))reply{
-    NSError *error = nil;
-    ODRecord *record;
-    NSArray *odArray;
-    NSMutableArray *userPresets;
-    ODQuery *query;
-  
-    query = [ODQuery  queryWithNode: node
-                                forRecordTypes: kODRecordTypePresetUsers
-                                     attribute: kODAttributeTypeRecordName
-                                     matchType: kODMatchAny
-                                   queryValues: nil
-                              returnAttributes: kODAttributeTypeStandardOnly
-                                maximumResults: 0
-                                         error: &error];
-    
-    odArray = [query resultsAllowingPartial:NO error:&error];
-    userPresets = [NSMutableArray arrayWithCapacity:[odArray count]];
-    
-    for (record in odArray) {
-        NSMutableDictionary* dict = [NSMutableDictionary new];
-        NSError *err;
-        NSArray *arr;
-        
-        arr = [record valuesForAttribute:kODAttributeTypeRecordName error:&err];
-        if ([arr count]) {
-            [dict setObject:[arr objectAtIndex:0] forKey:@"presetName"];
-        }
-        
-        arr = [record valuesForAttribute:kODAttributeTypeNFSHomeDirectory error:nil];
-        if([arr count]){
-            [dict setObject:[arr objectAtIndex:0] forKey:@"NFSHome"];
-        }
-        
-        arr = [record valuesForAttribute:kODAttributeTypeUserShell error:nil];
-        if([arr count]){
-            [dict setObject:[arr objectAtIndex:0]forKey:@"userShell"];
-        }
-
-        arr = [record valuesForAttribute:kODAttributeTypeHomeDirectory error:nil];
-        if([arr count]){
-            NSString* url = [self getValueForKey:@"url" fromXMLString:[arr objectAtIndex:0]];
-            NSString* path = [self getValueForKey:@"path" fromXMLString:[arr objectAtIndex:0]];
-            [dict setObject:path forKey:@"sharePath"];
-            [dict setObject:url forKey:@"sharePoint"];
-        }
-        [userPresets addObject:dict];
-    }
-nsxpc_return:
-    reply(userPresets,error);
-}
-
--(void)getSettingsForPreset:(NSString*)preset
-                  withReply:(void (^)(NSDictionary *settings,NSError *error))reply{
-    
-    NSMutableDictionary* dict = [NSMutableDictionary new];
-    NSDictionary *settings;
-    NSError* error = nil;
-    NSArray *odArray;
-    ODRecord *record;
-    ODQuery * query;
-
-    NSString* shareFull;
-    NSString* sharePoint;
-    NSString* sharePath;
-    NSString* NFSHome;
-    NSString* userShell;
-    NSArray* arr;
-    
-   
-    
-    
-    query = [ODQuery  queryWithNode: node
-                     forRecordTypes: kODRecordTypePresetUsers
-                          attribute: kODAttributeTypeRecordName
-                          matchType: kODMatchEqualTo
-                        queryValues: preset
-                   returnAttributes: kODAttributeTypeStandardOnly
-                     maximumResults: 0
-                              error: &error];
-    
-    odArray = [query resultsAllowingPartial:NO error:&error];
-    if([odArray count]){
-        record = [odArray objectAtIndex:0];
-    }
-    
-    arr = [record valuesForAttribute:kODAttributeTypeHomeDirectory error:nil];
-    if([arr count]){
-        shareFull = [arr objectAtIndex:0];
-    }
-    
-    arr = [record valuesForAttribute:kODAttributeTypeNFSHomeDirectory error:nil];
-    if([arr count]){
-        NFSHome = [arr objectAtIndex:0];
-    }
-    
-    arr = [record valuesForAttribute:kODAttributeTypeUserShell error:nil];
-    if([arr count]){
-        userShell = [arr objectAtIndex:0];
-    }
-    
-    
-    sharePoint = [self getValueForKey:@"url" fromXMLString:shareFull];
-    sharePath = [self getValueForKey:@"path" fromXMLString:shareFull];
-    
-    [dict setObject:sharePoint forKey:@"sharePoint"];
-    [dict setObject:sharePath forKey:@"sharePath"];
-    [dict setObject:NFSHome forKey:@"NFSHome"];
-    [dict setObject:userShell forKey:@"userShell"];
-    
-    
-nsxpc_return:
-    settings = [NSDictionary dictionaryWithDictionary:dict];
-    reply(settings,error);
-}
-
--(void)getGroupListFromServer:(void (^)(NSArray *groupList,NSError *error))reply{
-    NSError *error = nil;
-    NSArray * odArray;
-    ODQuery *query;
-    NSMutableArray *groupList;
-    ODRecord *record;
-    
-    query = [ODQuery  queryWithNode: node
-                              forRecordTypes: kODRecordTypeGroups
-                                   attribute: kODAttributeTypeRecordName
-                                   matchType: kODMatchAny
-                                 queryValues: nil
-                            returnAttributes: kODAttributeTypeStandardOnly
-                              maximumResults: 0
-                                       error: &error];
-    
-    odArray = [query resultsAllowingPartial:NO error:&error];
-    
-    groupList = [NSMutableArray arrayWithCapacity:[odArray count]];
-    
-    for (record in odArray) {
-        NSError *err;
-        NSArray *recordName = [record valuesForAttribute:kODAttributeTypeRecordName error:&err];
-        
-        if ([recordName count]) {
-            [groupList addObject:[recordName objectAtIndex:0]];
-        }
-    }
-    
-nsxpc_return:
-    reply(groupList,error);
-}
-
--(void)getUserListFromServer:(void (^)(NSArray *userList,NSError *error))reply{
-    NSError *error = nil;
-    ODRecord *record;
-    ODQuery *query;
-    NSArray *odArray;
-    NSMutableArray *userList;
-    
-    query = [ODQuery  queryWithNode: node
-                        forRecordTypes: kODRecordTypeUsers
-                                   attribute: kODAttributeTypeAllAttributes
-                                   matchType: kODMatchAny
-                                 queryValues: nil
-                            returnAttributes: kODAttributeTypeStandardOnly
-                              maximumResults: 0
-                                       error: &error];
-    
-    if(error){
-        reply(nil,error);
-        return;
-    }
-    
-//    DSReplyBlock = reply;
-//    [query setDelegate:self];
-//    [query scheduleInRunLoop: [NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
-    
-    odArray = [query resultsAllowingPartial:NO error:&error];
-    userList = [NSMutableArray arrayWithCapacity:[odArray count]];
-    
-    for (record in odArray) {
-        NSError *err;
-        NSArray *recordName = [record valuesForAttribute:kODAttributeTypeRecordName error:&err];
-        
-        if ([recordName count]) {
-            [userList addObject:[recordName objectAtIndex:0]];
-        }
-    }
-    
-   reply(userList,error);
-}
 
 
+
+
+
+#pragma mark - Record Retreivial
 //---------------------------------------------
 //  Record Retrevial methods
 //---------------------------------------------
@@ -557,12 +586,10 @@ nsxpc_return:
     return YES;
 }
 
-
+#pragma mark - Node Status Check
 //---------------------------------------------
 //  Open Directory Node Status Checks
 //---------------------------------------------
-
-
 -(void)checkServerStatus:(Server*)server withReply:(void (^)(OSStatus connected))reply{
     // init the query set here since whenever we change the server,the old querys will no longer be accessible
  
@@ -593,6 +620,7 @@ nsxpc_return:
     reply(status);
 }
 
+#pragma mark - Open Directory Delegate
 //---------------------------------------------
 //  Open Directory Delegate Methods
 //---------------------------------------------
@@ -609,61 +637,12 @@ nsxpc_return:
         NSArray *recordName = [record valuesForAttribute:kODAttributeTypeRecordName error:nil];
         
         if ([recordName count]) {
-            NSString* rn = recordName[0];
+            //NSString* rn = recordName[0];
             //[[self.xpcConnection remoteObjectProxy] updateUserListArrayWithString:rn];
             //[array addObject:recordName[0]];
         }
     }
 }
-
-
-#pragma mark -- singleton
-//---------------------------------
-//  Singleton and ListenerDelegate
-//---------------------------------
-
-+ (OpenDirectoryService*)sharedDirectoryServer {
-    static dispatch_once_t onceToken;
-    static OpenDirectoryService* shared;
-    dispatch_once(&onceToken, ^{
-        shared = [OpenDirectoryService new];
-    });
-    return shared;
-}
-
-
-/* Implement the one method in the NSXPCListenerDelegate protocol.*/
-- (BOOL)listener:(NSXPCListener*)listener shouldAcceptNewConnection:(NSXPCConnection*)newConnection {
-    
-    newConnection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(OpenDirectoryService)];
-    newConnection.exportedObject = self;
-    
-    newConnection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
-    self.xpcConnection = newConnection;
-    
-    [newConnection resume];
-    
-    return YES;
-}
-
-
-//---------------------------------------------
-//  Utility Methods
-//---------------------------------------------
-
--(NSString*)getValueForKey:(NSString*)key fromXMLString:(NSString*)xml{
-    NSString* reply = nil;
-    NSData *data = [xml dataUsingEncoding:NSUTF8StringEncoding];
-    
-    if(data){
-        TBXML *xml = [[TBXML alloc]initWithXMLData:data error:nil];
-        TBXMLElement *rootElement = [xml rootXMLElement];
-        TBXMLElement *tableVal = [TBXML childElementNamed:key parentElement:rootElement];
-        reply = [NSString stringWithUTF8String:tableVal->text];
-    }
-    return reply;
-}
-
 
 
 @end

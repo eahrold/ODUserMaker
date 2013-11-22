@@ -39,7 +39,7 @@
 
 - (void)startProgressPanelWithMessage:(NSString*)message indeterminate:(BOOL)indeterminate {
     /* Display a progress panel as a sheet */
-    _progressMessage = message;
+    self.progressMessage = message;
     
     if (indeterminate) {
         [_progressIndicator setIndeterminate:YES];
@@ -61,6 +61,7 @@
 }
 
 - (void)stopProgressPanel {
+    self.progressMessage = @"";
     [self.progressIndicator setDoubleValue:0.0];
     [self.progressPanel orderOut:self];
     [NSApp endSheet:_progressPanel returnCode:0];

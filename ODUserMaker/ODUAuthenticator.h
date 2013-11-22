@@ -8,6 +8,14 @@
 
 #import <Foundation/Foundation.h>
 
+//Status Messages
+extern NSString* const ODUNoNodeMSG;
+extern NSString* const ODUUnauthenticatedLocalMSG;
+extern NSString* const ODUUnauthenticatedProxyMSG;
+extern NSString* const ODUAuthenticatedLocalMSG;
+extern NSString* const ODUAuthenticatedProxyMSG;
+
+
 @class ODUAuthenticator;
 
 @protocol ODUAuthenticatorDelegate <NSObject>
@@ -21,7 +29,7 @@
 
 @interface ODUAuthenticator : NSObject
 
-@property (strong) id<ODUAuthenticatorDelegate>delegate;
+@property (weak) id<ODUAuthenticatorDelegate>delegate;
 @property (strong) NSString* serverName;
 @property (strong) NSString* diradminName;
 

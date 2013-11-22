@@ -11,6 +11,15 @@
 #import "OpenDirectoryService.h"
 #import "ODCommonHeaders.h"
 
+// Server Status Codes
+NSString* const ODUNoNodeMSG = @"Could Not Contact Server";
+NSString* const ODUUnauthenticatedLocalMSG =@"Could Not Authenticate to Local Directory Server";
+NSString* const ODUUnauthenticatedProxyMSG =@"Could Not Authenticate to Directory Server Remotley";
+NSString* const ODUAuthenticatedLocalMSG =@"The the username and password are correct, connected locally.";
+NSString* const ODUAuthenticatedProxyMSG =@"The the username and password are correct, connected over proxy";
+
+
+
 @implementation ODUAuthenticator{
     NSString* diradminPass;
 }
@@ -25,8 +34,6 @@
 }
 
 -(void)authenticateToNode{
-    NSError* error;
-    
     serverName = [_delegate nameOfServer:self];
     diradminName = [_delegate nameOfDiradmin:self];
     diradminPass = [_delegate passwordForDiradmin:self];
@@ -36,8 +43,7 @@
     }
     
     /* don't bother checking untill everything is in place */
-    if(!serverName||!diradminName||!diradminPass){
-        error = [ODUError errorWithCode:ODUMFieldsMissing];
+    if(serverName.isBlank||diradminName.isBlank||diradminPass.isBlank){
         [_delegate didRecieveStatusUpdate:ODUNoNode];
         return;
     }

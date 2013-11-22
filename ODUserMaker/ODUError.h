@@ -10,6 +10,7 @@
 /* set up domain */
 extern NSString* const ODUMDomain;
 
+
 @interface ODUError : NSError
 + (NSError*) errorWithCode:(int)code;
 + (NSError*) errorWithCode:(NSInteger)rc message:(NSString*)msg;
@@ -40,5 +41,4 @@ enum ODUMErrorCodes {
     
     ODUMFieldsMissing = 5001
 };
-
 

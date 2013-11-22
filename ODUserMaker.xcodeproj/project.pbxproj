@@ -13,6 +13,8 @@
 		BE18C1C717D3C57900C92AF3 /* libTBXML.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BE18C1C517D3BFEC00C92AF3 /* libTBXML.a */; };
 		BE18C1CB17D40CAE00C92AF3 /* NSString+uuidFromString.m in Sources */ = {isa = PBXBuildFile; fileRef = BE18C1CA17D40CAE00C92AF3 /* NSString+uuidFromString.m */; };
 		BE18C1CC17D40CAE00C92AF3 /* NSString+uuidFromString.m in Sources */ = {isa = PBXBuildFile; fileRef = BE18C1CA17D40CAE00C92AF3 /* NSString+uuidFromString.m */; };
+		BE203705183E6272000E33CE /* SSKeychain.m in Sources */ = {isa = PBXBuildFile; fileRef = BE203702183E6272000E33CE /* SSKeychain.m */; };
+		BE203706183E6272000E33CE /* SSKeychainQuery.m in Sources */ = {isa = PBXBuildFile; fileRef = BE203704183E6272000E33CE /* SSKeychainQuery.m */; };
 		BE29322C17965D99001502D7 /* FileService.m in Sources */ = {isa = PBXBuildFile; fileRef = BEC425431792309D00CA45A5 /* FileService.m */; };
 		BE29322F1796F18B001502D7 /* NSString+StringSanitizer.m in Sources */ = {isa = PBXBuildFile; fileRef = BE29322E1796F18B001502D7 /* NSString+StringSanitizer.m */; };
 		BE29325617972994001502D7 /* file-service.entitlements in Resources */ = {isa = PBXBuildFile; fileRef = BE29325517972994001502D7 /* file-service.entitlements */; };
@@ -26,7 +28,6 @@
 		BE7DB459183B24AD0049D82F /* NSString(TextField)+isNotBlank.m in Sources */ = {isa = PBXBuildFile; fileRef = BE7DB458183B24AD0049D82F /* NSString(TextField)+isNotBlank.m */; };
 		BE7DB45C183B27B60049D82F /* NSTextField+blankCheck.m in Sources */ = {isa = PBXBuildFile; fileRef = BE7DB45B183B27B60049D82F /* NSTextField+blankCheck.m */; };
 		BE94E3CB1798E6830024C9E5 /* ODUserMaker.icns in Resources */ = {isa = PBXBuildFile; fileRef = BE94E3CA1798E6830024C9E5 /* ODUserMaker.icns */; };
-		BE9625E51795A55800839C80 /* SSKeychain.m in Sources */ = {isa = PBXBuildFile; fileRef = BE9625E41795A55800839C80 /* SSKeychain.m */; };
 		BE9625EA1795A75100839C80 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BE9625E81795A74A00839C80 /* Security.framework */; };
 		BEAA9EF71832CF8A00E0BEA8 /* ODUAlerts.m in Sources */ = {isa = PBXBuildFile; fileRef = BEAA9EF61832CF8A00E0BEA8 /* ODUAlerts.m */; };
 		BEAA9EFA1832D62200E0BEA8 /* ODUDSQuery.m in Sources */ = {isa = PBXBuildFile; fileRef = BEAA9EF91832D62200E0BEA8 /* ODUDSQuery.m */; };
@@ -76,6 +77,10 @@
 		BE18C1C517D3BFEC00C92AF3 /* libTBXML.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libTBXML.a; path = "opendirectory-service/libTBXML.a"; sourceTree = "<group>"; };
 		BE18C1C917D40CAE00C92AF3 /* NSString+uuidFromString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSString+uuidFromString.h"; path = "ODUserMaker/NSString+uuidFromString.h"; sourceTree = "<group>"; };
 		BE18C1CA17D40CAE00C92AF3 /* NSString+uuidFromString.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSString+uuidFromString.m"; path = "ODUserMaker/NSString+uuidFromString.m"; sourceTree = "<group>"; };
+		BE203701183E6272000E33CE /* SSKeychain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SSKeychain.h; sourceTree = "<group>"; };
+		BE203702183E6272000E33CE /* SSKeychain.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SSKeychain.m; sourceTree = "<group>"; };
+		BE203703183E6272000E33CE /* SSKeychainQuery.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SSKeychainQuery.h; sourceTree = "<group>"; };
+		BE203704183E6272000E33CE /* SSKeychainQuery.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SSKeychainQuery.m; sourceTree = "<group>"; };
 		BE29322D1796F18B001502D7 /* NSString+StringSanitizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSString+StringSanitizer.h"; path = "file-service/NSString+StringSanitizer.h"; sourceTree = "<group>"; };
 		BE29322E1796F18B001502D7 /* NSString+StringSanitizer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSString+StringSanitizer.m"; path = "file-service/NSString+StringSanitizer.m"; sourceTree = "<group>"; };
 		BE29325517972994001502D7 /* file-service.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "file-service.entitlements"; path = "file-service/file-service.entitlements"; sourceTree = "<group>"; };
@@ -95,8 +100,6 @@
 		BE7DB45A183B27B60049D82F /* NSTextField+blankCheck.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSTextField+blankCheck.h"; path = "ODUserMaker/NSTextField+blankCheck.h"; sourceTree = SOURCE_ROOT; };
 		BE7DB45B183B27B60049D82F /* NSTextField+blankCheck.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSTextField+blankCheck.m"; path = "ODUserMaker/NSTextField+blankCheck.m"; sourceTree = SOURCE_ROOT; };
 		BE94E3CA1798E6830024C9E5 /* ODUserMaker.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = ODUserMaker.icns; sourceTree = "<group>"; };
-		BE9625E31795A55800839C80 /* SSKeychain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SSKeychain.h; sourceTree = "<group>"; };
-		BE9625E41795A55800839C80 /* SSKeychain.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SSKeychain.m; sourceTree = "<group>"; };
 		BE9625E81795A74A00839C80 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		BEAA9EF51832CF8A00E0BEA8 /* ODUAlerts.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ODUAlerts.h; sourceTree = "<group>"; };
 		BEAA9EF61832CF8A00E0BEA8 /* ODUAlerts.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ODUAlerts.m; sourceTree = "<group>"; };
@@ -356,8 +359,10 @@
 				BEAA9EF61832CF8A00E0BEA8 /* ODUAlerts.m */,
 				BE2D96B217D220540076258A /* ODUError.h */,
 				BE2D96B317D220540076258A /* ODUError.m */,
-				BE9625E31795A55800839C80 /* SSKeychain.h */,
-				BE9625E41795A55800839C80 /* SSKeychain.m */,
+				BE203701183E6272000E33CE /* SSKeychain.h */,
+				BE203702183E6272000E33CE /* SSKeychain.m */,
+				BE203703183E6272000E33CE /* SSKeychainQuery.h */,
+				BE203704183E6272000E33CE /* SSKeychainQuery.m */,
 			);
 			name = "Supporting Classes";
 			sourceTree = "<group>";
@@ -498,6 +503,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				BEC425021791A80000CA45A5 /* main.m in Sources */,
+				BE203706183E6272000E33CE /* SSKeychainQuery.m in Sources */,
 				BEC425091791A80000CA45A5 /* ODUDelegate.m in Sources */,
 				BE47D220183BBD5800203771 /* ODUUserList.m in Sources */,
 				BE70D245183AC189004D70FA /* ODUPasswordReset.m in Sources */,
@@ -506,8 +512,8 @@
 				BEAA9EFA1832D62200E0BEA8 /* ODUDSQuery.m in Sources */,
 				BEC4252E1791AE3500CA45A5 /* ODUController.m in Sources */,
 				BE70D242183A8A2D004D70FA /* ODUAuthenticator.m in Sources */,
+				BE203705183E6272000E33CE /* SSKeychain.m in Sources */,
 				BEC425471792451E00CA45A5 /* SecuredObjects.m in Sources */,
-				BE9625E51795A55800839C80 /* SSKeychain.m in Sources */,
 				BE7DB459183B24AD0049D82F /* NSString(TextField)+isNotBlank.m in Sources */,
 				BE7DB45C183B27B60049D82F /* NSTextField+blankCheck.m in Sources */,
 				BE2D96B417D220540076258A /* ODUError.m in Sources */,
@@ -653,6 +659,7 @@
 				CODE_SIGN_IDENTITY = "Developer ID Application";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Developer ID Application";
 				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "ODUserMaker/ODUserMaker-Prefix.pch";
 				HEADER_SEARCH_PATHS = "./**";
@@ -672,6 +679,7 @@
 				CODE_SIGN_IDENTITY = "Developer ID Application";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Developer ID Application";
 				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "ODUserMaker/ODUserMaker-Prefix.pch";
 				HEADER_SEARCH_PATHS = "./**";

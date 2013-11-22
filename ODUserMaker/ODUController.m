@@ -7,14 +7,13 @@
 //
 
 #import "ODUController.h"
+#import "ODUDelegate.h"
+#import "ODCommonHeaders.h"
+#import "ODUSingleUser.h"
+#import "ODUUserList.h"
+#import "ODUPasswordReset.h"
 #import "FileService.h"
 #import "OpenDirectoryService.h"
-#import "ODCommonHeaders.h"
-#import "ODUDSQuery.h"
-#import "ODUPasswordReset.h"
-#import "ODUDelegate.h"
-#import "ODUUserList.h"
-#import "ODUSingleUser.h"
 
 @implementation ODUController{
     NSMutableArray *groups;
@@ -27,7 +26,6 @@
                                              selector:@selector(refreshServerStatus:)
                                                  name:@"appLaunched"
                                                object:nil];
-    
 }
 
 
@@ -128,7 +126,7 @@
 
 
 
-#pragma mark - User List IBActions
+#pragma mark - Add Users List
 - (IBAction)makeMultiUserPressed:(id)sender{
     NSButton* button = sender;
     NSError* error = nil;
@@ -313,7 +311,7 @@
     if(!querier){
         querier = [[ODUDSQuery alloc]initWithDelegate:self];
     }
-    
+
     [querier getSettingsForPreset];
 }
 
@@ -343,14 +341,14 @@
     switch(status){
         case ODUNoNode: sv = @"Could Not Contact Server";
             break;
-        case ODUUnauthenticatedLocal: sv = @"Could Not Authenticate to Local Directory Server";
+        case ODUUnauthenticatedLocal:sv = ODUUnauthenticatedLocalMSG;
             break;
-        case ODUUnauthenticatedProxy: sv = @"Could Not Authenticate to Directory Server Remotley";
+        case ODUUnauthenticatedProxy:sv = ODUUnauthenticatedProxyMSG;
             break;
-        case ODUAuthenticatedLocal  : sv = @"The the username and password are correct, connected locally.";
+        case ODUAuthenticatedLocal:sv = ODUAuthenticatedLocalMSG;
             [_dsServerStatusBT setImage:[NSImage imageNamed:@"connected-local.tiff"]];
             break;
-        case ODUAuthenticatedProxy  : sv = @"The the username and password are correct, connected over proxy";
+        case ODUAuthenticatedProxy:sv = ODUAuthenticatedProxyMSG;
             [_dsServerStatusBT setImage:[NSImage imageNamed:@"connected-proxy.tiff"]];
             break;
         default: sv = @""; [_dsServerStatusBT setImage:nil ];break;

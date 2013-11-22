@@ -20,7 +20,7 @@
 
 
 @interface ODUDSQuery : NSObject
-@property (strong) id<ODUSQueryDelegate>delegate;
+@property (weak) id<ODUSQueryDelegate>delegate;
 -(id)initWithDelegate:(id)delegate;
 
 -(void)getDSUserList;

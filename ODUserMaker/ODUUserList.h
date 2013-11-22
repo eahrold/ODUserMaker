@@ -14,7 +14,7 @@
 -(void)addUserList:(void (^)(NSError *error))replyBlock;
 +(void)cancel;
 
-@property (strong) User* user;
-@property (strong) NSArray* groups;
+@property (weak) User* user;
+@property (weak) NSArray* groups;
 
 @end

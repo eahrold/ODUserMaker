@@ -150,7 +150,7 @@ nsxpc_return:
     NSMutableSet* userProcessed;
     NSMutableArray* userArray;
     
-    NSString* groupName = nil;
+    NSString* groupName;
     BOOL isSameGroup = NO;
     
     for(NSDictionary* g in groups){
@@ -183,7 +183,7 @@ nsxpc_return:
             }
         }
         
-        [groupDict setObject:userArray forKey:@"users"];
+        if(userArray)[groupDict setObject:userArray forKey:@"users"];
         [groupDict setObject:groupName forKey:@"group"];
         if(isSameGroup){
             [mArray removeLastObject];
