@@ -148,6 +148,8 @@
     user.emailDomain = _emailDomainTF.stringValue;
     user.primaryGroup = _defaultGroupTF.stringValue;
     user.userPreset = [ _userPresetPUB titleOfSelectedItem];
+    user.importFilePath = [_importFilePathTF stringValue];
+    
     user.keyWord = @"";
     
     if(_userFilterTF.isNotBlank){

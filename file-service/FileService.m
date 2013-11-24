@@ -9,9 +9,11 @@
 #import "FileService.h"
 #import "NSString+StringSanitizer.h"
 #import "NSString+uuidFromString.h"
+#import <DHlibxls/DHxlsReader.h>
 
 @implementation FileService{
     NSArray* rawUserList;
+    NSArray* internalUserList;
 }
 
 
@@ -24,7 +26,6 @@
     
     NSError* error;
     [self parseUserList:user error:&error];
-    
     reply(error);
 }
 
@@ -43,10 +44,10 @@
         error = [ODUError errorWithCode:ODUMReadFileError];
         goto nsxpc_return;
     }
-    
+    NSLog(@"user list in fileservice %@",user.userList);
     groupList = [self makeGroups:groups usingFilter:user.userFilter];
 nsxpc_return:
-    reply(groupList,user.userList,error);
+    reply(groupList,internalUserList,error);
     
 }
 
@@ -68,47 +69,46 @@ nsxpc_return:
     
     
     /* split up the string by new line char and though unnecissary alphabetize them.*/
+   DHxlsReader* reader =[DHxlsReader xlsReaderWithPath:user.importFilePath];
+    assert(reader);
+    [reader startIterator:0];
+    int rows = [reader numberOfRowsInSheet:0];
+
     rawUserList = [str componentsSeparatedByString:@"\n"];
     [rawUserList sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
-    
-    if( rawUserList == nil || [rawUserList count] <= 1 ){
+
+    if( rows <= 1 ){
         if(error)*error = [ODUError errorWithCode:ODUMNoUsersInFile];
         return NO;
     }
     
-    NSArray* tmpArray1;
-    NSArray* tmpArray2;
     NSMutableSet* processed = [NSMutableSet set];
     
-    for (NSString* u in rawUserList) {
-        if ([u rangeOfString:user.userFilter].location != NSNotFound){
-            @try{
-                tmpArray1 = [u componentsSeparatedByString:@"\t"];
-                if ([processed containsObject:[tmpArray1 objectAtIndex:0]] == NO) {
+    
+    for(int i = 1;i < rows+1;i++ ) {
+        NSString* userName = [[reader cellInWorkSheetIndex:1 row:i col:1] str];
+        NSString* classNumber = [[reader cellInWorkSheetIndex:1 row:i col:4] str];
+              
+        if([classNumber rangeOfString:user.userFilter options:NSCaseInsensitiveSearch].location != NSNotFound||
+           [user.userFilter isEqualToString:@" "])
+        {
+            User* tmpUser = [User new];
+            
+            tmpUser.userName = userName;
+            tmpUser.userCWID = [[reader cellInWorkSheetIndex:1 row:i col:3] str];
+            NSString* rawName = [[reader cellInWorkSheetIndex:1 row:i col:2] str];
+            
+            if ([processed containsObject:userName] == NO) {
+                [processed addObject:userName];
+                @try{
+                    NSArray* rawNameArray = [rawName componentsSeparatedByString:@","];
                     
-                    /* add the object to the processed array */
-                    [processed addObject:tmpArray1[0]];
+                    tmpUser.firstName = rawNameArray[1];
+                    tmpUser.lastName = rawNameArray[0];
                     
-                    /* set up a new user to add */
-                    User* tmpUser = [User new];
-                    tmpUser.userName = tmpArray1[0];
-                    tmpUser.userCWID = tmpArray1[2];
+                    tmpUser.firstName = [[rawNameArray[1] stringByReplacingOccurrencesOfString:@"\"" withString:@""]stringByTrimmingLeadingWhitespace];
+                    tmpUser.lastName = [[rawNameArray[0] stringByReplacingOccurrencesOfString:@"\"" withString:@""]stringByTrimmingLeadingWhitespace];
                     
-                    /* break it up one more time. */
-                    NSString* rawName = tmpArray1[1];
-
-                    //NSString* rawName = [NSString stringWithFormat:@"%@",[tmpArray1 objectAtIndex:1]];
-                    tmpArray2 = [rawName componentsSeparatedByString:@","];
-                    NSString* firstName = tmpArray2[1];
-                    NSString* lastName = tmpArray2[0];
-                    
-                    /* Sanatize */
-                    firstName = [firstName stringByReplacingOccurrencesOfString:@"\"" withString:@""];
-                    lastName = [lastName stringByReplacingOccurrencesOfString:@"\"" withString:@""];
-                    tmpUser.firstName = [firstName stringByTrimmingLeadingWhitespace];
-                    tmpUser.lastName = [lastName stringByTrimmingLeadingWhitespace];
-                    
-                    /* get the items from the User object sent over by the main app */
                     tmpUser.primaryGroup = user.primaryGroup;
                     tmpUser.emailDomain = user.emailDomain;
                     tmpUser.keyWord = user.keyWord;
@@ -116,14 +116,15 @@ nsxpc_return:
                     /* then write it to the file */
                     if(user.exportFile)[self writeUser:tmpUser toFile:user.exportFile];
                     [returnArray addObject:[tmpUser makeDictFromUser]];
+
                 }
-            }
-            @catch (NSException* exception) {
+                @catch (NSException* exception) {
+                }
             }
         }
     }
-    
-    user.userList = [NSArray arrayWithArray:returnArray];
+
+    internalUserList = [NSArray arrayWithArray:returnArray];
     return YES;
 }
 

@@ -41,7 +41,8 @@
                 
                 _user.userList = userlist;
                 _user.groupList = groupList;
-                
+                DLog(@"Userlist Presend...  %@",userlist);
+
                 NSXPCConnection* directoryServiceConnection = [[NSXPCConnection alloc] initWithServiceName:kDirectoryServiceName];
                 directoryServiceConnection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(OpenDirectoryService)];
                 
