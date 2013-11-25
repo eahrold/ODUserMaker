@@ -12,7 +12,7 @@
 #import <DHlibxls/DHxlsReader.h>
 
 @implementation FileService{
-    NSArray* rawUserList;
+    NSMutableArray* rawUserList;
     NSArray* internalUserList;
 }
 
@@ -41,10 +41,9 @@
     NSArray* groupList;
 
     if(![self parseUserList:user error:&error]){
-        error = [ODUError errorWithCode:ODUMReadFileError];
         goto nsxpc_return;
     }
-    NSLog(@"user list in fileservice %@",user.userList);
+    
     groupList = [self makeGroups:groups usingFilter:user.userFilter];
 nsxpc_return:
     reply(groupList,internalUserList,error);
@@ -54,28 +53,18 @@ nsxpc_return:
 -(BOOL)parseUserList:(User*)user error:(NSError *__autoreleasing*)error{
     NSMutableArray* returnArray = [NSMutableArray new];
     
+    if(user.exportFile){
+        [self writeHeaders:user.exportFile];
+    }
     
-    NSData* importFileData = [user.importFileHandle readDataToEndOfFile];
-    
-    if(!importFileData){
+    DHxlsReader* reader =[DHxlsReader xlsReaderWithPath:user.importFilePath];
+    if(!reader){
         if(error)*error = [ODUError errorWithCode:ODUMReadFileError];
         return NO;
     }
     
-    [self writeHeaders:user.exportFile];
-
-    NSString* str = [[NSString alloc] initWithData:importFileData
-                                          encoding:NSUTF8StringEncoding];
-    
-    
-    /* split up the string by new line char and though unnecissary alphabetize them.*/
-   DHxlsReader* reader =[DHxlsReader xlsReaderWithPath:user.importFilePath];
-    assert(reader);
     [reader startIterator:0];
     int rows = [reader numberOfRowsInSheet:0];
-
-    rawUserList = [str componentsSeparatedByString:@"\n"];
-    [rawUserList sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
 
     if( rows <= 1 ){
         if(error)*error = [ODUError errorWithCode:ODUMNoUsersInFile];
@@ -86,23 +75,28 @@ nsxpc_return:
     
     
     for(int i = 1;i < rows+1;i++ ) {
-        NSString* userName = [[reader cellInWorkSheetIndex:1 row:i col:1] str];
         NSString* classNumber = [[reader cellInWorkSheetIndex:1 row:i col:4] str];
-              
+        NSString* userName = [[reader cellInWorkSheetIndex:1 row:i col:1] str];
+        
         if([classNumber rangeOfString:user.userFilter options:NSCaseInsensitiveSearch].location != NSNotFound||
-           [user.userFilter isEqualToString:@" "])
+           [user.userFilter isEqualToString:@""])
         {
-            User* tmpUser = [User new];
-            
-            tmpUser.userName = userName;
-            tmpUser.userCWID = [[reader cellInWorkSheetIndex:1 row:i col:3] str];
-            NSString* rawName = [[reader cellInWorkSheetIndex:1 row:i col:2] str];
-            
+            // the rawUserList is what is used for making groups...
+            if(!rawUserList)rawUserList = [[NSMutableArray alloc]init];
+            [rawUserList addObject:[NSString stringWithFormat:@"%@:%@",userName,classNumber]];
+
             if ([processed containsObject:userName] == NO) {
                 [processed addObject:userName];
                 @try{
+                    
+                    User* tmpUser = [User new];
+                    tmpUser.userName = userName;
+                    NSString* rawName = [[reader cellInWorkSheetIndex:1 row:i col:2] str];
+
                     NSArray* rawNameArray = [rawName componentsSeparatedByString:@","];
                     
+                    tmpUser.userCWID = [[reader cellInWorkSheetIndex:1 row:i col:3] str];
+
                     tmpUser.firstName = rawNameArray[1];
                     tmpUser.lastName = rawNameArray[0];
                     
@@ -116,7 +110,7 @@ nsxpc_return:
                     /* then write it to the file */
                     if(user.exportFile)[self writeUser:tmpUser toFile:user.exportFile];
                     [returnArray addObject:[tmpUser makeDictFromUser]];
-
+                    
                 }
                 @catch (NSException* exception) {
                 }
@@ -141,6 +135,7 @@ nsxpc_return:
         return nil;
     }
     
+    [rawUserList sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
     [[self.xpcConnection remoteObjectProxy] setProgressMsg:@"Determining Group Membership..."];
 
     NSMutableSet* groupProcessed = [[NSMutableSet alloc]init];
@@ -172,15 +167,13 @@ nsxpc_return:
         }
         
         for(NSString *u in rawUserList){
-            if ([u rangeOfString:filter].location != NSNotFound){
-                if ([u rangeOfString:matchName options:NSCaseInsensitiveSearch].location != NSNotFound){
-                    NSString *uname = [u componentsSeparatedByString:@"\t"][0];
-                    
-                    if ([userProcessed containsObject:uname] == NO){
-                        [userArray addObject:uname];
-                    }
-                    [userProcessed addObject:uname];
+            if ([u rangeOfString:matchName options:NSCaseInsensitiveSearch].location != NSNotFound){
+                NSString *uname = [u componentsSeparatedByString:@":"][0];
+                
+                if ([userProcessed containsObject:uname] == NO){
+                    [userArray addObject:uname];
                 }
+                [userProcessed addObject:uname];
             }
         }
         

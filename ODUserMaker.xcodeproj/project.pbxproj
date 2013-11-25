@@ -99,7 +99,7 @@
 		BE2D96B217D220540076258A /* ODUError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ODUError.h; sourceTree = "<group>"; };
 		BE2D96B317D220540076258A /* ODUError.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ODUError.m; sourceTree = "<group>"; };
 		BE2D96B817D222880076258A /* ODCommonHeaders.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ODCommonHeaders.h; path = ODUserMaker/ODCommonHeaders.h; sourceTree = SOURCE_ROOT; };
-		BE404EC1183FC252005BDA64 /* DHlibxls.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = DHlibxls.framework; sourceTree = "<group>"; };
+		BE404EC1183FC252005BDA64 /* DHlibxls.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DHlibxls.framework; path = "file-service/DHlibxls.framework"; sourceTree = "<group>"; };
 		BE47D21E183BBD5800203771 /* ODUUserList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ODUUserList.h; sourceTree = "<group>"; };
 		BE47D21F183BBD5800203771 /* ODUUserList.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ODUUserList.m; sourceTree = "<group>"; };
 		BE47D221183BC95700203771 /* ODUSingleUser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ODUSingleUser.h; sourceTree = "<group>"; };
@@ -156,6 +156,8 @@
 		BEFBDC70179C173E00AB0960 /* OpenDirectoryService.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = OpenDirectoryService.h; path = "opendirectory-service/OpenDirectoryService.h"; sourceTree = SOURCE_ROOT; };
 		BEFBDC71179C311100AB0960 /* OpenDirectory.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenDirectory.framework; path = System/Library/Frameworks/OpenDirectory.framework; sourceTree = SDKROOT; };
 		BEFBDC75179C967800AB0960 /* opendirectory-service.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = "opendirectory-service.entitlements"; path = "opendirectory-service/opendirectory-service.entitlements"; sourceTree = "<group>"; };
+		BEFE94A31843AE6B00532B98 /* com.aapps.ODUserMaker.file-service.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "com.aapps.ODUserMaker.file-service.entitlements"; sourceTree = "<group>"; };
+		BEFE94A41843AE7400532B98 /* com.aapps.ODUserMaker.opendirectory-service.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "com.aapps.ODUserMaker.opendirectory-service.entitlements"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -319,6 +321,7 @@
 		BEC425361792302A00CA45A5 /* file-service */ = {
 			isa = PBXGroup;
 			children = (
+				BEFE94A31843AE6B00532B98 /* com.aapps.ODUserMaker.file-service.entitlements */,
 				BEC425431792309D00CA45A5 /* FileService.m */,
 				BEC425371792302A00CA45A5 /* Supporting Files */,
 			);
@@ -348,6 +351,7 @@
 		BEFBDC60179C161F00AB0960 /* opendirectory-service */ = {
 			isa = PBXGroup;
 			children = (
+				BEFE94A41843AE7400532B98 /* com.aapps.ODUserMaker.opendirectory-service.entitlements */,
 				BEFBDC6E179C16E200AB0960 /* OpenDirectoryService.m */,
 				BEFBDC61179C161F00AB0960 /* Supporting Files */,
 			);
@@ -697,6 +701,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
+				SDKROOT = macosx10.8;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -716,6 +721,7 @@
 				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
+				SDKROOT = macosx10.8;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;
@@ -728,7 +734,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"/Volumes/myHome/Users/eldon/Desktop/git/My\\ Objective-c/ODUserMaker",
+					"/Volumes/myHome/Users/eldon/Desktop/git/My\\ Objective-c/ODUserMaker/**",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "file-service/file-service-Prefix.pch";
@@ -736,6 +742,7 @@
 				MACH_O_TYPE = mh_execute;
 				PRODUCT_NAME = "com.aapps.ODUserMaker.$(TARGET_NAME:rfc1034identifier)";
 				PROVISIONING_PROFILE = "";
+				SDKROOT = macosx10.8;
 				WRAPPER_EXTENSION = xpc;
 			};
 			name = Debug;
@@ -748,7 +755,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"/Volumes/myHome/Users/eldon/Desktop/git/My\\ Objective-c/ODUserMaker",
+					"/Volumes/myHome/Users/eldon/Desktop/git/My\\ Objective-c/ODUserMaker/**",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "file-service/file-service-Prefix.pch";
@@ -756,6 +763,7 @@
 				MACH_O_TYPE = mh_execute;
 				PRODUCT_NAME = "com.aapps.ODUserMaker.$(TARGET_NAME:rfc1034identifier)";
 				PROVISIONING_PROFILE = "";
+				SDKROOT = macosx10.8;
 				WRAPPER_EXTENSION = xpc;
 			};
 			name = Release;
@@ -777,6 +785,7 @@
 				MACH_O_TYPE = mh_execute;
 				PRODUCT_NAME = "com.aapps.ODUserMaker.$(TARGET_NAME:rfc1034identifier)";
 				PROVISIONING_PROFILE = "";
+				SDKROOT = macosx10.8;
 				WRAPPER_EXTENSION = xpc;
 			};
 			name = Debug;
@@ -798,6 +807,7 @@
 				MACH_O_TYPE = mh_execute;
 				PRODUCT_NAME = "com.aapps.ODUserMaker.$(TARGET_NAME:rfc1034identifier)";
 				PROVISIONING_PROFILE = "";
+				SDKROOT = macosx10.8;
 				WRAPPER_EXTENSION = xpc;
 			};
 			name = Release;

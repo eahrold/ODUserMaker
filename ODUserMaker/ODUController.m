@@ -149,13 +149,13 @@
     user.primaryGroup = _defaultGroupTF.stringValue;
     user.userPreset = [ _userPresetPUB titleOfSelectedItem];
     user.importFilePath = [_importFilePathTF stringValue];
-    
+        
     user.keyWord = @"";
     
     if(_userFilterTF.isNotBlank){
         user.userFilter = _userFilterTF.stringValue;
     }else{
-        user.userFilter = @" ";
+        user.userFilter = @"";
     }
     
     /* Set up the import FileHandles */
