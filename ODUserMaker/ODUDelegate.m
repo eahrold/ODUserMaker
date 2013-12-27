@@ -60,10 +60,10 @@
           contextInfo:NULL];
 }
 
-- (void)stopProgressPanel {
+- (void)stopProgressPanel{
     self.progressMessage = @"";
-    [self.progressIndicator setDoubleValue:0.0];
-    [self.progressPanel orderOut:self];
+    [_progressIndicator setDoubleValue:0.0];
+    [_progressPanel orderOut:self];
     [NSApp endSheet:_progressPanel returnCode:0];
 }
 
@@ -76,7 +76,7 @@
 
 - (void)setProgress:(double)progress withMessage:(NSString*)message {
     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-        [_progressIndicator incrementBy:progress];
+        [_progressIndicator setDoubleValue:progress];
         self.progressMessage = message;
     }];
 }

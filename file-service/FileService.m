@@ -8,12 +8,14 @@
 
 #import "FileService.h"
 #import "NSString+StringSanitizer.h"
+#import "ODUProgress.h"
+#import "ODUError.h"
 #import "NSString+uuidFromString.h"
 #import <DHlibxls/DHxlsReader.h>
 
 @implementation FileService{
     NSMutableArray* rawUserList;
-    NSArray* internalUserList;
+    ODUserList *internalUserList;
 }
 
 
@@ -21,43 +23,46 @@
 //  DSImport File Creation
 //------------------------------------------------
 
--(void)makeMultiUserFile:(User*)user
+-(void)makeMultiUserFile:(ODUser*)user
+              importFile:(NSString*)file
+              exportFile:(NSFileHandle*)exportFile
+                  filter:(NSString*)filter
                withReply:(void (^)(NSError*error))reply{
     
     NSError* error;
-    [self parseUserList:user error:&error];
+    [self parseUserList:user inFile:file toFile:exportFile filter:filter error:&error];
     reply(error);
 }
 
 //------------------------------------------------
-//  Multi User Array 
+//  Multi ODUser Array 
 //------------------------------------------------
 
--(void)makeUserArray:(User*)user
+-(void)makeUserArray:(ODUser*)user
+          importFile:(NSString*)file
+          exportFile:(NSFileHandle*)exportFile
+              filter:(NSString*)filter
                 andGroupList:(NSArray*)groups
-                   withReply:(void (^)(NSArray* groupList,NSArray* userlist,NSError *error))reply{
+                   withReply:(void (^)(NSArray* groupList,ODUserList* userlist,NSError *error))reply{
     
     NSError* error;
     NSArray* groupList;
 
-    if(![self parseUserList:user error:&error]){
-        goto nsxpc_return;
+    if([self parseUserList:user inFile:file toFile:exportFile filter:filter error:&error]){
+        groupList = [self makeGroups:groups usingFilter:filter];
     }
     
-    groupList = [self makeGroups:groups usingFilter:user.userFilter];
-nsxpc_return:
     reply(groupList,internalUserList,error);
-    
 }
 
--(BOOL)parseUserList:(User*)user error:(NSError *__autoreleasing*)error{
+-(BOOL)parseUserList:(ODUser*)user inFile:(NSString*)file toFile:(NSFileHandle*)exportFile filter:(NSString*)filter error:(NSError *__autoreleasing*)error{
     NSMutableArray* returnArray = [NSMutableArray new];
-    
-    if(user.exportFile){
-        [self writeHeaders:user.exportFile];
+
+    if(exportFile){
+        [self writeHeaders:exportFile];
     }
     
-    DHxlsReader* reader =[DHxlsReader xlsReaderWithPath:user.importFilePath];
+    DHxlsReader* reader =[DHxlsReader xlsReaderWithPath:file];
     if(!reader){
         if(error)*error = [ODUError errorWithCode:ODUMReadFileError];
         return NO;
@@ -73,13 +78,12 @@ nsxpc_return:
     
     NSMutableSet* processed = [NSMutableSet set];
     
-    
     for(int i = 1;i < rows+1;i++ ) {
         NSString* classNumber = [[reader cellInWorkSheetIndex:1 row:i col:4] str];
         NSString* userName = [[reader cellInWorkSheetIndex:1 row:i col:1] str];
         
-        if([classNumber rangeOfString:user.userFilter options:NSCaseInsensitiveSearch].location != NSNotFound||
-           [user.userFilter isEqualToString:@""])
+        if([classNumber rangeOfString:filter options:NSCaseInsensitiveSearch].location != NSNotFound||
+           [filter isEqualToString:@""])
         {
             // the rawUserList is what is used for making groups...
             if(!rawUserList)rawUserList = [[NSMutableArray alloc]init];
@@ -89,13 +93,13 @@ nsxpc_return:
                 [processed addObject:userName];
                 @try{
                     
-                    User* tmpUser = [User new];
+                    ODUser* tmpUser = [ODUser new];
                     tmpUser.userName = userName;
                     NSString* rawName = [[reader cellInWorkSheetIndex:1 row:i col:2] str];
 
                     NSArray* rawNameArray = [rawName componentsSeparatedByString:@","];
                     
-                    tmpUser.userCWID = [[reader cellInWorkSheetIndex:1 row:i col:3] str];
+                    tmpUser.passWord = [[reader cellInWorkSheetIndex:1 row:i col:3] str];
 
                     tmpUser.firstName = rawNameArray[1];
                     tmpUser.lastName = rawNameArray[0];
@@ -107,9 +111,14 @@ nsxpc_return:
                     tmpUser.emailDomain = user.emailDomain;
                     tmpUser.keyWord = user.keyWord;
                     
+                    tmpUser.userShell = user.userShell;
+                    tmpUser.sharePath = user.sharePath;
+                    tmpUser.sharePoint = user.sharePoint;
+                    tmpUser.nfsPath = user.nfsPath;
+                    
                     /* then write it to the file */
-                    if(user.exportFile)[self writeUser:tmpUser toFile:user.exportFile];
-                    [returnArray addObject:[tmpUser makeDictFromUser]];
+                    if(exportFile)[self writeUser:tmpUser toFile:exportFile];
+                    [returnArray addObject:tmpUser];
                     
                 }
                 @catch (NSException* exception) {
@@ -118,7 +127,8 @@ nsxpc_return:
         }
     }
 
-    internalUserList = [NSArray arrayWithArray:returnArray];
+    internalUserList = [ODUserList new];
+    internalUserList.list = [NSArray arrayWithArray:returnArray];
     return YES;
 }
 
@@ -141,7 +151,6 @@ nsxpc_return:
     NSMutableSet* groupProcessed = [[NSMutableSet alloc]init];
     NSMutableArray* mArray = [[NSMutableArray alloc]init];
 
-    
     NSMutableDictionary* groupDict;
     NSMutableSet* userProcessed;
     NSMutableArray* userArray;
@@ -160,7 +169,7 @@ nsxpc_return:
         
         NSString* matchName = [g objectForKey:@"match"];
         
-        if ([groupProcessed containsObject:groupName] == NO){
+        if (![groupProcessed containsObject:groupName]){
             userArray = [NSMutableArray new];
             userProcessed = [NSMutableSet new];
             [groupProcessed addObject:groupName];
@@ -170,7 +179,7 @@ nsxpc_return:
             if ([u rangeOfString:matchName options:NSCaseInsensitiveSearch].location != NSNotFound){
                 NSString *uname = [u componentsSeparatedByString:@":"][0];
                 
-                if ([userProcessed containsObject:uname] == NO){
+                if (![userProcessed containsObject:uname]){
                     [userArray addObject:uname];
                 }
                 [userProcessed addObject:uname];
@@ -178,10 +187,11 @@ nsxpc_return:
         }
         
         if(userArray)[groupDict setObject:userArray forKey:@"users"];
+
         [groupDict setObject:groupName forKey:@"group"];
-        if(isSameGroup){
-            [mArray removeLastObject];
-        }
+        
+        if(isSameGroup)[mArray removeLastObject];
+        
         [mArray addObject:groupDict];
     }
     
@@ -195,8 +205,9 @@ nsxpc_return:
 //------------------------------------------------
 
 
--(BOOL)writeUser:(User*)user toFile:(NSFileHandle*)fh{
+-(BOOL)writeUser:(ODUser*)user toFile:(NSFileHandle*)fh{
     /* Set up the actual elements we'll need */
+    NSString* homeDir = user.homeDirectory ? user.homeDirectory:@"";
     NSString* userName = user.userName;
     NSString* fullName = [NSString stringWithFormat:@"%@ %@",user.firstName, user.lastName];
     NSString* firstName = user.firstName;
@@ -204,18 +215,17 @@ nsxpc_return:
     NSString* email = [NSString stringWithFormat:@"%@@%@",user.userName,user.emailDomain];
     NSString* uuid;
     
-    if(user.userUUID){
-        uuid = user.userUUID;
+    if(user.uid){
+        uuid = user.uid;
     }else{
         uuid = [userName uuidFromString];
     }
     
-    NSString* password = user.userCWID;
+    NSString* password = user.passWord;
     NSString* passwordPolicy = [self setPasswordPoilcy];
     NSString* primaryGroup = user.primaryGroup;
-    NSString* nfsHome = @"";
-    NSString* homeDir = @"";
-    NSString* keyWords = user.keyWord;
+    NSString* nfsHome = [user.nfsPath stringByAppendingPathComponent:user.userName];
+    NSString* keyWords = user.keyWord ? user.keyWord:@"";
     
     /* make the full string that we'll write out */
     NSString* userEntry = [NSString stringWithFormat:@"%@:%@:%@:%@:%@:%@:%@:%@:%@:%@:%@:%@\n",userName,fullName,firstName,lastName,email,uuid,password,passwordPolicy,primaryGroup,nfsHome,homeDir,keyWords];

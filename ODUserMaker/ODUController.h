@@ -7,8 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "ODUAuthenticator.h"
-#import "ODUDSQuery.h"
+#import "ODUDirectoryConnection.h"
 
 @interface ODUController : NSObject <ODUAuthenticatorDelegate, ODUSQueryDelegate>{
     IBOutlet NSArrayController *dsGroupArrayController;
@@ -16,9 +15,6 @@
     IBOutlet NSArrayController *dsPresetArrayController;
     IBOutlet NSArrayController *groupMatchArrayController;
 }
-
-@property (strong) ODUAuthenticator* authenticator;
-@property (strong) ODUDSQuery* querier;
 
 
 -(IBAction)makeSingleUserPressed:(id)sender;
@@ -38,7 +34,7 @@
 -(IBAction)configrureUserPreset:(id)sender;
 
 //---------------------------------------------------
-// User Settings
+// ODUser Settings
 //---------------------------------------------------
 @property (assign) IBOutlet NSTextField   *userNameTF;
 @property (assign) IBOutlet NSTextField   *firstNameTF;
@@ -60,7 +56,7 @@
 
 
 //---------------------------------------------------
-// User Settings Panel Items
+// ODUser Settings Panel Items
 //---------------------------------------------------
 @property (assign) IBOutlet NSWindow      *presetConfigSheet;
 @property (assign) IBOutlet NSTextField   *sharePointTF;

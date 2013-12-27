@@ -8,52 +8,46 @@
 
 #import <Foundation/Foundation.h>
 #import <OpenDirectory/OpenDirectory.h>
-@class User,Server;
+@class ODUser,ODServer,ODUserList,ODPreset;
 
 @protocol OpenDirectoryService
 
 /* methods for editing users/group*/
--(void)addSingleUser:(User*)user andGroups:(NSArray*)groups withReply:(void (^)(NSError *error))reply;
--(void)addListOfUsers:(User*)user withReply:(void (^)(NSError *error))reply;
--(void)resetUserPassword:(User*)user withReply:(void (^)(NSError *error))reply;
+-(void)addSingleUser:(ODUser*)user withGroups:(NSArray*)groups withReply:(void (^)(NSError *error))reply;
+
+-(void)addListOfUsers:(ODUserList*)users withGroups:(NSArray*)groups withReply:(void (^)(NSError *error))reply;
+
+-(void)resetUserPassword:(ODUser*)user withReply:(void (^)(NSError *error))reply;
 
 
 /* methods for getting lists*/ 
--(void)getUserPresets:(void (^)(NSArray *userPreset,NSError *error))reply;
-
--(void)getSettingsForPreset:(NSString*)preset
-                  withReply:(void (^)(NSDictionary *settings,NSError *error))reply;
+-(void)getPresetsListFromServer:(void (^)(NSArray *presetList,NSError *error))reply;
 
 -(void)getGroupListFromServer:(void (^)(NSArray *groupList,NSError *error))reply;
 
 -(void)getUserListFromServer:(void (^)(NSArray *userList,NSError *error))reply;
+-(void)getUserListAsync:(void (^)(NSError *error))reply;
 
+-(void)getSettingsForPreset:(NSString*)preset
+                  withReply:(void (^)(ODPreset *preset,NSError *error))reply;
 
 /* methods for status checking */
--(void)checkServerStatus:(Server*)server
+-(void)checkServerStatus:(ODServer*)server
                withReply:(void (^)(OSStatus connected))reply;
 
 /* method to cancel import*/
--(void)cancelImportStatus:(void (^)(OSStatus connected))reply;
+-(void)cancelImportStatus:(void (^)(BOOL connected))reply;
 
 @end
 
 
-@interface OpenDirectoryService : NSObject <NSXPCListenerDelegate, OpenDirectoryService, ODQueryDelegate>{
+@interface OpenDirectoryService : NSObject <NSXPCListenerDelegate, OpenDirectoryService>{
     void (^replyBlock)(NSError *error);
-    void (^DSReplyBlock)(NSArray* array,NSError *error);
 }
 
 + (OpenDirectoryService *)sharedDirectoryServer;
 @property (weak) NSXPCConnection *xpcConnection;
+@property (strong,nonatomic) void (^DSReplyBlock)(NSArray* array,NSError *error);
 
 @end
 
-enum ODServerStatusCodes {
-    // here are the status returns
-    ODUNoNode = -1, // No Node,
-    ODUUnauthenticatedLocal = -2,// -2 locally connected, but wrong password
-    ODUUnauthenticatedProxy = -3,// -3 proxy but wrong auth password
-    ODUAuthenticatedLocal = 0,// 0 Authenticated locally
-    ODUAuthenticatedProxy = 1,// 1 Authenticated over proxy
-};

@@ -7,14 +7,21 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "ODCommonHeaders.h"
+#import "AHSecureObjects.h"
 
 @protocol FileService
--(void)makeMultiUserFile:(User*)user withReply:(void (^)(NSError *error))reply;
+-(void)makeMultiUserFile:(ODUser*)user
+              importFile:(NSString*)file
+              exportFile:(NSFileHandle*)exportFile
+                  filter:(NSString*)filter
+               withReply:(void (^)(NSError *error))reply;
 
--(void)makeUserArray:(User*)user
+-(void)makeUserArray:(ODUser*)user
+          importFile:(NSString*)file
+          exportFile:(NSFileHandle*)exportFile
+              filter:(NSString*)filter
             andGroupList:(NSArray*)groups
-               withReply:(void (^)(NSArray* groupList,NSArray* userlist,NSError *error))reply;
+               withReply:(void (^)(NSArray* groupList,ODUserList* userlist,NSError *error))reply;
 
 @end
 

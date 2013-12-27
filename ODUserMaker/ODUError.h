@@ -7,6 +7,13 @@
 //
 #import <Foundation/Foundation.h>
 
+//Status Messages
+extern NSString* const ODUNoNodeMSG;
+extern NSString* const ODUUnauthenticatedLocalMSG;
+extern NSString* const ODUUnauthenticatedProxyMSG;
+extern NSString* const ODUAuthenticatedLocalMSG;
+extern NSString* const ODUAuthenticatedProxyMSG;
+
 /* set up domain */
 extern NSString* const ODUMDomain;
 

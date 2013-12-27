@@ -183,7 +183,7 @@
 					<reference key="NSNextKeyView" ref="741855629"/>
 					<string key="NSReuseIdentifierKey">_NS:2816</string>
 				</object>
-				<string key="NSScreenRect">{{0, 0}, {2048, 1130}}</string>
+				<string key="NSScreenRect">{{0, 0}, {1280, 778}}</string>
 				<string key="NSMaxSize">{10000000000000, 10000000000000}</string>
 				<bool key="NSWindowIsRestorable">NO</bool>
 			</object>
@@ -1506,7 +1506,6 @@
 												<int key="NSvFlags">268</int>
 												<string key="NSFrame">{{395, 0}, {98, 32}}</string>
 												<reference key="NSSuperview" ref="989286504"/>
-												<reference key="NSNextKeyView" ref="860621429"/>
 												<string key="NSReuseIdentifierKey">_NS:9</string>
 												<bool key="NSEnabled">YES</bool>
 												<object class="NSButtonCell" key="NSCell" id="799066057">
@@ -2597,7 +2596,7 @@
 													<object class="NSComboTableView" key="NSTableView" id="461081560">
 														<reference key="NSNextResponder"/>
 														<int key="NSvFlags">274</int>
-														<string key="NSFrameSize">{15, 0}</string>
+														<string key="NSFrameSize">{13, 0}</string>
 														<reference key="NSSuperview"/>
 														<reference key="NSWindow"/>
 														<string key="NSReuseIdentifierKey">_NS:24</string>
@@ -2606,7 +2605,7 @@
 														<bool key="NSControlAllowsExpansionToolTips">YES</bool>
 														<array class="NSMutableArray" key="NSTableColumns">
 															<object class="NSTableColumn">
-																<double key="NSWidth">12</double>
+																<double key="NSWidth">10</double>
 																<double key="NSMinWidth">10</double>
 																<double key="NSMaxWidth">1000</double>
 																<object class="NSTableHeaderCell" key="NSHeaderCell">
@@ -2657,7 +2656,7 @@
 														</object>
 														<double key="NSRowHeight">19</double>
 														<string key="NSAction">tableViewAction:</string>
-														<int key="NSTvFlags">-767524864</int>
+														<int key="NSTvFlags">-765427712</int>
 														<reference key="NSDelegate" ref="587342733"/>
 														<reference key="NSDataSource" ref="587342733"/>
 														<reference key="NSTarget" ref="587342733"/>
@@ -3157,7 +3156,7 @@
 					<reference key="NSWindow"/>
 					<reference key="NSNextKeyView" ref="187203095"/>
 				</object>
-				<string key="NSScreenRect">{{0, 0}, {2048, 1130}}</string>
+				<string key="NSScreenRect">{{0, 0}, {1280, 778}}</string>
 				<string key="NSMinSize">{563, 497}</string>
 				<string key="NSMaxSize">{563, 497}</string>
 				<bool key="NSWindowIsRestorable">YES</bool>
@@ -3201,7 +3200,7 @@
 								<object class="NSComboTableView" key="NSTableView" id="755226578">
 									<reference key="NSNextResponder"/>
 									<int key="NSvFlags">274</int>
-									<string key="NSFrameSize">{15, 0}</string>
+									<string key="NSFrameSize">{13, 0}</string>
 									<reference key="NSSuperview"/>
 									<reference key="NSWindow"/>
 									<string key="NSReuseIdentifierKey">_NS:24</string>
@@ -3210,7 +3209,7 @@
 									<bool key="NSControlAllowsExpansionToolTips">YES</bool>
 									<array class="NSMutableArray" key="NSTableColumns">
 										<object class="NSTableColumn">
-											<double key="NSWidth">12</double>
+											<double key="NSWidth">10</double>
 											<double key="NSMinWidth">10</double>
 											<double key="NSMaxWidth">1000</double>
 											<object class="NSTableHeaderCell" key="NSHeaderCell">
@@ -3244,7 +3243,7 @@
 									<reference key="NSGridColor" ref="21328956"/>
 									<double key="NSRowHeight">19</double>
 									<string key="NSAction">tableViewAction:</string>
-									<int key="NSTvFlags">-767524864</int>
+									<int key="NSTvFlags">-765427712</int>
 									<reference key="NSDelegate" ref="267487513"/>
 									<reference key="NSDataSource" ref="267487513"/>
 									<reference key="NSTarget" ref="267487513"/>
@@ -3654,7 +3653,7 @@
 					<reference key="NSNextKeyView" ref="622646906"/>
 					<string key="NSReuseIdentifierKey">_NS:20</string>
 				</object>
-				<string key="NSScreenRect">{{0, 0}, {2048, 1130}}</string>
+				<string key="NSScreenRect">{{0, 0}, {1280, 778}}</string>
 				<string key="NSMaxSize">{10000000000000, 10000000000000}</string>
 				<bool key="NSWindowIsRestorable">YES</bool>
 			</object>
@@ -4893,19 +4892,19 @@
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBBindingConnection" key="connection">
-						<string key="label">content: arrangedObjects.presetName</string>
+						<string key="label">content: arrangedObjects</string>
 						<reference key="source" ref="40675959"/>
 						<reference key="destination" ref="753146483"/>
-						<object class="NSNibBindingConnector" key="connector" id="447677905">
+						<object class="NSNibBindingConnector" key="connector" id="21533501">
 							<reference key="NSSource" ref="40675959"/>
 							<reference key="NSDestination" ref="753146483"/>
-							<string key="NSLabel">content: arrangedObjects.presetName</string>
+							<string key="NSLabel">content: arrangedObjects</string>
 							<string key="NSBinding">content</string>
-							<string key="NSKeyPath">arrangedObjects.presetName</string>
+							<string key="NSKeyPath">arrangedObjects</string>
 							<int key="NSNibBindingConnectorVersion">2</int>
 						</object>
 					</object>
-					<int key="connectionID">4576</int>
+					<int key="connectionID">5223</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBBindingConnection" key="connection">
@@ -4918,11 +4917,11 @@
 							<string key="NSLabel">selectedObject: values.lastPresetChoice</string>
 							<string key="NSBinding">selectedObject</string>
 							<string key="NSKeyPath">values.lastPresetChoice</string>
-							<reference key="NSPreviousConnector" ref="447677905"/>
+							<reference key="NSPreviousConnector" ref="21533501"/>
 							<int key="NSNibBindingConnectorVersion">2</int>
 						</object>
 					</object>
-					<int key="connectionID">5220</int>
+					<int key="connectionID">5224</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBBindingConnection" key="connection">
@@ -13187,7 +13186,7 @@
 			<nil key="activeLocalization"/>
 			<dictionary class="NSMutableDictionary" key="localizations"/>
 			<nil key="sourceID"/>
-			<int key="maxID">5220</int>
+			<int key="maxID">5224</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<array class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -13197,8 +13196,10 @@
 					<dictionary class="NSMutableDictionary" key="actions">
 						<string key="addGroupMatch:">id</string>
 						<string key="addGroupToUser:">id</string>
+						<string key="cancelUserImport:">id</string>
 						<string key="chooseImportFile:">id</string>
 						<string key="configrureUserPreset:">id</string>
+						<string key="editServerName:">id</string>
 						<string key="getSettingsForPreset:">id</string>
 						<string key="makeMultiUserPressed:">id</string>
 						<string key="makeSingleUserPressed:">id</string>
@@ -13207,6 +13208,7 @@
 						<string key="removeGroupFromUser:">id</string>
 						<string key="removeGroupMatch:">id</string>
 						<string key="resetPasswordPressed:">id</string>
+						<string key="settingsDone:">id</string>
 					</dictionary>
 					<dictionary class="NSMutableDictionary" key="actionInfosByName">
 						<object class="IBActionInfo" key="addGroupMatch:">
@@ -13217,12 +13219,20 @@
 							<string key="name">addGroupToUser:</string>
 							<string key="candidateClassName">id</string>
 						</object>
+						<object class="IBActionInfo" key="cancelUserImport:">
+							<string key="name">cancelUserImport:</string>
+							<string key="candidateClassName">id</string>
+						</object>
 						<object class="IBActionInfo" key="chooseImportFile:">
 							<string key="name">chooseImportFile:</string>
 							<string key="candidateClassName">id</string>
 						</object>
 						<object class="IBActionInfo" key="configrureUserPreset:">
 							<string key="name">configrureUserPreset:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="editServerName:">
+							<string key="name">editServerName:</string>
 							<string key="candidateClassName">id</string>
 						</object>
 						<object class="IBActionInfo" key="getSettingsForPreset:">
@@ -13255,6 +13265,10 @@
 						</object>
 						<object class="IBActionInfo" key="resetPasswordPressed:">
 							<string key="name">resetPasswordPressed:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="settingsDone:">
+							<string key="name">settingsDone:</string>
 							<string key="candidateClassName">id</string>
 						</object>
 					</dictionary>

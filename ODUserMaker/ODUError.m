@@ -28,6 +28,15 @@ NSString* const ODUMFieldsMissingMSG= @"Some fields are missing, please make sur
 NSString* const ODUMGenericErrorMSG=@"There was a unknown problem, sorry!";
 
 
+// Server Status Codes
+NSString* const ODUNoNodeMSG = @"Could Not Contact Server";
+NSString* const ODUUnauthenticatedLocalMSG =@"Could Not Authenticate to Local Directory Server";
+NSString* const ODUUnauthenticatedProxyMSG =@"Could Not Authenticate to Directory Server Remotley";
+NSString* const ODUAuthenticatedLocalMSG =@"The the username and password are correct, connected locally.";
+NSString* const ODUAuthenticatedProxyMSG =@"The the username and password are correct, connected over proxy";
+
+
+
 @implementation ODUError
 
 + (NSError*) errorWithCode:(int)code

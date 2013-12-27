@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "ODUError.h"
 
 @interface ODUAlerts : NSObject
 + (void)showErrorAlert:(NSError *)error;
