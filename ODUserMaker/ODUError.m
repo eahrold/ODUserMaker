@@ -27,6 +27,7 @@ NSString* const ODUMNotAuthenticatedMSG=@"You are currently Not authenticated to
 NSString* const ODUMFieldsMissingMSG= @"Some fields are missing, please make sure everything is filled out";
 NSString* const ODUMGenericErrorMSG=@"There was a unknown problem, sorry!";
 
+NSString* const ODUMProblemResettingUsersPasswordsMSG=@"There was a problem changin some uses passwords.  See the system log for more details";
 
 // Server Status Codes
 NSString* const ODUNoNodeMSG = @"Could Not Contact Server";
@@ -72,6 +73,8 @@ NSString* const ODUAuthenticatedProxyMSG =@"The the username and password are co
         case ODUMCantAddUserToGroup:codeText = ODUMCantAddUserToGroupMSG;
             break;
         case ODUMCantAddUserToServerOrGroup:codeText = ODUMCantAddUserToServerOrGroupMGS;
+            break;
+        case ODUMProblemResettingUsersPasswords:codeText = ODUMProblemResettingUsersPasswordsMSG;
             break;
         case ODUMGroupNotFound:codeText = ODUMGroupNotFoundMSG;
             break;

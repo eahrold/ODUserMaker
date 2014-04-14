@@ -9,8 +9,8 @@
 /* Begin PBXBuildFile section */
 		BE085A62179326DE0079DFE9 /* com.aapps.ODUserMaker.file-service.xpc in CopyFiles */ = {isa = PBXBuildFile; fileRef = BEC425341792302A00CA45A5 /* com.aapps.ODUserMaker.file-service.xpc */; };
 		BE18C1C717D3C57900C92AF3 /* libTBXML.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BE18C1C517D3BFEC00C92AF3 /* libTBXML.a */; };
-		BE18C1CB17D40CAE00C92AF3 /* NSString+uuidFromString.m in Sources */ = {isa = PBXBuildFile; fileRef = BE18C1CA17D40CAE00C92AF3 /* NSString+uuidFromString.m */; };
-		BE18C1CC17D40CAE00C92AF3 /* NSString+uuidFromString.m in Sources */ = {isa = PBXBuildFile; fileRef = BE18C1CA17D40CAE00C92AF3 /* NSString+uuidFromString.m */; };
+		BE19813818F8CCFC00AEC182 /* libODManager.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BEE6B0C418F8B6B7004316EA /* libODManager.a */; };
+		BE19813F18F8EBDA00AEC182 /* ODUError.m in Sources */ = {isa = PBXBuildFile; fileRef = BE2D96B317D220540076258A /* ODUError.m */; };
 		BE203705183E6272000E33CE /* SSKeychain.m in Sources */ = {isa = PBXBuildFile; fileRef = BE203702183E6272000E33CE /* SSKeychain.m */; };
 		BE203706183E6272000E33CE /* SSKeychainQuery.m in Sources */ = {isa = PBXBuildFile; fileRef = BE203704183E6272000E33CE /* SSKeychainQuery.m */; };
 		BE29322C17965D99001502D7 /* FileService.m in Sources */ = {isa = PBXBuildFile; fileRef = BEC425431792309D00CA45A5 /* FileService.m */; };
@@ -18,17 +18,12 @@
 		BE29325617972994001502D7 /* file-service.entitlements in Resources */ = {isa = PBXBuildFile; fileRef = BE29325517972994001502D7 /* file-service.entitlements */; };
 		BE2D96B417D220540076258A /* ODUError.m in Sources */ = {isa = PBXBuildFile; fileRef = BE2D96B317D220540076258A /* ODUError.m */; };
 		BE2D96B617D220540076258A /* ODUError.m in Sources */ = {isa = PBXBuildFile; fileRef = BE2D96B317D220540076258A /* ODUError.m */; };
-		BE2D96B717D220540076258A /* ODUError.m in Sources */ = {isa = PBXBuildFile; fileRef = BE2D96B317D220540076258A /* ODUError.m */; };
 		BE404EC2183FC252005BDA64 /* DHlibxls.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BE404EC1183FC252005BDA64 /* DHlibxls.framework */; };
 		BE404EC4183FC28D005BDA64 /* DHlibxls.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = BE404EC1183FC252005BDA64 /* DHlibxls.framework */; };
 		BE47D223183BC95700203771 /* ODUDirectoryConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = BE47D222183BC95700203771 /* ODUDirectoryConnection.m */; };
 		BE7DB459183B24AD0049D82F /* NSString(TextField)+isNotBlank.m in Sources */ = {isa = PBXBuildFile; fileRef = BE7DB458183B24AD0049D82F /* NSString(TextField)+isNotBlank.m */; };
-		BE7DFEC1186E1F2900F8DF5B /* AHServers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BE7DFEC0186E1F2900F8DF5B /* AHServers.framework */; };
-		BE7DFEC2186E1F3B00F8DF5B /* AHServers.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = BE7DFEC0186E1F2900F8DF5B /* AHServers.framework */; };
 		BE94E3CB1798E6830024C9E5 /* ODUserMaker.icns in Resources */ = {isa = PBXBuildFile; fileRef = BE94E3CA1798E6830024C9E5 /* ODUserMaker.icns */; };
 		BE9625EA1795A75100839C80 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BE9625E81795A74A00839C80 /* Security.framework */; };
-		BEA8F634186BD233008F13B4 /* AHSecureObjects.m in Sources */ = {isa = PBXBuildFile; fileRef = BEA8F633186BD233008F13B4 /* AHSecureObjects.m */; };
-		BEA8F635186BD233008F13B4 /* AHSecureObjects.m in Sources */ = {isa = PBXBuildFile; fileRef = BEA8F633186BD233008F13B4 /* AHSecureObjects.m */; };
 		BEAA9EF71832CF8A00E0BEA8 /* ODUAlerts.m in Sources */ = {isa = PBXBuildFile; fileRef = BEAA9EF61832CF8A00E0BEA8 /* ODUAlerts.m */; };
 		BEAF7327186D1F4F00E0E63E /* ODUFileConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = BEAF7326186D1F4F00E0E63E /* ODUFileConnection.m */; };
 		BEC424F61791A7FF00CA45A5 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BEC424F51791A7FF00CA45A5 /* Cocoa.framework */; };
@@ -41,6 +36,8 @@
 		BEC425351792302A00CA45A5 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BEC425171791A85900CA45A5 /* Foundation.framework */; };
 		BEC4253B1792302A00CA45A5 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = BEC425391792302A00CA45A5 /* InfoPlist.strings */; };
 		BEC4253E1792302A00CA45A5 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = BEC4253D1792302A00CA45A5 /* main.m */; };
+		BEE6B0C918F8B790004316EA /* libODManager.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BEE6B0C418F8B6B7004316EA /* libODManager.a */; };
+		BEE6B0CC18F8B7B5004316EA /* libODManager.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BEE6B0C418F8B6B7004316EA /* libODManager.a */; };
 		BEEC31A617DAC74400209514 /* connected-local.tiff in Resources */ = {isa = PBXBuildFile; fileRef = BEEC31A317DAC74400209514 /* connected-local.tiff */; };
 		BEEC31A717DAC74400209514 /* connected-offline.tiff in Resources */ = {isa = PBXBuildFile; fileRef = BEEC31A417DAC74400209514 /* connected-offline.tiff */; };
 		BEEC31A817DAC74400209514 /* connected-proxy.tiff in Resources */ = {isa = PBXBuildFile; fileRef = BEEC31A517DAC74400209514 /* connected-proxy.tiff */; };
@@ -54,6 +51,79 @@
 		BEFBDC77179D59E300AB0960 /* ODUserMaker.entitlements in Resources */ = {isa = PBXBuildFile; fileRef = BE085A671794F53F0079DFE9 /* ODUserMaker.entitlements */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		BE19813918F8CD0300AEC182 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BEE6B0BE18F8B6B7004316EA /* ODManager.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = BE51E45418B2907F00B11F21;
+			remoteInfo = ODManager;
+		};
+		BE19813D18F8CE8000AEC182 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BEE6B0CD18F8C9EE004316EA /* DHxlsReaderIOS.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = BE404E83183FA700005BDA64;
+			remoteInfo = DHlibxls;
+		};
+		BEE6B0C318F8B6B7004316EA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BEE6B0BE18F8B6B7004316EA /* ODManager.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = BE51E45518B2907F00B11F21;
+			remoteInfo = ODManager;
+		};
+		BEE6B0C518F8B6B7004316EA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BEE6B0BE18F8B6B7004316EA /* ODManager.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = BE51E46818B2907F00B11F21;
+			remoteInfo = ODManagerTests;
+		};
+		BEE6B0C718F8B781004316EA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BEE6B0BE18F8B6B7004316EA /* ODManager.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = BE51E45418B2907F00B11F21;
+			remoteInfo = ODManager;
+		};
+		BEE6B0CA18F8B7B2004316EA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BEE6B0BE18F8B6B7004316EA /* ODManager.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = BE51E45418B2907F00B11F21;
+			remoteInfo = ODManager;
+		};
+		BEE6B0D418F8C9EE004316EA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BEE6B0CD18F8C9EE004316EA /* DHxlsReaderIOS.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = DEB78ABF14BB9ABF00845894;
+			remoteInfo = DHxlsReaderIOS;
+		};
+		BEE6B0D618F8C9EE004316EA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BEE6B0CD18F8C9EE004316EA /* DHxlsReaderIOS.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 97BCBBE716DD4E9A00FF978C;
+			remoteInfo = DHxlsReader;
+		};
+		BEE6B0D818F8C9EE004316EA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BEE6B0CD18F8C9EE004316EA /* DHxlsReaderIOS.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = BE404E84183FA700005BDA64;
+			remoteInfo = DHlibxls;
+		};
+		BEE6B0DA18F8C9EE004316EA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BEE6B0CD18F8C9EE004316EA /* DHxlsReaderIOS.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = BE404E95183FA700005BDA64;
+			remoteInfo = DHlibxlsTests;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXCopyFilesBuildPhase section */
 		BE3D34141868BAF000878700 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -61,7 +131,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				BE7DFEC2186E1F3B00F8DF5B /* AHServers.framework in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -91,8 +160,6 @@
 /* Begin PBXFileReference section */
 		BE085A671794F53F0079DFE9 /* ODUserMaker.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = ODUserMaker.entitlements; path = ODUserMaker/ODUserMaker.entitlements; sourceTree = "<group>"; };
 		BE18C1C517D3BFEC00C92AF3 /* libTBXML.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libTBXML.a; path = "opendirectory-service/libTBXML.a"; sourceTree = "<group>"; };
-		BE18C1C917D40CAE00C92AF3 /* NSString+uuidFromString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+uuidFromString.h"; sourceTree = "<group>"; };
-		BE18C1CA17D40CAE00C92AF3 /* NSString+uuidFromString.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+uuidFromString.m"; sourceTree = "<group>"; };
 		BE203701183E6272000E33CE /* SSKeychain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SSKeychain.h; path = SSKeychain/SSKeychain.h; sourceTree = "<group>"; };
 		BE203702183E6272000E33CE /* SSKeychain.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SSKeychain.m; path = SSKeychain/SSKeychain.m; sourceTree = "<group>"; };
 		BE203703183E6272000E33CE /* SSKeychainQuery.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SSKeychainQuery.h; path = SSKeychain/SSKeychainQuery.h; sourceTree = "<group>"; };
@@ -107,11 +174,8 @@
 		BE47D222183BC95700203771 /* ODUDirectoryConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ODUDirectoryConnection.m; sourceTree = "<group>"; };
 		BE7DB457183B24AD0049D82F /* NSString(TextField)+isNotBlank.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString(TextField)+isNotBlank.h"; sourceTree = "<group>"; };
 		BE7DB458183B24AD0049D82F /* NSString(TextField)+isNotBlank.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString(TextField)+isNotBlank.m"; sourceTree = "<group>"; };
-		BE7DFEC0186E1F2900F8DF5B /* AHServers.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AHServers.framework; path = Frameworks/AHServers.framework; sourceTree = "<group>"; };
 		BE94E3CA1798E6830024C9E5 /* ODUserMaker.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = ODUserMaker.icns; sourceTree = "<group>"; };
 		BE9625E81795A74A00839C80 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
-		BEA8F632186BD233008F13B4 /* AHSecureObjects.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AHSecureObjects.h; sourceTree = "<group>"; };
-		BEA8F633186BD233008F13B4 /* AHSecureObjects.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AHSecureObjects.m; sourceTree = "<group>"; };
 		BEAA9EF51832CF8A00E0BEA8 /* ODUAlerts.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ODUAlerts.h; sourceTree = "<group>"; };
 		BEAA9EF61832CF8A00E0BEA8 /* ODUAlerts.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ODUAlerts.m; sourceTree = "<group>"; };
 		BEAF7325186D1F4F00E0E63E /* ODUFileConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ODUFileConnection.h; sourceTree = "<group>"; };
@@ -138,8 +202,10 @@
 		BEC4253A1792302A00CA45A5 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		BEC4253C1792302A00CA45A5 /* file-service-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "file-service-Prefix.pch"; sourceTree = "<group>"; };
 		BEC4253D1792302A00CA45A5 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		BEC425421792309D00CA45A5 /* FileService.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; lineEnding = 0; name = FileService.h; path = "file-service/FileService.h"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		BEC425421792309D00CA45A5 /* FileService.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; lineEnding = 0; path = FileService.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		BEC425431792309D00CA45A5 /* FileService.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = FileService.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+		BEE6B0BE18F8B6B7004316EA /* ODManager.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = ODManager.xcodeproj; path = ../../Frameworks/ODManager/ODManager.xcodeproj; sourceTree = "<group>"; };
+		BEE6B0CD18F8C9EE004316EA /* DHxlsReaderIOS.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = DHxlsReaderIOS.xcodeproj; path = ../../Frameworks/DHlibxls/DHxlsReaderIOS.xcodeproj; sourceTree = "<group>"; };
 		BEEC31A317DAC74400209514 /* connected-local.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = "connected-local.tiff"; sourceTree = "<group>"; };
 		BEEC31A417DAC74400209514 /* connected-offline.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = "connected-offline.tiff"; sourceTree = "<group>"; };
 		BEEC31A517DAC74400209514 /* connected-proxy.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = "connected-proxy.tiff"; sourceTree = "<group>"; };
@@ -161,6 +227,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BE19813818F8CCFC00AEC182 /* libODManager.a in Frameworks */,
 				BE9625EA1795A75100839C80 /* Security.framework in Frameworks */,
 				BEC424F61791A7FF00CA45A5 /* Cocoa.framework in Frameworks */,
 			);
@@ -170,6 +237,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BEE6B0C918F8B790004316EA /* libODManager.a in Frameworks */,
 				BE404EC2183FC252005BDA64 /* DHlibxls.framework in Frameworks */,
 				BEC425351792302A00CA45A5 /* Foundation.framework in Frameworks */,
 			);
@@ -179,9 +247,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BEE6B0CC18F8B7B5004316EA /* libODManager.a in Frameworks */,
 				BE18C1C717D3C57900C92AF3 /* libTBXML.a in Frameworks */,
 				BEFBDC72179C311100AB0960 /* OpenDirectory.framework in Frameworks */,
-				BE7DFEC1186E1F2900F8DF5B /* AHServers.framework in Frameworks */,
 				BEFBDC5F179C161F00AB0960 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -194,8 +262,6 @@
 			children = (
 				BE29322D1796F18B001502D7 /* NSString+StringSanitizer.h */,
 				BE29322E1796F18B001502D7 /* NSString+StringSanitizer.m */,
-				BE18C1C917D40CAE00C92AF3 /* NSString+uuidFromString.h */,
-				BE18C1CA17D40CAE00C92AF3 /* NSString+uuidFromString.m */,
 				BE7DB457183B24AD0049D82F /* NSString(TextField)+isNotBlank.h */,
 				BE7DB458183B24AD0049D82F /* NSString(TextField)+isNotBlank.m */,
 			);
@@ -218,13 +284,14 @@
 			children = (
 				BEC424FB1791A7FF00CA45A5 /* ODUserMaker */,
 				BE2FD6D717D53F7E00B3D28D /* Custom Catagories */,
-				BEC425491792452A00CA45A5 /* Secure Objects */,
 				BEC4252B1791AA1C00CA45A5 /* XPC Interfaces */,
 				BEFBDC60179C161F00AB0960 /* opendirectory-helper-xpc */,
 				BEC425361792302A00CA45A5 /* file-helper-xpc */,
 				BE2FD6D817D53FA900B3D28D /* Entitlements */,
 				BEC424F41791A7FF00CA45A5 /* Frameworks */,
 				BEC424F31791A7FF00CA45A5 /* Products */,
+				BEE6B0CD18F8C9EE004316EA /* DHxlsReaderIOS.xcodeproj */,
+				BEE6B0BE18F8B6B7004316EA /* ODManager.xcodeproj */,
 			);
 			sourceTree = "<group>";
 		};
@@ -242,7 +309,6 @@
 			isa = PBXGroup;
 			children = (
 				BE18C1C517D3BFEC00C92AF3 /* libTBXML.a */,
-				BE7DFEC0186E1F2900F8DF5B /* AHServers.framework */,
 				BE404EC1183FC252005BDA64 /* DHlibxls.framework */,
 				BE9625E81795A74A00839C80 /* Security.framework */,
 				BEFBDC71179C311100AB0960 /* OpenDirectory.framework */,
@@ -300,9 +366,7 @@
 		BEC4252B1791AA1C00CA45A5 /* XPC Interfaces */ = {
 			isa = PBXGroup;
 			children = (
-				BEFBDC70179C173E00AB0960 /* OpenDirectoryService.h */,
 				BEC4252F1792005000CA45A5 /* ODUProgress.h */,
-				BEC425421792309D00CA45A5 /* FileService.h */,
 			);
 			name = "XPC Interfaces";
 			path = "uploader-service";
@@ -312,6 +376,7 @@
 			isa = PBXGroup;
 			children = (
 				BEFE94A31843AE6B00532B98 /* com.aapps.ODUserMaker.file-service.entitlements */,
+				BEC425421792309D00CA45A5 /* FileService.h */,
 				BEC425431792309D00CA45A5 /* FileService.m */,
 				BEC425371792302A00CA45A5 /* Supporting Files */,
 			);
@@ -330,19 +395,31 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		BEC425491792452A00CA45A5 /* Secure Objects */ = {
+		BEE6B0BF18F8B6B7004316EA /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				BEA8F632186BD233008F13B4 /* AHSecureObjects.h */,
-				BEA8F633186BD233008F13B4 /* AHSecureObjects.m */,
+				BEE6B0C418F8B6B7004316EA /* libODManager.a */,
+				BEE6B0C618F8B6B7004316EA /* ODManagerTests.xctest */,
 			);
-			path = "Secure Objects";
+			name = Products;
+			sourceTree = "<group>";
+		};
+		BEE6B0CE18F8C9EE004316EA /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				BEE6B0D518F8C9EE004316EA /* libDHxlsReaderIOS.a */,
+				BEE6B0D718F8C9EE004316EA /* libDHxlsReader.a */,
+				BEE6B0D918F8C9EE004316EA /* DHlibxls.framework */,
+				BEE6B0DB18F8C9EE004316EA /* DHlibxlsTests.xctest */,
+			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 		BEFBDC60179C161F00AB0960 /* opendirectory-helper-xpc */ = {
 			isa = PBXGroup;
 			children = (
 				BEFE94A41843AE7400532B98 /* com.aapps.ODUserMaker.opendirectory-service.entitlements */,
+				BEFBDC70179C173E00AB0960 /* OpenDirectoryService.h */,
 				BEFBDC6E179C16E200AB0960 /* OpenDirectoryService.m */,
 				BEFBDC61179C161F00AB0960 /* Supporting Files */,
 			);
@@ -391,6 +468,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				BE19813A18F8CD0300AEC182 /* PBXTargetDependency */,
 			);
 			name = ODUserMaker;
 			productName = ODUserMaker;
@@ -409,6 +487,8 @@
 			buildRules = (
 			);
 			dependencies = (
+				BE19813E18F8CE8000AEC182 /* PBXTargetDependency */,
+				BEE6B0C818F8B781004316EA /* PBXTargetDependency */,
 			);
 			name = "file-service";
 			productName = "file-service";
@@ -427,6 +507,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				BEE6B0CB18F8B7B2004316EA /* PBXTargetDependency */,
 			);
 			name = "opendirectory-service";
 			productName = "opendirectory-service";
@@ -478,6 +559,16 @@
 			mainGroup = BEC424E91791A7FF00CA45A5;
 			productRefGroup = BEC424F31791A7FF00CA45A5 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = BEE6B0CE18F8C9EE004316EA /* Products */;
+					ProjectRef = BEE6B0CD18F8C9EE004316EA /* DHxlsReaderIOS.xcodeproj */;
+				},
+				{
+					ProductGroup = BEE6B0BF18F8B6B7004316EA /* Products */;
+					ProjectRef = BEE6B0BE18F8B6B7004316EA /* ODManager.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				BEC424F11791A7FF00CA45A5 /* ODUserMaker */,
@@ -486,6 +577,51 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		BEE6B0C418F8B6B7004316EA /* libODManager.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libODManager.a;
+			remoteRef = BEE6B0C318F8B6B7004316EA /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		BEE6B0C618F8B6B7004316EA /* ODManagerTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = ODManagerTests.xctest;
+			remoteRef = BEE6B0C518F8B6B7004316EA /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		BEE6B0D518F8C9EE004316EA /* libDHxlsReaderIOS.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libDHxlsReaderIOS.a;
+			remoteRef = BEE6B0D418F8C9EE004316EA /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		BEE6B0D718F8C9EE004316EA /* libDHxlsReader.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libDHxlsReader.a;
+			remoteRef = BEE6B0D618F8C9EE004316EA /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		BEE6B0D918F8C9EE004316EA /* DHlibxls.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = DHlibxls.framework;
+			remoteRef = BEE6B0D818F8C9EE004316EA /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		BEE6B0DB18F8C9EE004316EA /* DHlibxlsTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = DHlibxlsTests.xctest;
+			remoteRef = BEE6B0DA18F8C9EE004316EA /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		BEC424F01791A7FF00CA45A5 /* Resources */ = {
@@ -531,7 +667,6 @@
 				BEC425021791A80000CA45A5 /* main.m in Sources */,
 				BE203706183E6272000E33CE /* SSKeychainQuery.m in Sources */,
 				BEC425091791A80000CA45A5 /* ODUDelegate.m in Sources */,
-				BEA8F634186BD233008F13B4 /* AHSecureObjects.m in Sources */,
 				BE47D223183BC95700203771 /* ODUDirectoryConnection.m in Sources */,
 				BEAA9EF71832CF8A00E0BEA8 /* ODUAlerts.m in Sources */,
 				BEC4252E1791AE3500CA45A5 /* ODUController.m in Sources */,
@@ -546,12 +681,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BEA8F635186BD233008F13B4 /* AHSecureObjects.m in Sources */,
 				BEC4253E1792302A00CA45A5 /* main.m in Sources */,
+				BE2D96B617D220540076258A /* ODUError.m in Sources */,
 				BE29322C17965D99001502D7 /* FileService.m in Sources */,
 				BE29322F1796F18B001502D7 /* NSString+StringSanitizer.m in Sources */,
-				BE2D96B617D220540076258A /* ODUError.m in Sources */,
-				BE18C1CB17D40CAE00C92AF3 /* NSString+uuidFromString.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -560,13 +693,35 @@
 			buildActionMask = 2147483647;
 			files = (
 				BEFBDC68179C161F00AB0960 /* main.m in Sources */,
+				BE19813F18F8EBDA00AEC182 /* ODUError.m in Sources */,
 				BEFBDC6F179C16E200AB0960 /* OpenDirectoryService.m in Sources */,
-				BE2D96B717D220540076258A /* ODUError.m in Sources */,
-				BE18C1CC17D40CAE00C92AF3 /* NSString+uuidFromString.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		BE19813A18F8CD0300AEC182 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = ODManager;
+			targetProxy = BE19813918F8CD0300AEC182 /* PBXContainerItemProxy */;
+		};
+		BE19813E18F8CE8000AEC182 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = DHlibxls;
+			targetProxy = BE19813D18F8CE8000AEC182 /* PBXContainerItemProxy */;
+		};
+		BEE6B0C818F8B781004316EA /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = ODManager;
+			targetProxy = BEE6B0C718F8B781004316EA /* PBXContainerItemProxy */;
+		};
+		BEE6B0CB18F8B7B2004316EA /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = ODManager;
+			targetProxy = BEE6B0CA18F8B7B2004316EA /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		BEC424FE1791A80000CA45A5 /* InfoPlist.strings */ = {
@@ -679,6 +834,7 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Developer ID Application";
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "ODUserMaker/ODUserMaker-Prefix.pch";
 				HEADER_SEARCH_PATHS = "./**";
@@ -700,6 +856,7 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Developer ID Application";
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "ODUserMaker/ODUserMaker-Prefix.pch";
 				HEADER_SEARCH_PATHS = "./**";
@@ -719,10 +876,7 @@
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CODE_SIGN_IDENTITY = "Developer ID Application";
 				COMBINE_HIDPI_IMAGES = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"/Volumes/myHome/Users/eldon/Desktop/git/My\\ Objective-c/ODUserMaker/**",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "file-service/file-service-Prefix.pch";
 				INFOPLIST_FILE = "file-service/file-service-Info.plist";
@@ -740,10 +894,7 @@
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CODE_SIGN_IDENTITY = "Developer ID Application";
 				COMBINE_HIDPI_IMAGES = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"/Volumes/myHome/Users/eldon/Desktop/git/My\\ Objective-c/ODUserMaker/**",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "file-service/file-service-Prefix.pch";
 				INFOPLIST_FILE = "file-service/file-service-Info.plist";
@@ -761,11 +912,7 @@
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CODE_SIGN_IDENTITY = "Developer ID Application";
 				COMBINE_HIDPI_IMAGES = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"/Volumes/myHome/Users/eldon/Desktop/git/My\\ Objective-c/ODUserMaker",
-					"$(USER_LIBRARY_DIR)/Developer/Xcode/DerivedData/SharedODUM-gnielubztbariychbojgzyzjvudn/Build/Products/Debug",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "opendirectory-service/opendirectory-service-Prefix.pch";
 				INFOPLIST_FILE = "opendirectory-service/opendirectory-service-Info.plist";
@@ -788,11 +935,7 @@
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CODE_SIGN_IDENTITY = "Developer ID Application";
 				COMBINE_HIDPI_IMAGES = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"/Volumes/myHome/Users/eldon/Desktop/git/My\\ Objective-c/ODUserMaker",
-					"$(USER_LIBRARY_DIR)/Developer/Xcode/DerivedData/SharedODUM-gnielubztbariychbojgzyzjvudn/Build/Products/Debug",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "opendirectory-service/opendirectory-service-Prefix.pch";
 				INFOPLIST_FILE = "opendirectory-service/opendirectory-service-Info.plist";

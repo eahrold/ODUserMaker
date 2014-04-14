@@ -10,6 +10,7 @@
 #import "ODUProgress.h"
 #import "ODUError.h"
 #import "OpenDirectoryService.h"
+
 @implementation ODUDirectoryConnection
 
 #pragma mark - Initializers
@@ -57,7 +58,7 @@
     }];
 }
 
--(void)importUserList:(ODUserList*)users withGroups:(NSArray*)groups reply:(void (^)(NSError *))reply{
+-(void)importUserList:(ODRecordList*)users withGroups:(NSArray*)groups reply:(void (^)(NSError *))reply{
     [[self remoteObjectProxy] addListOfUsers:users withGroups:groups withReply:^(NSError *error) {
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
             reply(error);
@@ -76,6 +77,35 @@
     
 }
 
+-(void)resetPasswords:(ODRecordList *)users reply:(void (^)(NSError *))reply{
+    [[self remoteObjectProxy] resetPasswordsForUsers:users reply:^(NSError *error) {
+        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            reply(error);
+        }];
+        [self invalidate];
+    }];
+}
+
+-(void)deleteUser:(NSString*)user reply:(void (^)(NSError *error))reply{
+    [[self remoteObjectProxy]deleteUser:user reply:^(NSError *error) {
+        reply(error);
+    }];
+}
+
+-(void)addUser:(NSString*)user toGroup:(NSString *)group reply:(void (^)(NSError *))reply{
+    [[self remoteObjectProxy]addUser:user toGroup:group reply:^(NSError *error) {
+        reply(error);
+    }];
+    [self invalidate];
+}
+
+-(void)removeUser:(NSString*)user fromGroup:(NSString *)group reply:(void (^)(NSError *))reply{
+    [[self remoteObjectProxy]removeUser:user fromGroup:group reply:^(NSError *error) {
+        reply(error);
+    }];
+    [self invalidate];
+}
+
 #pragma mark - Server Status
 -(void)checkServerStatus{
     ODServer* server = [ODServer new];
@@ -83,9 +113,9 @@
     server.diradminPass = [_authDelegate passwordForDiradmin];
     server.directoryServer = [_authDelegate nameOfServer];
     
-    [[self remoteObjectProxy] checkServerStatus:server withReply:^(OSStatus status){
+    [[self remoteObjectProxy] checkServerStatus:server withReply:^(OSStatus status,NSString* message){
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-            [_authDelegate didRecieveStatusUpdate:status];
+            [_authDelegate didRecieveStatusUpdate:status message:message];
         }];
         [self invalidate];
     }];

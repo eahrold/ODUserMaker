@@ -10,12 +10,13 @@
 #import "NSString+StringSanitizer.h"
 #import "ODUProgress.h"
 #import "ODUError.h"
-#import "NSString+uuidFromString.h"
+#import "ODManager.h"
+
 #import <DHlibxls/DHxlsReader.h>
 
 @implementation FileService{
     NSMutableArray* rawUserList;
-    ODUserList *internalUserList;
+    ODRecordList *internalUserList;
 }
 
 
@@ -43,7 +44,7 @@
           exportFile:(NSFileHandle*)exportFile
               filter:(NSString*)filter
                 andGroupList:(NSArray*)groups
-                   withReply:(void (^)(NSArray* groupList,ODUserList* userlist,NSError *error))reply{
+                   withReply:(void (^)(NSArray* groupList,ODRecordList* userlist,NSError *error))reply{
     
     NSError* error;
     NSArray* groupList;
@@ -55,9 +56,62 @@
     reply(groupList,internalUserList,error);
 }
 
--(BOOL)parseUserList:(ODUser*)user inFile:(NSString*)file toFile:(NSFileHandle*)exportFile filter:(NSString*)filter error:(NSError *__autoreleasing*)error{
+-(void)makePasswordResetListFromFile:(NSString *)file
+                      usernameColumn:(NSInteger)userNameColumn
+                      passwordColumn:(NSInteger)passWordColumn
+                               reply:(void (^)(ODRecordList *, NSError *))reply
+{
+    NSError* error;
+    internalUserList = nil;
+    DHxlsReader* reader =[DHxlsReader xlsReaderWithPath:file];
+    if(!reader){
+        error = [ODUError errorWithCode:ODUMReadFileError];
+        reply(nil,error);
+        return;
+    }
+    
+    [reader startIterator:0];
+    int rows = [reader numberOfRowsInSheet:0];
+    
+    if( rows <= 1 ){
+        error = [ODUError errorWithCode:ODUMNoUsersInFile];
+        reply(nil,error);
+        return;
+    }
+    
+    NSMutableSet* processed = [NSMutableSet set];
     NSMutableArray* returnArray = [NSMutableArray new];
+    
+    for(int i = 1;i < rows+1;i++ ){
+        NSString* userName = [[reader cellInWorkSheetIndex:1 row:i col:userNameColumn] str];
+        NSString* passWord = [[reader cellInWorkSheetIndex:1 row:i col:passWordColumn] str];
+        
+        if ([processed containsObject:userName] == NO) {
+            [processed addObject:userName];
+            @try {
+                ODUser* user = [ODUser new];
+                user.userName = userName;
+                user.passWord = passWord;
+                [returnArray addObject:user];
+            }
+            @catch (NSException *exception) {
+                NSLog(@"%@",exception);
+            }
+        }
+    }
+    
+    if(returnArray){
+        internalUserList = [[ODRecordList alloc]init];
+        internalUserList.users = [NSArray arrayWithArray:returnArray];
+    }
 
+    reply(internalUserList,error);
+}
+
+
+-(BOOL)parseUserList:(ODUser*)templateUser inFile:(NSString*)file toFile:(NSFileHandle*)exportFile filter:(NSString*)filter error:(NSError *__autoreleasing*)error{
+    NSMutableArray* returnArray = [NSMutableArray new];
+    
     if(exportFile){
         [self writeHeaders:exportFile];
     }
@@ -87,38 +141,38 @@
         {
             // the rawUserList is what is used for making groups...
             if(!rawUserList)rawUserList = [[NSMutableArray alloc]init];
-            [rawUserList addObject:[NSString stringWithFormat:@"%@:%@",userName,classNumber]];
+            [rawUserList addObject:@{@"name":userName,@"class":classNumber}];
 
             if ([processed containsObject:userName] == NO) {
                 [processed addObject:userName];
                 @try{
                     
-                    ODUser* tmpUser = [ODUser new];
-                    tmpUser.userName = userName;
+                    ODUser* user = [ODUser new];
+                    user.userName = userName;
                     NSString* rawName = [[reader cellInWorkSheetIndex:1 row:i col:2] str];
 
                     NSArray* rawNameArray = [rawName componentsSeparatedByString:@","];
                     
-                    tmpUser.passWord = [[reader cellInWorkSheetIndex:1 row:i col:3] str];
+                    user.passWord = [[reader cellInWorkSheetIndex:1 row:i col:3] str];
 
-                    tmpUser.firstName = rawNameArray[1];
-                    tmpUser.lastName = rawNameArray[0];
+                    user.firstName = rawNameArray[1];
+                    user.lastName = rawNameArray[0];
                     
-                    tmpUser.firstName = [[rawNameArray[1] stringByReplacingOccurrencesOfString:@"\"" withString:@""]stringByTrimmingLeadingWhitespace];
-                    tmpUser.lastName = [[rawNameArray[0] stringByReplacingOccurrencesOfString:@"\"" withString:@""]stringByTrimmingLeadingWhitespace];
+                    user.firstName = [[rawNameArray[1] stringByReplacingOccurrencesOfString:@"\"" withString:@""]stringByTrimmingLeadingWhitespace];
+                    user.lastName = [[rawNameArray[0] stringByReplacingOccurrencesOfString:@"\"" withString:@""]stringByTrimmingLeadingWhitespace];
                     
-                    tmpUser.primaryGroup = user.primaryGroup;
-                    tmpUser.emailDomain = user.emailDomain;
-                    tmpUser.keyWord = user.keyWord;
+                    user.primaryGroup = templateUser.primaryGroup;
+                    user.emailDomain = templateUser.emailDomain;
+                    user.keyWord = templateUser.keyWord;
                     
-                    tmpUser.userShell = user.userShell;
-                    tmpUser.sharePath = user.sharePath;
-                    tmpUser.sharePoint = user.sharePoint;
-                    tmpUser.nfsPath = user.nfsPath;
+                    user.userShell = templateUser.userShell;
+                    user.sharePath = templateUser.sharePath;
+                    user.sharePoint = templateUser.sharePoint;
+                    user.nfsPath = templateUser.nfsPath;
                     
                     /* then write it to the file */
-                    if(exportFile)[self writeUser:tmpUser toFile:exportFile];
-                    [returnArray addObject:tmpUser];
+                    if(exportFile)[self writeUser:user toFile:exportFile];
+                    [returnArray addObject:user];
                     
                 }
                 @catch (NSException* exception) {
@@ -127,8 +181,8 @@
         }
     }
 
-    internalUserList = [ODUserList new];
-    internalUserList.list = [NSArray arrayWithArray:returnArray];
+    internalUserList = [ODRecordList new];
+    internalUserList.users = [NSArray arrayWithArray:returnArray];
     return YES;
 }
 
@@ -136,67 +190,56 @@
 
 -(NSArray*)makeGroups:(NSArray*)groups
           usingFilter:(NSString*)filter{
+    
     /* this takes the array of groups/match specified in the main window and then using the users
      from the array set in the parseList method it creates an array of dictionaries of the groups
      and the users that are in them based on the match.  There has to be a better way but this works*/
     
-    NSArray* returnArray;
+    /* rawUserList is the list created during the parseUserList method
+       It is the entire file now as an array of user names */
     if(!rawUserList){
         return nil;
     }
     
-    [rawUserList sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
     [[self.xpcConnection remoteObjectProxy] setProgressMsg:@"Determining Group Membership..."];
 
     NSMutableSet* groupProcessed = [[NSMutableSet alloc]init];
-    NSMutableArray* mArray = [[NSMutableArray alloc]init];
-
-    NSMutableDictionary* groupDict;
-    NSMutableSet* userProcessed;
-    NSMutableArray* userArray;
+    NSMutableArray* returnArray = [[NSMutableArray alloc]init];
+    
+    NSMutableSet* userSet;
     
     NSString* groupName;
     BOOL isSameGroup = NO;
     
+    
     for(NSDictionary* g in groups){
-        if (![groupName isEqualToString:[g objectForKey:@"group"]]){
-            groupDict = [NSMutableDictionary new];
-            groupName = [g objectForKey:@"group"];
+        if (![groupName isEqualToString:g[@"group"]]){
+            groupName = g[@"group"];
             isSameGroup = NO;
         }else{
             isSameGroup = YES;
         }
         
-        NSString* matchName = [g objectForKey:@"match"];
-        
+        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"class contains[c] %@",g[@"match"]];
+
         if (![groupProcessed containsObject:groupName]){
-            userArray = [NSMutableArray new];
-            userProcessed = [NSMutableSet new];
+            userSet = [NSMutableSet new];
             [groupProcessed addObject:groupName];
         }
         
-        for(NSString *u in rawUserList){
-            if ([u rangeOfString:matchName options:NSCaseInsensitiveSearch].location != NSNotFound){
-                NSString *uname = [u componentsSeparatedByString:@":"][0];
-                
-                if (![userProcessed containsObject:uname]){
-                    [userArray addObject:uname];
-                }
-                [userProcessed addObject:uname];
+        for(NSDictionary *u in rawUserList){
+            if ([predicate evaluateWithObject:u]){
+                [userSet addObject:u[@"name"]];
             }
         }
         
-        if(userArray)[groupDict setObject:userArray forKey:@"users"];
-
-        [groupDict setObject:groupName forKey:@"group"];
-        
-        if(isSameGroup)[mArray removeLastObject];
-        
-        [mArray addObject:groupDict];
+        if(isSameGroup)[returnArray removeLastObject];
+        if(userSet.count){
+            [returnArray addObject:@{@"users":[userSet allObjects],@"group":groupName}];
+        }
     }
     
-    returnArray = mArray;
-    return returnArray;
+    return [NSArray arrayWithArray:returnArray];
 }
 
 
@@ -218,7 +261,7 @@
     if(user.uid){
         uuid = user.uid;
     }else{
-        uuid = [userName uuidFromString];
+        uuid = [userName uuidWithLength:6];
     }
     
     NSString* password = user.passWord;
@@ -250,22 +293,6 @@
     
     [fh writeData:[odHeader dataUsingEncoding:NSUTF8StringEncoding]];
 }
-
-
-
-//---------------------------------
-//  Singleton and ListenerDelegate
-//---------------------------------
-
-+ (FileService* )sharedFileService {
-    static dispatch_once_t onceToken;
-    static FileService* shared;
-    dispatch_once(&onceToken, ^{
-        shared = [FileService new];
-    });
-    return shared;
-}
-
 
 /* Implement the one method in the NSXPCListenerDelegate protocol. */
 - (BOOL)listener:(NSXPCListener* )listener shouldAcceptNewConnection:(NSXPCConnection* )newConnection {

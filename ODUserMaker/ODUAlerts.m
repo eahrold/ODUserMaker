@@ -20,6 +20,14 @@
                                                  contextInfo:nil];
 }
 
++ (void)showAlert:(NSString *)alert withFormattedMessage:(NSString *)msg,...{
+    va_list ap;
+    va_start(ap, msg);
+    NSString* str = [[NSString alloc]initWithFormat:msg arguments:ap];
+    [self showAlert:alert withDescription:str];
+    va_end(ap);
+}
+
 + (void)showAlert:(NSString *)alert withDescription:(NSString *)msg {
     if(!msg){
         msg = @"";

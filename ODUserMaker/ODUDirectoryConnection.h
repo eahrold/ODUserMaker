@@ -7,7 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "AHSecureObjects.h"
+#import "ODSecureObjects.h"
 
 @class ODUDirectoryConnection;
 
@@ -23,7 +23,7 @@
 -(NSString*)nameOfServer;
 -(NSString*)nameOfDiradmin;
 -(NSString*)passwordForDiradmin;
--(void)didRecieveStatusUpdate:(OSStatus)status;
+-(void)didRecieveStatusUpdate:(OSStatus)status message:(NSString*)message;
 -(void)didGetPassWordFromKeychain:(NSString*)password;
 @end
 
@@ -37,10 +37,16 @@
 -(id)initWithAuthDelegate:(id<ODUAuthenticatorDelegate>)delegate;
 
 -(void)addUser:(ODUser*)user andGroups:(NSArray*)groups reply:(void (^)(NSError *error))reply;
-
--(void)importUserList:(ODUserList*)users withGroups:(NSArray*)groups reply:(void (^)(NSError *))reply;
+-(void)importUserList:(ODRecordList*)users withGroups:(NSArray*)groups reply:(void (^)(NSError *))reply;
 
 -(void)resetPassword:(ODUser*)user reply:(void (^)(NSError *error))reply;
+-(void)resetPasswords:(ODRecordList*)users reply:(void (^)(NSError *error))reply;
+
+-(void)deleteUser:(NSString*)user reply:(void (^)(NSError *error))reply;
+
+-(void)addUser:(NSString*)user toGroup:(NSString *)group reply:(void (^)(NSError *))reply;
+-(void)removeUser:(NSString*)user fromGroup:(NSString *)group reply:(void (^)(NSError *))reply;
+
 -(void)checkServerStatus;
 -(void)getSettingsForPreset;
 

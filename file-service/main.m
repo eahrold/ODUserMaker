@@ -15,7 +15,7 @@ int main(int argc, const char *argv[])
     NSXPCListener *serviceListener = [NSXPCListener serviceListener];
     
     // Configure the service listener with a delegate.
-    FileService *sharedFileService = [FileService sharedFileService];
+    FileService *sharedFileService = [FileService new];
     serviceListener.delegate = sharedFileService;
     
     // Resume the listener. At this point, NSXPCListener will take over the execution of this service, managing its lifetime as needed.

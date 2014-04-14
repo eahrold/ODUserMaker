@@ -38,6 +38,7 @@ enum ODUMErrorCodes {
     ODUMCantAddUserToServer = 2003,
     ODUMCantAddUserToGroup = 2004,
     ODUMCantAddUserToServerOrGroup = 2005,
+    ODUMProblemResettingUsersPasswords = 2006,
     
     ODUMGroupNotFound = 3001,
     ODUMPresetNotFound = 3002,
@@ -46,6 +47,6 @@ enum ODUMErrorCodes {
     ODUMCantAuthenicate = 4002,
     ODUMNotAuthenticated = 4003,
     
-    ODUMFieldsMissing = 5001
+    ODUMFieldsMissing = 5001,
 };
 

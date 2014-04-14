@@ -31,14 +31,21 @@
 }
 
 
--(void)makeUserList:(void (^)(ODUserList* users, NSArray* groups,NSError *error))reply{
-    [[self remoteObjectProxy] makeUserArray:_user importFile:_inFile exportFile:_outFile filter:_filter andGroupList:_groups withReply:^(NSArray* groups, ODUserList* userlist, NSError* error){
+-(void)makeUserList:(void (^)(ODRecordList* users, NSArray* groups,NSError *error))reply{
+    [[self remoteObjectProxy] makeUserArray:_user importFile:_inFile exportFile:_outFile filter:_filter andGroupList:_groups withReply:^(NSArray* groups, ODRecordList* userlist, NSError* error){
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
             reply(userlist,groups,error);
         }];
         [self invalidate];
     }];
+}
 
+-(void)makePasswordResetList:(void (^)(ODRecordList *, NSError *))reply{
+    [[self remoteObjectProxy]makePasswordResetListFromFile:_inFile usernameColumn:_userNameColumn passwordColumn:_passWordColumn reply:^(ODRecordList *userlist, NSError *error) {
+        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            reply(userlist,error);
+        }];
+    }];
 }
 
 @end

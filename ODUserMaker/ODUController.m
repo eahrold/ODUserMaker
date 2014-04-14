@@ -13,6 +13,7 @@
 #import "ODUAlerts.h"
 #import "SSKeychain.h"
 #import "NSString(TextField)+isNotBlank.h"
+#import "ODManager.h"
 
 @implementation ODUController{
     NSMutableArray *_groups;
@@ -160,9 +161,13 @@
     [[[NSApp delegate] progressIndicator] setIndeterminate:YES];
     [[[NSApp delegate] progressIndicator] setUsesThreadedAnimation:YES];
     
+    /*before we send the groups array off arrange the order*/
+    [_groups sortUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"group"
+                                                                  ascending:YES]]];
+    
     if([sender.title isEqualToString:@"Import Users"]){
         [[NSApp delegate] startProgressPanelWithMessage:@"Importing Users..." indeterminate:YES];
-        [fs makeUserList:^(ODUserList *users, NSArray *groups, NSError *error) {
+        [fs makeUserList:^(ODRecordList *users, NSArray *groups, NSError *error) {
             if(error){
                 [[NSOperationQueue mainQueue] addOperationWithBlock:^{
                     [[NSApp delegate] stopProgressPanel];
@@ -206,7 +211,7 @@
             return;
         }
         [[NSApp delegate] startProgressPanelWithMessage:@"Creating DSImport File..." indeterminate:YES];
-        [fs makeUserList:^(ODUserList *users, NSArray *groups, NSError *error) {
+        [fs makeUserList:^(ODRecordList *users, NSArray *groups, NSError *error) {
             [[NSApp delegate] stopProgressPanel];
             if(error){
                 [ODUAlerts showErrorAlert:error];
@@ -244,15 +249,13 @@
     NSString* description =[NSString stringWithFormat:@"%@:%@",group,match];
     NSDictionary * dict = @{@"description":description,@"group":group,@"match":match};
     
-    [_groups addObject:dict];
-    [_groups sortUsingDescriptors:[NSArray arrayWithObjects:[NSSortDescriptor sortDescriptorWithKey:@"group" ascending:YES], nil]];
-    
+    [_groups insertObject:dict atIndex:0];
     [groupMatchArrayController setContent:_groups];
     
 }
 
 -(IBAction)removeGroupMatch:(id)sender{
-    if(_groupMatchEntriesPUB.indexOfSelectedItem > -1){
+    if(_groupMatchEntriesPUB.numberOfItems){
         [_groups removeObjectAtIndex:[_groupMatchEntriesPUB indexOfSelectedItem]];
         [groupMatchArrayController setContent:_groups];
     }
@@ -291,7 +294,77 @@
     
 }
 
+- (IBAction)choosePasswordResetFile:(id)sender{
+    NSOpenPanel* openPanel = [NSOpenPanel openPanel];
+    [openPanel setCanChooseFiles:YES];
+    [openPanel setAllowsMultipleSelection:NO];
+    [openPanel setCanChooseDirectories:NO];
+    
+    [openPanel beginSheetModalForWindow:[[NSApplication sharedApplication]mainWindow] completionHandler:^(NSInteger result) {
+        if (result == NSOKButton) {
+            _passwordResetFile.stringValue = [[openPanel URL] path];
+        }
+    }];
+}
 
+- (void)resetPasswordsFromFilePressed:(id)sender{
+    NSError* error;
+    
+    if(!_dsServerStatusBT.state){
+        error = [ODUError errorWithCode:ODUMNotAuthenticated];
+        [ODUAlerts showErrorAlert:error];
+        return;
+    }
+    
+    if(_passwordResetFile.stringValue.isBlank){
+        error = [ODUError errorWithCode:ODUMNoFileSelected];
+        [ODUAlerts showErrorAlert:error];
+        return;
+    }
+    
+    ODUFileConnection *service = [[ODUFileConnection alloc]initConnection];
+    service.inFile = _passwordResetFile.stringValue;
+    service.userNameColumn = [[_userNameColumn stringValue] integerValue];
+    service.passWordColumn = [[_passWordColumn stringValue] integerValue ];
+    
+    [[NSApp delegate] startProgressPanelWithMessage:@"Parsing file for passwords..." indeterminate:YES];
+
+    [service makePasswordResetList:^(ODRecordList *records, NSError *error) {
+        if(records.users.count > 0){
+            [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                [[[NSApp delegate] progressIndicator] setIndeterminate:NO];
+            }];
+            ODUDirectoryConnection *service = [[ODUDirectoryConnection alloc]initConnection];
+            [service resetPasswords:records reply:^(NSError *error) {
+                [[NSApp delegate] stopProgressPanel];
+                if(error){
+                    [ODUAlerts showErrorAlert:error];
+                }
+            }];
+        }else{
+            [[NSApp delegate] stopProgressPanel];
+            [ODUAlerts showErrorAlert:error];
+        }
+    }];
+}
+
+#pragma mark - Other Panel
+- (IBAction)deleteUserPressed:(id)sender {
+    ODUDirectoryConnection *service = [[ODUDirectoryConnection alloc]initWithQueryDelegate:self];
+
+    [service deleteUser:_deleteUserCB.stringValue reply:^(NSError *error) {
+        if(error){
+            [ODUAlerts showErrorAlert:error];
+        }else{
+            [ODUAlerts showAlert:@"Rremoved User" withFormattedMessage:@"We removed %@ from the Directory Server",_deleteUserCB.stringValue];
+            [dsUserArrayController removeObjectAtArrangedObjectIndex:[_deleteUserCB indexOfSelectedItem]];
+            _deleteUserCB.stringValue = @"";
+        }
+    }];
+}
+
+- (IBAction)modifyGroupPressed:(id)sender {
+}
 
 #pragma mark - Server Status IBActions
 //-------------------------------------------
@@ -299,7 +372,10 @@
 //-------------------------------------------
 -(IBAction)refreshServerStatus:(id)sender{
     if(_diradminPassTF.isBlank){
-        if(![self getKeyChainPassword:nil])return;
+        if(![self getKeyChainPassword:nil]){
+            [self didRecieveStatusUpdate:kODMNodeNotSet message:@""];
+            return;
+        }
     }
     
     ODUDirectoryConnection *service = [[ODUDirectoryConnection alloc]initWithAuthDelegate:self];
@@ -327,7 +403,7 @@
 //-------------------------------------------
 //  Authenticator Delegate
 //-------------------------------------------
--(void)didRecieveStatusUpdate:(OSStatus)status{
+-(void)didRecieveStatusUpdate:(OSStatus)status message:(NSString *)message{
     [_dsServerStatusProgress stopAnimation:nil];
     [_dsServerStatusProgress setHidden:YES];
     [_dsServerRefreshButtonBT setHidden:NO];
@@ -341,24 +417,19 @@
         [ODUDirectoryConnection getPresetList:self];
     }
     
-    NSString* sv;
     switch(status){
-        case kAHNodeNotSet: sv = @"Could Not Contact Server";
-            break;
-        case kAHNodeNotAuthenticatedLocal:sv = ODUUnauthenticatedLocalMSG;
-            break;
-        case kAHNodeNotAutenticatedProxy:sv = ODUUnauthenticatedProxyMSG;
-            break;
-        case kAHNodeAuthenticatedLocal:sv = ODUAuthenticatedLocalMSG;
+        case kODMNodeAuthenticatedLocal:
             [_dsServerStatusBT setImage:[NSImage imageNamed:@"connected-local.tiff"]];
             break;
-        case kAHNodeAuthenticatedProxy:sv = ODUAuthenticatedProxyMSG;
+        case kODMNodeAuthenticatedProxy:
             [_dsServerStatusBT setImage:[NSImage imageNamed:@"connected-proxy.tiff"]];
             break;
-        default: sv = @"unknown status"; [_dsServerStatusBT setImage:nil ];break;
+        default:
+            [_dsServerStatusBT setImage:nil ];
+            break;
             
     }
-    _dsStatusMessageTF.stringValue = sv;
+    _dsStatusMessageTF.stringValue = message;
 }
 
 -(void)didGetPassWordFromKeychain:(NSString *)password{
@@ -406,11 +477,13 @@
 }
 
 -(void)didGetSettingsForPreset:(ODPreset *)preset{
-    _chooseUserPresetBT.title = preset.presetName? preset.presetName:@"Configure";
-    _sharePointTF.stringValue = preset.sharePoint? preset.sharePoint:@"";
-    _sharePathTF.stringValue  = preset.sharePath ? preset.sharePath:@"";
-    _userShellTF.stringValue  = preset.userShell ? preset.userShell:@"";
-    _NFSPathTF.stringValue    = preset.nfsPath   ? preset.nfsPath:@"";
+    if(preset){
+        _chooseUserPresetBT.title = preset.presetName.isNotBlank ? preset.presetName:@"Configure";
+        _sharePointTF.stringValue = preset.sharePoint.isNotBlank ? preset.sharePoint:@"";
+        _sharePathTF.stringValue  = preset.sharePath.isNotBlank  ? preset.sharePath:@"";
+        _userShellTF.stringValue  = preset.userShell.isNotBlank  ? preset.userShell:@"/bin/csh";
+        _NFSPathTF.stringValue    = preset.nfsPath.isNotBlank    ? preset.nfsPath:@"";
+    }
 }
 
 -(NSString *)nameOfPreset{

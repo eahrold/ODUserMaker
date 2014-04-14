@@ -8,17 +8,22 @@
 
 #import <Foundation/Foundation.h>
 #import <OpenDirectory/OpenDirectory.h>
-@class ODUser,ODServer,ODUserList,ODPreset;
+@class ODUser,ODServer,ODRecordList,ODPreset;
 
 @protocol OpenDirectoryService
 
-/* methods for editing users/group*/
+/** methods for editing users/group*/
 -(void)addSingleUser:(ODUser*)user withGroups:(NSArray*)groups withReply:(void (^)(NSError *error))reply;
 
--(void)addListOfUsers:(ODUserList*)users withGroups:(NSArray*)groups withReply:(void (^)(NSError *error))reply;
+-(void)addListOfUsers:(ODRecordList*)users withGroups:(NSArray*)groups withReply:(void (^)(NSError *error))reply;
 
 -(void)resetUserPassword:(ODUser*)user withReply:(void (^)(NSError *error))reply;
+-(void)resetPasswordsForUsers:(ODRecordList*)users reply:(void (^)(NSError *error))reply;
 
+-(void)deleteUser:(NSString*)user reply:(void (^)(NSError* error))reply;
+
+-(void)addUser:(NSString*)user toGroup:(NSString*)group reply:(void (^)(NSError* error))reply;
+-(void)removeUser:(NSString*)user fromGroup:(NSString*)group reply:(void (^)(NSError* error))reply;
 
 /* methods for getting lists*/ 
 -(void)getPresetsListFromServer:(void (^)(NSArray *presetList,NSError *error))reply;
@@ -33,7 +38,7 @@
 
 /* methods for status checking */
 -(void)checkServerStatus:(ODServer*)server
-               withReply:(void (^)(OSStatus connected))reply;
+               withReply:(void (^)(OSStatus status,NSString* message))reply;
 
 /* method to cancel import*/
 -(void)cancelImportStatus:(void (^)(BOOL connected))reply;

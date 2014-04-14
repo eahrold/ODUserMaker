@@ -11,5 +11,6 @@
 
 @interface ODUAlerts : NSObject
 + (void)showErrorAlert:(NSError *)error;
++ (void)showAlert:(NSString *)alert withFormattedMessage:(NSString *)msg,...;
 + (void)showAlert:(NSString *)alert withDescription:(NSString *)msg;
 @end

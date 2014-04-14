@@ -7,7 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "AHSecureObjects.h"
+@class ODUser,ODRecordList;
 
 @protocol FileService
 -(void)makeMultiUserFile:(ODUser*)user
@@ -21,14 +21,17 @@
           exportFile:(NSFileHandle*)exportFile
               filter:(NSString*)filter
             andGroupList:(NSArray*)groups
-               withReply:(void (^)(NSArray* groupList,ODUserList* userlist,NSError *error))reply;
+               withReply:(void (^)(NSArray* groupList,ODRecordList* userlist,NSError *error))reply;
+
+-(void)makePasswordResetListFromFile:(NSString*)file
+                           usernameColumn:(NSInteger)userNameColumn
+                           passwordColumn:(NSInteger)passWordColumn
+                            reply:(void (^)(ODRecordList* userlist,NSError *error))reply;
 
 @end
 
 
 @interface FileService : NSObject <NSXPCListenerDelegate, FileService>
-+ (FileService *)sharedFileService;
-
 @property (weak) NSXPCConnection *xpcConnection;
 
 @end
