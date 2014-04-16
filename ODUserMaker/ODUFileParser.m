@@ -1,24 +1,23 @@
 //
-//  ExportFile.m
+//  ODUFileParser.m
 //  ODUserMaker
 //
-//  Created by Eldon Ahrold on 7/13/13.
-//  Copyright (c) 2013 Eldon Ahrold. All rights reserved.
+//  Created by Eldon on 4/14/14.
+//  Copyright (c) 2014 Eldon Ahrold. All rights reserved.
 //
 
-#import "FileService.h"
+#import "ODUFileParser.h"
+#import "ODUDelegate.h"
+#import <DHlibxls/DHxlsReader.h>
 #import "NSString+StringSanitizer.h"
-#import "ODUProgress.h"
 #import "ODUError.h"
-#import "ODManager.h"
-
+#import <ODManger/ODManager.h>
 #import <DHlibxls/DHxlsReader.h>
 
-@implementation FileService{
+@implementation ODUFileParser{
     NSMutableArray* rawUserList;
     ODRecordList *internalUserList;
 }
-
 
 //------------------------------------------------
 //  DSImport File Creation
@@ -36,19 +35,19 @@
 }
 
 //------------------------------------------------
-//  Multi ODUser Array 
+//  Multi ODUser Array
 //------------------------------------------------
 
 -(void)makeUserArray:(ODUser*)user
           importFile:(NSString*)file
           exportFile:(NSFileHandle*)exportFile
               filter:(NSString*)filter
-                andGroupList:(NSArray*)groups
-                   withReply:(void (^)(NSArray* groupList,ODRecordList* userlist,NSError *error))reply{
+        andGroupList:(NSArray*)groups
+           withReply:(void (^)(NSArray* groupList,ODRecordList* userlist,NSError *error))reply{
     
     NSError* error;
     NSArray* groupList;
-
+    
     if([self parseUserList:user inFile:file toFile:exportFile filter:filter error:&error]){
         groupList = [self makeGroups:groups usingFilter:filter];
     }
@@ -86,6 +85,7 @@
         NSString* userName = [[reader cellInWorkSheetIndex:1 row:i col:userNameColumn] str];
         NSString* passWord = [[reader cellInWorkSheetIndex:1 row:i col:passWordColumn] str];
         
+        
         if ([processed containsObject:userName] == NO) {
             [processed addObject:userName];
             @try {
@@ -104,7 +104,7 @@
         internalUserList = [[ODRecordList alloc]init];
         internalUserList.users = [NSArray arrayWithArray:returnArray];
     }
-
+    
     reply(internalUserList,error);
 }
 
@@ -124,7 +124,7 @@
     
     [reader startIterator:0];
     int rows = [reader numberOfRowsInSheet:0];
-
+    
     if( rows <= 1 ){
         if(error)*error = [ODUError errorWithCode:ODUMNoUsersInFile];
         return NO;
@@ -142,7 +142,7 @@
             // the rawUserList is what is used for making groups...
             if(!rawUserList)rawUserList = [[NSMutableArray alloc]init];
             [rawUserList addObject:@{@"name":userName,@"class":classNumber}];
-
+            
             if ([processed containsObject:userName] == NO) {
                 [processed addObject:userName];
                 @try{
@@ -150,11 +150,11 @@
                     ODUser* user = [ODUser new];
                     user.userName = userName;
                     NSString* rawName = [[reader cellInWorkSheetIndex:1 row:i col:2] str];
-
+                    
                     NSArray* rawNameArray = [rawName componentsSeparatedByString:@","];
                     
                     user.passWord = [[reader cellInWorkSheetIndex:1 row:i col:3] str];
-
+                    
                     user.firstName = rawNameArray[1];
                     user.lastName = rawNameArray[0];
                     
@@ -180,7 +180,7 @@
             }
         }
     }
-
+    
     internalUserList = [ODRecordList new];
     internalUserList.users = [NSArray arrayWithArray:returnArray];
     return YES;
@@ -196,13 +196,13 @@
      and the users that are in them based on the match.  There has to be a better way but this works*/
     
     /* rawUserList is the list created during the parseUserList method
-       It is the entire file now as an array of user names */
+     It is the entire file now as an array of user names */
     if(!rawUserList){
         return nil;
     }
     
-    [[self.xpcConnection remoteObjectProxy] setProgressMsg:@"Determining Group Membership..."];
-
+    [[NSApp delegate] setProgressMsg:@"Determining Group Membership..."];
+    
     NSMutableSet* groupProcessed = [[NSMutableSet alloc]init];
     NSMutableArray* returnArray = [[NSMutableArray alloc]init];
     
@@ -221,7 +221,7 @@
         }
         
         NSPredicate *predicate = [NSPredicate predicateWithFormat:@"class contains[c] %@",g[@"match"]];
-
+        
         if (![groupProcessed containsObject:groupName]){
             userSet = [NSMutableSet new];
             [groupProcessed addObject:groupName];
@@ -292,20 +292,6 @@
     NSString* odHeader = @"0x0A 0x5C 0x3A 0x2C dsRecTypeStandard:Users 12 dsAttrTypeStandard:RecordName dsAttrTypeStandard:RealName dsAttrTypeStandard:FirstName dsAttrTypeStandard:LastName dsAttrTypeStandard:EMailAddress dsAttrTypeStandard:UniqueID dsAttrTypeStandard:Password dsAttrTypeStandard:PasswordPolicyOptions dsAttrTypeStandard:PrimaryGroupID dsAttrTypeStandard:NFSHomeDirectory dsAttrTypeStandard:HomeDirectory dsAttrTypeStandard:Keywords\n";
     
     [fh writeData:[odHeader dataUsingEncoding:NSUTF8StringEncoding]];
-}
-
-/* Implement the one method in the NSXPCListenerDelegate protocol. */
-- (BOOL)listener:(NSXPCListener* )listener shouldAcceptNewConnection:(NSXPCConnection* )newConnection {
-    
-    newConnection.exportedInterface = [NSXPCInterface interfaceWithProtocol:@protocol(FileService)];
-    newConnection.exportedObject = self;
-    
-    newConnection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(Progress)];
-    self.xpcConnection = newConnection;
-    
-    [newConnection resume];
-    
-    return YES;
 }
 
 

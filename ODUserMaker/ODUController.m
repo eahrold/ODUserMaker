@@ -8,12 +8,16 @@
 
 #import "ODUController.h"
 #import "ODUDelegate.h"
-#import "ODUDirectoryConnection.h"
-#import "ODUFileConnection.h"
+#import "ODUFileParser.h"
 #import "ODUAlerts.h"
 #import "SSKeychain.h"
 #import "NSString(TextField)+isNotBlank.h"
-#import "ODManager.h"
+#import <ODManger/ODManager.h>
+
+
+@interface ODUController ()<ODManagerDelegate>
+@property (strong)  ODManager *manager;
+@end
 
 @implementation ODUController{
     NSMutableArray *_groups;
@@ -50,8 +54,9 @@
         return;
     }
 
-    
-    /* Set up the ODUser Object */
+    [[NSApp delegate] startProgressPanelWithMessage:@"Adding Users..." indeterminate:YES];
+
+                /* Set up the ODUser Object */
     ODUser* user = nil;
     user = [ODUser new];
     user.firstName = _firstNameTF.stringValue;
@@ -79,7 +84,6 @@
     }
     
     //then...
-    NSArray* userGroups = ug;
     
     if(_overrideUIDBT.state){
         NSNumberFormatter* f = [NSNumberFormatter new];
@@ -95,14 +99,16 @@
         user.keyWord = _extraGroupDescriptionTF.stringValue;
     }
     
-    [[NSApp delegate] startProgressPanelWithMessage:@"Adding ODUser..." indeterminate:YES];
-    ODUDirectoryConnection* addSingleUser = [[ODUDirectoryConnection alloc]initConnection];
-    [addSingleUser addUser:user andGroups:userGroups reply:^(NSError *error) {
-        [[NSApp delegate] stopProgressPanel];
-        if(error){
-            [ODUAlerts showErrorAlert:error];
+    [_manager addUser:user error:&error];
+    [[NSApp delegate] stopProgressPanel];
+    if(error.code == kODMerrUserAlreadyExists){
+        [ODUAlerts showErrorAlert:error];
+        return;
+    }else{
+        for(NSString* group in ug){
+            [_manager addUser:user.userName toGroup:group error:nil];
         }
-    }];
+    }
 }
 
 #pragma mark --Config IBActions
@@ -152,11 +158,7 @@
     user.userShell  = _userShellTF.blankIsNil;
     user.nfsPath    = _NFSPathTF.blankIsNil;
     
-    ODUFileConnection* fs = [[ODUFileConnection alloc]initConnection];
-    fs.user = user;
-    fs.groups = _groups;
-    fs.inFile = _importFilePathTF.blankIsNil;
-    fs.filter = _userFilterTF.stringValue;;
+    ODUFileParser* fs = [ODUFileParser new];
     
     [[[NSApp delegate] progressIndicator] setIndeterminate:YES];
     [[[NSApp delegate] progressIndicator] setUsesThreadedAnimation:YES];
@@ -167,30 +169,31 @@
     
     if([sender.title isEqualToString:@"Import Users"]){
         [[NSApp delegate] startProgressPanelWithMessage:@"Importing Users..." indeterminate:YES];
-        [fs makeUserList:^(ODRecordList *users, NSArray *groups, NSError *error) {
-            if(error){
+        [fs makeUserArray:user importFile:_importFilePathTF.blankIsNil exportFile:nil filter: _userFilterTF.stringValue andGroupList:_groups withReply:^(NSArray *groupList, ODRecordList *userlist, NSError *fileParseError){
+            if(fileParseError){
+                [[NSApp delegate] stopProgressPanel];
+                [ODUAlerts showErrorAlert:fileParseError];
+            }
+            else{
+            [_manager addListOfUsers:userlist withPreset:nil reply:^(NSError *userImportError){
+                for(NSDictionary* group in groupList){
+                    NSString *groupName = group[@"group"];
+                    NSArray  *users = group[@"users"];
+                    [[ODManager sharedManager] addUsers:users toGroup:groupName error:nil];
+                    }
                 [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-                    [[NSApp delegate] stopProgressPanel];
-                    [ODUAlerts showErrorAlert:error];
-                }];
-            }else{
-                [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-                    [[[NSApp delegate] progressIndicator] setIndeterminate:NO];
-                }];
-                ODUDirectoryConnection* ds = [[ODUDirectoryConnection alloc]initConnection];
-                [ds importUserList:users withGroups:groups reply:^(NSError *error) {
-                    [[NSApp delegate] stopProgressPanel];
-                    if(error){
-                        [ODUAlerts showErrorAlert:error];
+                [[NSApp delegate] stopProgressPanel];
+                    if(userImportError){
+                        [ODUAlerts showErrorAlert:userImportError];
                     }else{
                         [ODUAlerts showAlert:@"Import Complete" withDescription:@""];
                     }
                 }];
+            }];
             }
         }];
     }
-    
-    if([sender.title isEqualToString:@"Make DSImport File"]){
+    else if([sender.title isEqualToString:@"Make DSImport File"]){
         NSError* error = nil;
 
         NSURL* exportFileURL = [self openSavePanel];
@@ -204,14 +207,15 @@
             [ODUAlerts showErrorAlert:error];
             return;
         }
-        fs.outFile = [NSFileHandle fileHandleForWritingToURL:exportFileURL error:&error];
+        
+        NSFileHandle *outFile = [NSFileHandle fileHandleForWritingToURL:exportFileURL error:&error];
         
         if(error){
             [ODUAlerts showErrorAlert:error];
             return;
         }
         [[NSApp delegate] startProgressPanelWithMessage:@"Creating DSImport File..." indeterminate:YES];
-        [fs makeUserList:^(ODRecordList *users, NSArray *groups, NSError *error) {
+        [fs makeMultiUserFile:user importFile:_importFilePathTF.stringValue exportFile:outFile filter:_userFilterTF.stringValue withReply:^(NSError *error) {
             [[NSApp delegate] stopProgressPanel];
             if(error){
                 [ODUAlerts showErrorAlert:error];
@@ -221,7 +225,10 @@
 }
 
 -(IBAction)cancelUserImport:(id)sender{
-    [ODUDirectoryConnection cancelImport];
+    [_manager cancelUserImport];
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+        [[NSApp delegate]stopProgressPanel];
+    }];
 }
 
 #pragma mark -- Config IBActions
@@ -271,26 +278,31 @@
         return;
     }
     
-    ODUser* user = [ODUser new];
-    user.passWord = _NewPassWordTF.blankIsNil;
-    user.userName = _userListCB.blankIsNil;
+    NSString *userName = _userListCB.blankIsNil;
+    NSString *passWord = _NewPassWordTF.blankIsNil;
     
-    if(user.userName.isBlank || user.passWord.isBlank){
+    if(!userName || !passWord){
         [ODUAlerts showAlert:@"Missing Information" withDescription:@"Please Fill out both the user and password field"];
         return;
     }
     
     [[NSApp delegate] startProgressPanelWithMessage:@"Resetting password..." indeterminate:YES];
-    ODUDirectoryConnection *service = [[ODUDirectoryConnection alloc]initConnection];
-    [service resetPassword:user reply:^(NSError *error) {
-            [[NSApp delegate] stopProgressPanel];
-            if(error){
-                [ODUAlerts showErrorAlert:error];
-            }else{
-                _passwordResetStatusTF.textColor = [NSColor blueColor];
-                _passwordResetStatusTF.stringValue = [NSString stringWithFormat:@"Password reset for %@",user.userName];
-            }
-    }];
+    
+    ODManager *manger = [ODManager sharedManager];
+
+    [manger resetPassword:nil
+               toPassword:passWord
+                     user:userName
+                    error:&error];
+    
+    
+    [[NSApp delegate] stopProgressPanel];
+    if(error){
+        [ODUAlerts showErrorAlert:error];
+    }else{
+        _passwordResetStatusTF.textColor = [NSColor blueColor];
+        _passwordResetStatusTF.stringValue = [NSString stringWithFormat:@"Password reset for %@",userName];
+    }
     
 }
 
@@ -322,43 +334,52 @@
         return;
     }
     
-    ODUFileConnection *service = [[ODUFileConnection alloc]initConnection];
-    service.inFile = _passwordResetFile.stringValue;
-    service.userNameColumn = [[_userNameColumn stringValue] integerValue];
-    service.passWordColumn = [[_passWordColumn stringValue] integerValue ];
+    NSInteger userColumn = [[_userNameColumn stringValue] integerValue];
+    NSInteger passColumn = [[_passWordColumn stringValue] integerValue ];
     
     [[NSApp delegate] startProgressPanelWithMessage:@"Parsing file for passwords..." indeterminate:YES];
+    
+    ODUFileParser *parser = [ODUFileParser new];
+    NSOperationQueue *background = [NSOperationQueue new];
+    [background addOperationWithBlock:^{
+        [parser makePasswordResetListFromFile:_passwordResetFile.stringValue usernameColumn:userColumn passwordColumn:passColumn reply:^(ODRecordList *records, NSError *error) {
+            if(records.users.count > 0){
+                [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                    [[[NSApp delegate] progressIndicator] setIndeterminate:NO];
+                }];
+                double progress = 0.0;
+                for(ODUser *user in records.users){
+                    progress++;
+                    [_manager resetPassword:nil toPassword:user.passWord user:user.userName];
+                    NSString *msg = [NSString stringWithFormat:@"resetting password for %@",user.userName];
 
-    [service makePasswordResetList:^(ODRecordList *records, NSError *error) {
-        if(records.users.count > 0){
-            [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-                [[[NSApp delegate] progressIndicator] setIndeterminate:NO];
-            }];
-            ODUDirectoryConnection *service = [[ODUDirectoryConnection alloc]initConnection];
-            [service resetPasswords:records reply:^(NSError *error) {
-                [[NSApp delegate] stopProgressPanel];
-                if(error){
-                    [ODUAlerts showErrorAlert:error];
+                    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                        [[NSApp delegate] setProgress:(progress/records.users.count*100) withMessage:msg];
+                    }];
                 }
+                
+            }
+            
+            [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                [[NSApp delegate] stopProgressPanel];
             }];
-        }else{
-            [[NSApp delegate] stopProgressPanel];
-            [ODUAlerts showErrorAlert:error];
-        }
+        }];
     }];
+   
 }
 
 #pragma mark - Other Panel
 - (IBAction)deleteUserPressed:(id)sender {
-    ODUDirectoryConnection *service = [[ODUDirectoryConnection alloc]initWithQueryDelegate:self];
-
-    [service deleteUser:_deleteUserCB.stringValue reply:^(NSError *error) {
+    NSLog(@"Removing User:");
+    [_manager removeUsers:@[_deleteUserCB.stringValue] reply:^(NSError *error) {
         if(error){
             [ODUAlerts showErrorAlert:error];
         }else{
-            [ODUAlerts showAlert:@"Rremoved User" withFormattedMessage:@"We removed %@ from the Directory Server",_deleteUserCB.stringValue];
-            [dsUserArrayController removeObjectAtArrangedObjectIndex:[_deleteUserCB indexOfSelectedItem]];
-            _deleteUserCB.stringValue = @"";
+            [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                [ODUAlerts showAlert:@"Rremoved User" withFormattedMessage:@"We removed %@ from the Directory Server",_deleteUserCB.stringValue];
+                [dsUserArrayController removeObjectAtArrangedObjectIndex:[_deleteUserCB indexOfSelectedItem]];
+                _deleteUserCB.stringValue = @"";
+            }];
         }
     }];
 }
@@ -373,18 +394,24 @@
 -(IBAction)refreshServerStatus:(id)sender{
     if(_diradminPassTF.isBlank){
         if(![self getKeyChainPassword:nil]){
-            [self didRecieveStatusUpdate:kODMNodeNotSet message:@""];
+            [self didRecieveStatusUpdate:kODMNodeNotSet];
             return;
         }
     }
+
+    _manager = [ODManager sharedManager];
+    _manager.delegate = self;
     
-    ODUDirectoryConnection *service = [[ODUDirectoryConnection alloc]initWithAuthDelegate:self];
-    
+    _manager.directoryServer  = _serverNameTF.stringValue;
+    _manager.diradmin         = _diradminNameTF.stringValue;
+    _manager.diradminPassword = _diradminPassTF.stringValue;
+
     [_dsServerStatusProgress startAnimation:nil];
     [_dsServerStatusProgress setHidden:NO];
     [_dsServerRefreshButtonBT setHidden:YES];
     
-    [service checkServerStatus];
+    [_manager authenticate];
+    
 }
 
 
@@ -393,8 +420,24 @@
 }
 
 -(IBAction)getSettingsForPreset:(id)sender{
-    ODUDirectoryConnection* service = [[ODUDirectoryConnection alloc]initWithQueryDelegate:self];
-    [service getSettingsForPreset];
+    NSString *presetName;
+    if([sender isKindOfClass:[NSPopUpButton class]] ){
+        presetName = [[(NSPopUpButton*)sender titleOfSelectedItem] blankIsNil];
+    }else if ([sender isKindOfClass:[NSString class]]){
+        presetName = (NSString*)sender;
+    }
+              
+    ODPreset *preset = [_manager settingsForPreset: presetName];
+
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+        if(preset){
+            _chooseUserPresetBT.title = preset.presetName.isNotBlank ? preset.presetName:@"Configure";
+            _sharePointTF.stringValue = preset.sharePoint.isNotBlank ? preset.sharePoint:@"";
+            _sharePathTF.stringValue  = preset.sharePath.isNotBlank  ? preset.sharePath:@"";
+            _userShellTF.stringValue  = preset.userShell.isNotBlank  ? preset.userShell:@"/bin/csh";
+            _NFSPathTF.stringValue    = preset.nfsPath.isNotBlank    ? preset.nfsPath:@"";
+        }
+    }];
 }
 
 
@@ -403,87 +446,113 @@
 //-------------------------------------------
 //  Authenticator Delegate
 //-------------------------------------------
--(void)didRecieveStatusUpdate:(OSStatus)status message:(NSString *)message{
-    [_dsServerStatusProgress stopAnimation:nil];
-    [_dsServerStatusProgress setHidden:YES];
-    [_dsServerRefreshButtonBT setHidden:NO];
-    
-    if(status <= 0){
-        [_dsServerStatusBT setImage:[NSImage imageNamed:@"connected-offline.tiff"]];
-    }else{
-        [self setKeyChainPassword];
-        [ODUDirectoryConnection getUserList:self];
-        [ODUDirectoryConnection getGroupList:self];
-        [ODUDirectoryConnection getPresetList:self];
-    }
-    
-    switch(status){
-        case kODMNodeAuthenticatedLocal:
-            [_dsServerStatusBT setImage:[NSImage imageNamed:@"connected-local.tiff"]];
-            break;
-        case kODMNodeAuthenticatedProxy:
-            [_dsServerStatusBT setImage:[NSImage imageNamed:@"connected-proxy.tiff"]];
-            break;
-        default:
-            [_dsServerStatusBT setImage:nil ];
-            break;
-            
-    }
-    _dsStatusMessageTF.stringValue = message;
+-(void)didRecieveStatusUpdate:(OSStatus)status{
+    [[NSOperationQueue mainQueue]addOperationWithBlock:^{
+        NSString* message = nodeStatusDescription(status);
+        [_dsServerStatusProgress stopAnimation:nil];
+        [_dsServerStatusProgress setHidden:YES];
+        [_dsServerRefreshButtonBT setHidden:NO];
+        
+        if(status <= 0){
+            [_dsServerStatusBT setImage:[NSImage imageNamed:@"connected-offline.tiff"]];
+        }else{
+            [self setKeyChainPassword];
+            [self updateRecordArrays];
+        }
+        
+        switch(status){
+            case kODMNodeAuthenticatedLocal:
+                [_dsServerStatusBT setImage:[NSImage imageNamed:@"connected-local.tiff"]];
+                break;
+            case kODMNodeAuthenticatedProxy:
+                [_dsServerStatusBT setImage:[NSImage imageNamed:@"connected-proxy.tiff"]];
+                break;
+            default:
+                [_dsServerStatusBT setImage:nil ];
+                break;
+                
+        }
+        _dsStatusMessageTF.stringValue = message;
+    }];
 }
+
 
 -(void)didGetPassWordFromKeychain:(NSString *)password{
     _diradminPassTF.stringValue = password;
 }
 
--(NSString *)nameOfDiradmin{
-    return _diradminNameTF.blankIsNil;
-
+-(void)updateRecordArrays{
+    [_manager userList:^(NSArray *allUsers) {
+        [[NSOperationQueue mainQueue]addOperationWithBlock:^{
+            [dsUserArrayController setContent:allUsers];
+        }];
+    }];
+    
+    [_manager groupList:^(NSArray *allGroups) {
+        [[NSOperationQueue mainQueue]addOperationWithBlock:^{
+            [dsGroupArrayController setContent:allGroups];
+            NSString* exg = [[NSUserDefaults standardUserDefaults]objectForKey:@"extraGroup"];
+            _extraGroupShortNameCB.stringValue = exg.isNotBlank ? exg:@"staff";
+        }];
+    }];
+    
+    [_manager presetList:^(NSArray *allPresets) {
+        [[NSOperationQueue mainQueue]addOperationWithBlock:^{
+            [dsPresetArrayController setContent:allPresets];
+            _chooseUserPresetBT.title = allPresets.count ? allPresets[0]:@"Configure";
+            _userPresetPUB.title = allPresets.count ? allPresets[0]:@"";
+            if(allPresets.count){
+                [self getSettingsForPreset:allPresets[0]];
+            }
+        }];
+    }];
 }
-
--(NSString *)nameOfServer{
-    return _serverNameTF.blankIsNil;
-}
-
--(NSString *)passwordForDiradmin{
-    return _diradminPassTF.blankIsNil;
-}
-
 
 #pragma mark - ODUDSQueryDelegate
+
+-(void)didAddRecord:(NSString *)record progress:(double)progress{
+    NSString *msg = [NSString stringWithFormat:@"added user %@",record];
+    [[NSApp delegate]setProgress:progress withMessage:msg];
+}
+
+-(void)didAddUser:(NSString *)user toGroup:(NSString *)group progress:(double)progress{
+    NSString *msg = [NSString stringWithFormat:@"updating %@, added user %@",group ,user];
+    [[NSApp delegate]setProgress:progress withMessage:msg];
+}
+
 //-------------------------------------------
 //  Querier Delegate
 //-------------------------------------------
--(void)didGetDSUserList:(NSArray *)dsusers{
-    [dsUserArrayController setContent:dsusers];
+
+-(void)didRecieveQueryUpdate:(id)record{
+    [[NSOperationQueue mainQueue]addOperationWithBlock:^{
+        if([record isKindOfClass:[ODUser class]]){
+            [dsUserArrayController addObject:[(ODUser*)record userName]];
+        }
+        else if ([record isKindOfClass:[ODGroup class]]){
+            [dsGroupArrayController addObject:[(ODGroup*)record groupName]];
+        }
+        else if ([record isKindOfClass:[ODPreset class]]){
+            [dsPresetArrayController addObject:[(ODPreset*)record presetName]];
+        }
+    }];
 }
 
--(void)didGetDSGroupList:(NSArray *)dsgroups{
-    [dsGroupArrayController setContent:dsgroups];
-    NSString* exg = [[NSUserDefaults standardUserDefaults]objectForKey:@"extraGroup"];
-    _extraGroupShortNameCB.stringValue = exg.isNotBlank ? exg:@"staff";
-}
-
--(void)didGetDSUserPresets:(NSArray *)dspresets{
-    dsPresetArrayController.content = dspresets;
-    _chooseUserPresetBT.title = dspresets.count ? dspresets[0]:@"Configure";
-    _userPresetPUB.title = dspresets.count ? dspresets[0]:@"";
-    ODUDirectoryConnection *service = [[ODUDirectoryConnection alloc]initWithQueryDelegate:self];
-    [service getSettingsForPreset];
-}
 
 - (void)didGetUserRecord:(NSString*)user{
     [dsUserArrayController addObject:user];
 }
 
 -(void)didGetSettingsForPreset:(ODPreset *)preset{
-    if(preset){
-        _chooseUserPresetBT.title = preset.presetName.isNotBlank ? preset.presetName:@"Configure";
-        _sharePointTF.stringValue = preset.sharePoint.isNotBlank ? preset.sharePoint:@"";
-        _sharePathTF.stringValue  = preset.sharePath.isNotBlank  ? preset.sharePath:@"";
-        _userShellTF.stringValue  = preset.userShell.isNotBlank  ? preset.userShell:@"/bin/csh";
-        _NFSPathTF.stringValue    = preset.nfsPath.isNotBlank    ? preset.nfsPath:@"";
-    }
+    [[NSOperationQueue mainQueue]addOperationWithBlock:^{
+        if(preset){
+            _chooseUserPresetBT.title = preset.presetName.isNotBlank ? preset.presetName:@"Configure";
+            _sharePointTF.stringValue = preset.sharePoint.isNotBlank ? preset.sharePoint:@"";
+            _sharePathTF.stringValue  = preset.sharePath.isNotBlank  ? preset.sharePath:@"";
+            _userShellTF.stringValue  = preset.userShell.isNotBlank  ? preset.userShell:@"/bin/csh";
+            _NFSPathTF.stringValue    = preset.nfsPath.isNotBlank    ? preset.nfsPath:@"";
+        }
+    }];
 }
 
 -(NSString *)nameOfPreset{
@@ -556,6 +625,9 @@
     }
     
     [[NSUserDefaults standardUserDefaults] setObject:_extraGroupShortNameCB.stringValue forKey:@"extraGroup"];
+}
+
+-(void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context{
 }
 
 

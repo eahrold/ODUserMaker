@@ -15,7 +15,7 @@
 @property (assign) IBOutlet NSPanel *progressPanel;
 @property (assign) IBOutlet NSProgressIndicator *progressIndicator;
 @property (assign) IBOutlet NSButton *progressCancelButtonBT;
-@property (copy) NSString *progressMessage;  // <-- this is bound
+@property (copy)            NSString *progressMessage;  // <-- this is bound
 
 //---------------------------------------------------
 // Progress Pannel
@@ -23,6 +23,9 @@
 - (void)startProgressPanelWithMessage:(NSString*)message indeterminate:(BOOL)indeterminate;
 - (void)stopProgressPanel;
 
+- (void)setProgress:(double)progress withMessage:(NSString*)message;
+- (void)setProgress:(double)progress;
 
+- (void)setProgressMsg:(NSString*)message;
 
 @end

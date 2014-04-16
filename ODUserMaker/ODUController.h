@@ -7,9 +7,8 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "ODUDirectoryConnection.h"
 
-@interface ODUController : NSObject <ODUAuthenticatorDelegate, ODUSQueryDelegate>{
+@interface ODUController : NSObject {
     IBOutlet NSArrayController *dsGroupArrayController;
     IBOutlet NSArrayController *dsUserArrayController;
     IBOutlet NSArrayController *dsPresetArrayController;
